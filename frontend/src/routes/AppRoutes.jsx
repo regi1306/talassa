@@ -14,6 +14,8 @@ import AuditoriaDetallePage from "../pages/auditoria/AuditoriaDetallePage.jsx";
 
 import DashboardPage from "../pages/dashboard/DashboardPage.jsx";
 import BuquesPage from "../pages/buques/BuquesPage.jsx";
+import FormularioBuquePage from "../pages/buques/FormularioBuquePage.jsx";
+import DetalleBuquePage from "../pages/buques/DetalleBuquePage.jsx";
 
 function AppRoutes() {
   return (
@@ -28,7 +30,10 @@ function AppRoutes() {
 
       <Route path="/dashboard" element={<DashboardPage />} />
       <Route path="/buques" element={<BuquesPage />} />
-
+      <Route path="/buques/nuevo" element={<FormularioBuquePage />} />
+      <Route path="/buques/:id" element={<DetalleBuquePage />} />
+      <Route path="/buques/:id/editar" element={<FormularioBuquePage />} />
+      
 
         <Route path="/usuarios" element={<UsuariosPage />} />
         <Route path="/usuarios/nuevo" element={<UsuarioFormPage />} />
