@@ -12,6 +12,8 @@ import CatalogosPage from "../pages/catalogos/CatalogosPage.jsx";
 import AuditoriaPage from "../pages/auditoria/AuditoriaPage.jsx";
 import AuditoriaDetallePage from "../pages/auditoria/AuditoriaDetallePage.jsx";
 
+import DashboardPage from "../pages/dashboard/DashboardPage.jsx";
+
 function AppRoutes() {
   return (
     <Routes>
@@ -22,6 +24,10 @@ function AppRoutes() {
 
       {/* Pantallas internas del sistema */}
       <Route element={<MainLayout />}>
+
+      <Route path="/dashboard" element={<DashboardPage />} />
+
+
         <Route path="/usuarios" element={<UsuariosPage />} />
         <Route path="/usuarios/nuevo" element={<UsuarioFormPage />} />
         <Route path="/usuarios/:id/editar" element={<UsuarioFormPage />} />
