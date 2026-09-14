@@ -1,0 +1,989 @@
+/* ======================================
+   PAGINA DASHBOARD
+====================================== */
+
+.pagina-dashboard {
+  position: relative;
+
+  width: 100%;
+
+  min-height: calc(100vh - 130px);
+
+  padding: 22px;
+
+  overflow: hidden;
+
+  border-radius: 28px;
+
+  isolation: isolate;
+}
+
+
+/* ======================================
+   IMAGEN GENERAL DE FONDO
+====================================== */
+
+.fondo-dashboard {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 0;
+
+  border-radius: 28px;
+
+  background:
+    linear-gradient(
+      rgba(225, 240, 250, 0.48),
+      rgba(205, 228, 242, 0.52)
+    ),
+    url("/dashboard-buque.jpg")
+      center center / cover no-repeat;
+
+  opacity: 0.92;
+
+  filter: blur(1.2px);
+
+  transform: scale(1.015);
+}
+
+.pagina-dashboard > *:not(.fondo-dashboard) {
+  position: relative;
+
+  z-index: 1;
+}
+
+
+/* ======================================
+   ENCABEZADO
+====================================== */
+
+.encabezado-dashboard {
+  margin-bottom: 25px;
+}
+
+.encabezado-dashboard h1 {
+  margin: 0;
+
+  color: var(--navy-dark);
+
+  font-size:
+    clamp(36px, 4vw, 52px);
+
+  line-height: 1;
+
+  letter-spacing: -1.8px;
+}
+
+.encabezado-dashboard p {
+  margin-top: 8px;
+
+  color: var(--text-soft);
+
+  font-size: 16px;
+}
+
+
+/* ======================================
+   ESTADISTICAS
+====================================== */
+
+.estadisticas-dashboard {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 14px;
+
+  margin-bottom: 16px;
+}
+
+.tarjeta-estadistica {
+  position: relative;
+
+  min-height: 115px;
+
+  padding: 18px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+
+  overflow: hidden;
+
+  border-radius: 18px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.72);
+
+  box-shadow: var(--shadow);
+
+  backdrop-filter: blur(18px);
+}
+
+.tarjeta-estadistica-azul {
+  background:
+    rgba(226, 241, 254, 0.76);
+}
+
+.tarjeta-estadistica-menta {
+  background:
+    rgba(224, 255, 242, 0.75);
+}
+
+.tarjeta-estadistica-roja {
+  background:
+    rgba(255, 238, 240, 0.78);
+}
+
+.icono-estadistica {
+  width: 50px;
+
+  height: 50px;
+
+  flex-shrink: 0;
+
+  display: grid;
+
+  place-items: center;
+
+  border-radius: 50%;
+
+  color: var(--navy);
+
+  background:
+    rgba(143, 197, 255, 0.30);
+}
+
+.tarjeta-estadistica-menta .icono-estadistica {
+  background:
+    rgba(172, 252, 204, 0.55);
+}
+
+.tarjeta-estadistica-roja .icono-estadistica {
+  color: var(--red);
+
+  background:
+    rgba(225, 45, 51, 0.12);
+}
+
+.contenido-estadistica {
+  display: flex;
+
+  flex-direction: column;
+
+  min-width: 0;
+}
+
+.contenido-estadistica span {
+  color: var(--navy-dark);
+
+  font-size: 13px;
+}
+
+.contenido-estadistica strong {
+  margin: 3px 0;
+
+  color: var(--navy-dark);
+
+  font-size: 39px;
+
+  line-height: 1;
+}
+
+.contenido-estadistica small {
+  color: var(--text-soft);
+
+  font-size: 11px;
+}
+
+.tendencia-estadistica {
+  position: absolute;
+
+  right: 17px;
+
+  bottom: 18px;
+
+  color: #20b878;
+}
+
+.tarjeta-estadistica-roja
+.tendencia-estadistica {
+  color: var(--red);
+}
+
+
+/* ======================================
+   ENCABEZADOS DE TARJETAS
+====================================== */
+
+.encabezado-tarjeta-dashboard {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  margin-bottom: 14px;
+}
+
+.encabezado-tarjeta-dashboard h2 {
+  margin: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 9px;
+
+  color: var(--navy-dark);
+
+  font-size: 18px;
+}
+
+.encabezado-tarjeta-dashboard button {
+  display: flex;
+
+  align-items: center;
+
+  gap: 5px;
+
+  border: none;
+
+  color: #1267c2;
+
+  background: transparent;
+
+  font-size: 12px;
+}
+
+
+/* ======================================
+   REJILLA PRINCIPAL
+====================================== */
+
+.rejilla-principal-dashboard {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.5fr)
+    minmax(310px, 0.85fr);
+
+  gap: 15px;
+
+  margin-bottom: 15px;
+}
+
+
+/* ======================================
+   OPERACION DESTACADA
+====================================== */
+
+.tarjeta-operacion-destacada {
+  padding: 18px;
+
+  overflow: hidden;
+}
+
+.contenido-operacion-destacada {
+  min-height: 215px;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(200px, 0.55fr)
+    minmax(320px, 1.1fr);
+
+  overflow: hidden;
+
+  border-radius: 16px;
+
+  background:
+    rgba(235, 247, 255, 0.52);
+}
+
+.informacion-operacion-destacada {
+  position: relative;
+
+  z-index: 2;
+
+  padding: 21px;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(235, 247, 255, 0.95),
+      rgba(235, 247, 255, 0.52)
+    );
+}
+
+.informacion-operacion-destacada h3 {
+  margin: 0;
+
+  color: var(--navy-dark);
+
+  font-size: 29px;
+}
+
+.codigo-operacion-destacada {
+  display: block;
+
+  margin: 2px 0 12px;
+
+  color: #557aa7;
+
+  font-size: 20px;
+}
+
+.estado-operacion {
+  width: fit-content;
+
+  margin-bottom: 17px;
+
+  padding: 6px 12px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  border-radius: 15px;
+
+  color: #08745d;
+
+  background:
+    rgba(172, 252, 204, 0.72);
+
+  font-size: 12px;
+}
+
+.estado-operacion span {
+  width: 8px;
+
+  height: 8px;
+
+  border-radius: 50%;
+
+  background: #20b878;
+}
+
+.detalles-operacion-destacada {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+.detalles-operacion-destacada > div {
+  display: flex;
+
+  align-items: center;
+
+  gap: 9px;
+
+  color: var(--navy);
+}
+
+.detalles-operacion-destacada div div {
+  display: flex;
+
+  flex-direction: column;
+}
+
+.detalles-operacion-destacada small {
+  color: #6e8bad;
+
+  font-size: 11px;
+}
+
+.detalles-operacion-destacada strong {
+  color: var(--navy-dark);
+
+  font-size: 14px;
+}
+
+
+/* ======================================
+   IMAGEN DEL BUQUE DESTACADO
+====================================== */
+
+.imagen-buque-destacado {
+  position: relative;
+
+  min-height: 215px;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(225, 241, 251, 0.60),
+      rgba(218, 236, 247, 0.08)
+    ),
+    url("/featured-buque.jpg")
+      center center / cover no-repeat;
+}
+
+.imagen-buque-destacado::after {
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(230, 244, 253, 0.62),
+      transparent 48%
+    );
+}
+
+
+/* ======================================
+   PROGRESO DE OPERACION
+====================================== */
+
+.progreso-operacion {
+  position: relative;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, 1fr);
+
+  padding:
+    15px 15px 0;
+
+  text-align: center;
+}
+
+.linea-progreso {
+  position: absolute;
+
+  top: 24px;
+
+  left: 12.5%;
+
+  right: 12.5%;
+
+  height: 3px;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--mint-strong) 0%,
+      var(--mint-strong) 34%,
+      #c1d5e5 34%,
+      #c1d5e5 100%
+    );
+}
+
+.paso-progreso {
+  position: relative;
+
+  z-index: 2;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  color: #6a86a8;
+}
+
+.paso-progreso > span {
+  width: 16px;
+
+  height: 16px;
+
+  margin-bottom: 7px;
+
+  border-radius: 50%;
+
+  background: white;
+
+  border:
+    2px solid #b6cada;
+}
+
+.paso-progreso.completado > span,
+.paso-progreso.actual > span {
+  background: var(--mint);
+
+  border-color: var(--mint-strong);
+}
+
+.paso-progreso.actual > span {
+  width: 21px;
+
+  height: 21px;
+
+  margin-top: -2px;
+
+  box-shadow:
+    0 0 0 5px
+    rgba(172, 252, 204, 0.28);
+}
+
+.paso-progreso small {
+  font-size: 10px;
+}
+
+.paso-progreso strong {
+  color: #527397;
+
+  font-size: 11px;
+}
+
+
+/* ======================================
+   MUELLES
+====================================== */
+
+.muelles-dashboard {
+  padding: 18px;
+}
+
+.lista-muelles {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 9px;
+}
+
+.item-muelle {
+  min-height: 69px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 10px 12px;
+
+  border-radius: 13px;
+
+  background:
+    rgba(255, 255, 255, 0.50);
+}
+
+.icono-muelle {
+  width: 38px;
+
+  height: 38px;
+
+  display: grid;
+
+  place-items: center;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  color: var(--navy);
+
+  background:
+    rgba(143, 197, 255, 0.24);
+}
+
+.informacion-muelle {
+  flex: 1;
+
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+}
+
+.informacion-muelle strong {
+  color: var(--navy-dark);
+
+  font-size: 13px;
+}
+
+.informacion-muelle span {
+  display: flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  color: #55779c;
+
+  font-size: 11px;
+}
+
+.informacion-muelle small {
+  margin-top: 2px;
+
+  color: #7892af;
+
+  font-size: 10px;
+}
+
+.punto-muelle {
+  width: 8px;
+
+  height: 8px;
+
+  border-radius: 50%;
+}
+
+.punto-muelle-verde {
+  background: #20b878;
+}
+
+.punto-muelle-rojo {
+  background: var(--red);
+}
+
+.punto-muelle-azul {
+  background: #338ae5;
+}
+
+.punto-muelle-gris {
+  background: #9cb1c5;
+}
+
+.etiqueta-muelle {
+  padding: 6px 11px;
+
+  border-radius: 13px;
+
+  white-space: nowrap;
+
+  font-size: 10px;
+}
+
+.etiqueta-muelle-verde {
+  color: #08745d;
+
+  background:
+    rgba(172, 252, 204, 0.66);
+}
+
+.etiqueta-muelle-rojo {
+  color: var(--red);
+
+  background:
+    rgba(225, 45, 51, 0.10);
+}
+
+.etiqueta-muelle-azul {
+  color: #1265bb;
+
+  background:
+    rgba(143, 197, 255, 0.26);
+}
+
+.etiqueta-muelle-gris {
+  color: #607993;
+
+  background:
+    rgba(205, 220, 232, 0.55);
+}
+
+
+/* ======================================
+   REJILLA INFERIOR
+====================================== */
+
+.rejilla-inferior-dashboard {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.15fr)
+    minmax(240px, 0.75fr)
+    minmax(270px, 0.85fr);
+
+  gap: 15px;
+}
+
+.proximas-operaciones-dashboard,
+.contenedores-dashboard,
+.actividad-dashboard {
+  padding: 16px;
+
+  min-width: 0;
+}
+
+
+/* ======================================
+   TABLA DE OPERACIONES
+====================================== */
+
+.contenedor-tabla-dashboard {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+.tabla-dashboard {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  color: #3d648c;
+
+  font-size: 11px;
+}
+
+.tabla-dashboard th {
+  padding: 8px 7px;
+
+  text-align: left;
+
+  color: #3f6085;
+
+  font-weight: 600;
+}
+
+.tabla-dashboard td {
+  padding: 9px 7px;
+
+  border-top:
+    1px solid
+    rgba(171, 199, 220, 0.38);
+}
+
+.etiqueta-estado-operacion {
+  padding: 5px 9px;
+
+  border-radius: 12px;
+
+  white-space: nowrap;
+
+  font-size: 9px;
+}
+
+.etiqueta-estado-operacion-azul {
+  color: #1168c3;
+
+  background: #d9ecfd;
+}
+
+.etiqueta-estado-operacion-naranja {
+  color: #a76c00;
+
+  background: #fff0c9;
+}
+
+
+/* ======================================
+   CONTENEDORES
+====================================== */
+
+.contenedores-dashboard > small {
+  color: var(--text-soft);
+}
+
+.total-contenedores {
+  margin: 3px 0 15px;
+
+  color: var(--navy-dark);
+
+  font-size: 36px;
+
+  font-weight: 700;
+}
+
+.barras-contenedores {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 17px;
+}
+
+.barras-contenedores > div > span {
+  display: flex;
+
+  justify-content: space-between;
+
+  margin-bottom: 7px;
+
+  color: #507296;
+
+  font-size: 11px;
+}
+
+.barras-contenedores strong {
+  color: var(--navy-dark);
+}
+
+.fondo-barra-progreso {
+  height: 8px;
+
+  overflow: hidden;
+
+  border-radius: 10px;
+
+  background: #d8e6f0;
+}
+
+.relleno-barra-progreso {
+  height: 100%;
+
+  border-radius: inherit;
+}
+
+.relleno-barra-progreso.procesados {
+  background:
+    linear-gradient(
+      90deg,
+      var(--navy),
+      var(--blue)
+    );
+}
+
+.relleno-barra-progreso.pendientes {
+  background:
+    linear-gradient(
+      90deg,
+      var(--mint-strong),
+      var(--mint)
+    );
+}
+
+
+/* ======================================
+   ACTIVIDAD RECIENTE
+====================================== */
+
+.lista-actividad {
+  display: flex;
+
+  flex-direction: column;
+}
+
+.item-actividad {
+  min-height: 50px;
+
+  display: grid;
+
+  grid-template-columns:
+    9px 1fr auto;
+
+  align-items: center;
+
+  gap: 9px;
+
+  border-bottom:
+    1px solid
+    rgba(173, 201, 222, 0.4);
+}
+
+.item-actividad:last-child {
+  border-bottom: none;
+}
+
+.punto-actividad {
+  width: 8px;
+
+  height: 8px;
+
+  border-radius: 50%;
+}
+
+.punto-actividad-verde {
+  background: #20b878;
+}
+
+.punto-actividad-azul {
+  background: #338ae5;
+}
+
+.punto-actividad-rojo {
+  background: var(--red);
+}
+
+.item-actividad > div {
+  display: flex;
+
+  flex-direction: column;
+}
+
+.item-actividad strong {
+  color: var(--navy-dark);
+
+  font-size: 10px;
+}
+
+.item-actividad small {
+  color: #738eab;
+
+  font-size: 9px;
+}
+
+.item-actividad time {
+  color: #6684a4;
+
+  font-size: 9px;
+}
+
+
+/* ======================================
+   RESPONSIVE
+====================================== */
+
+@media (max-width: 1200px) {
+
+  .estadisticas-dashboard {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .rejilla-principal-dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .rejilla-inferior-dashboard {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .actividad-dashboard {
+    grid-column:
+      1 / -1;
+  }
+}
+
+
+@media (max-width: 800px) {
+
+  .pagina-dashboard {
+    padding: 16px;
+  }
+
+  .estadisticas-dashboard,
+  .rejilla-inferior-dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .actividad-dashboard {
+    grid-column: auto;
+  }
+
+  .contenido-operacion-destacada {
+    grid-template-columns: 1fr;
+  }
+
+  .imagen-buque-destacado {
+    min-height: 190px;
+  }
+
+  .progreso-operacion {
+    overflow-x: auto;
+  }
+}

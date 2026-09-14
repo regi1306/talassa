@@ -24,10 +24,11 @@ function Sidebar() {
       </div>
 
       <nav className="sidebar-nav">
-        <div className="sidebar-link sidebar-disabled">
-          <Home size={22} />
-          <span>Dashboard</span>
-        </div>
+        
+        <NavLink to="/dashboard" className={linkClass}>
+        <Home size={22} />
+        <span>Dashboard</span>
+        </NavLink>
 
         <NavLink to="/usuarios" className={linkClass}>
           <Users size={22} />

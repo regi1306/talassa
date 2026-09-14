@@ -11,6 +11,14 @@ import {
 } from "lucide-react";
 
 function Header() {
+
+  const fechaActual =
+  new Intl.DateTimeFormat("es-SV", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(new Date());
+
   const navigate = useNavigate();
 
   const [profileOpen, setProfileOpen] =
@@ -35,7 +43,7 @@ function Header() {
         <div className="header-date">
           <CalendarDays size={19} />
 
-          <span>Hoy, 14 de abr. de 2024</span>
+          <span>Hoy, {fechaActual}</span>
         </div>
 
         <button
