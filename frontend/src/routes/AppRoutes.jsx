@@ -13,6 +13,7 @@ import AuditoriaPage from "../pages/auditoria/AuditoriaPage.jsx";
 import AuditoriaDetallePage from "../pages/auditoria/AuditoriaDetallePage.jsx";
 
 import DashboardPage from "../pages/dashboard/DashboardPage.jsx";
+import BuquesPage from "../pages/buques/BuquesPage.jsx";
 
 function AppRoutes() {
   return (
@@ -26,6 +27,7 @@ function AppRoutes() {
       <Route element={<MainLayout />}>
 
       <Route path="/dashboard" element={<DashboardPage />} />
+      <Route path="/buques" element={<BuquesPage />} />
 
 
         <Route path="/usuarios" element={<UsuariosPage />} />

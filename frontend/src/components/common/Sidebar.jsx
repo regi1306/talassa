@@ -7,6 +7,7 @@ import {
   ShieldCheck,
   Users,
   Boxes,
+  Ship,
 } from "lucide-react";
 
 function Sidebar() {
@@ -16,11 +17,7 @@ function Sidebar() {
   return (
     <aside className="sidebar">
       <div className="sidebar-brand">
-        <div className="brand-ship">🚢</div>
-
-        <div className="brand-name">
-          TALASSA
-        </div>
+        <img src="/logo-talassa.png" alt="Logo de TALASSA" className="logo-sidebar"/>
       </div>
 
       <nav className="sidebar-nav">
@@ -28,6 +25,11 @@ function Sidebar() {
         <NavLink to="/dashboard" className={linkClass}>
         <Home size={22} />
         <span>Dashboard</span>
+        </NavLink>
+
+        <NavLink to="/buques"className={linkClass}>
+        <Ship size={22} />
+        <span>Buques</span>
         </NavLink>
 
         <NavLink to="/usuarios" className={linkClass}>
