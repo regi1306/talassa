@@ -1,152 +1,650 @@
-import { useState } from "react";
 import {
-  Anchor,
+  ArrowRight,
   Eye,
   EyeOff,
+  KeyRound,
+  LoaderCircle,
   LockKeyhole,
-  UserRound,
+  ShieldCheck,
 } from "lucide-react";
+
+import { useState } from "react";
+
 import { useNavigate } from "react-router-dom";
+
+import {
+  guardarSesion,
+  iniciarSesion,
+} from "../../services/auth.service.js";
+
+import "../../styles/login.css";
+
 
 function LoginPage() {
   const navigate = useNavigate();
 
-  const [mostrarPassword, setMostrarPassword] =
+
+  /* ======================================
+     FORMULARIO
+  ====================================== */
+
+  const [form, setForm] = useState({
+    usuario: "",
+    password: "",
+    recordar: false,
+  });
+
+
+  const [errores, setErrores] =
+    useState({});
+
+
+  const [
+    mostrarPassword,
+    setMostrarPassword,
+  ] = useState(false);
+
+
+  const [loading, setLoading] =
     useState(false);
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
 
-    navigate("/usuarios");
-  };
+  const [
+    errorGeneral,
+    setErrorGeneral,
+  ] = useState("");
+
+
+  const [
+    mensajeInformativo,
+    setMensajeInformativo,
+  ] = useState("");
+
+
+  /* ======================================
+     CAMBIO DE CAMPOS
+  ====================================== */
+
+  function manejarCambio(evento) {
+    const {
+      name,
+      value,
+      type,
+      checked,
+    } = evento.target;
+
+
+    setForm((actual) => ({
+      ...actual,
+
+      [name]:
+        type === "checkbox"
+          ? checked
+          : value,
+    }));
+
+
+    setErrores((actual) => ({
+      ...actual,
+      [name]: "",
+    }));
+
+
+    setErrorGeneral("");
+
+    setMensajeInformativo("");
+  }
+
+
+  /* ======================================
+     VALIDAR FORMULARIO
+  ====================================== */
+
+  function validarFormulario() {
+    const nuevosErrores = {};
+
+
+    if (!form.usuario.trim()) {
+      nuevosErrores.usuario =
+        "Ingresa tu nombre de usuario.";
+    }
+
+
+    if (!form.password) {
+      nuevosErrores.password =
+        "Ingresa tu contraseña.";
+    }
+
+
+    setErrores(nuevosErrores);
+
+
+    return (
+      Object.keys(
+        nuevosErrores
+      ).length === 0
+    );
+  }
+
+
+  /* ======================================
+     INICIAR SESIÓN REAL
+  ====================================== */
+
+  async function manejarSubmit(evento) {
+    evento.preventDefault();
+
+
+    setErrorGeneral("");
+
+    setMensajeInformativo("");
+
+
+    if (!validarFormulario()) {
+      return;
+    }
+
+
+    try {
+      setLoading(true);
+
+
+      const respuesta =
+        await iniciarSesion(
+          form.usuario.trim(),
+          form.password
+        );
+
+
+      const {
+        token,
+        usuario,
+      } = respuesta.data;
+
+
+      guardarSesion(
+        token,
+        usuario,
+        form.recordar
+      );
+
+
+      navigate(
+        "/dashboard",
+        {
+          replace: true,
+        }
+      );
+
+    } catch (error) {
+      console.error(
+        "Error de inicio de sesión:",
+        error
+      );
+
+
+      const status =
+        error.response?.status;
+
+
+      const mensajeBackend =
+        error.response
+          ?.data
+          ?.message;
+
+
+      if (status === 401) {
+        setErrorGeneral(
+          mensajeBackend ||
+            "Usuario o contraseña incorrectos."
+        );
+      }
+
+      else if (status === 403) {
+        setErrorGeneral(
+          mensajeBackend ||
+            "La cuenta se encuentra inactiva. Contacta al administrador."
+        );
+      }
+
+      else if (
+        error.code ===
+        "ERR_NETWORK"
+      ) {
+        setErrorGeneral(
+          "No fue posible conectar con el servidor de TALASSA."
+        );
+      }
+
+      else {
+        setErrorGeneral(
+          mensajeBackend ||
+            "No fue posible iniciar sesión. Intenta nuevamente."
+        );
+      }
+
+    } finally {
+      setLoading(false);
+    }
+  }
+
+
+  /* ======================================
+     RECUPERACIÓN
+  ====================================== */
+
+  function manejarRecuperacion() {
+    setErrorGeneral("");
+
+
+    setMensajeInformativo(
+      "Para restablecer tu acceso, contacta al administrador del sistema."
+    );
+  }
+
 
   return (
-    <div className="login-screen">
-      <div className="login-background" />
+    <main className="pagina-login-talassa">
 
-      <div className="login-slogan">
+      {/* ==================================
+          FONDO
+      ================================== */}
+
+      <div className="fondo-login-talassa" />
+
+
+      {/* ==================================
+          MENSAJE SUPERIOR
+      ================================== */}
+
+      <div className="mensaje-superior-login">
+
         <span />
+
+
         <p>
-          PUERTOS MÁS INTELIGENTES
+          GESTIÓN PORTUARIA
           <br />
-          PARA UN MUNDO MÁS CONECTADO.
+          SEGURA Y CENTRALIZADA
         </p>
+
       </div>
 
-      <div className="login-panel">
-        <div className="login-logo">
-          <div className="login-ship">
-            🚢
+
+      {/* ==================================
+          CONTENIDO
+      ================================== */}
+
+      <section className="contenido-login-talassa">
+
+        {/* ================================
+            PANEL DEL LOGIN
+        ================================ */}
+
+        <article className="panel-login-talassa">
+
+          {/* LOGO */}
+
+          <div className="marca-login-talassa">
+
+            <img
+              src="/logo-talassa.png"
+              alt="TALASSA"
+            />
+
           </div>
 
-          <strong>TALASSA</strong>
-        </div>
 
-        <div className="login-title">
-          <h1>
-            Bienvenido a TALASSA
-          </h1>
+          {/* ENCABEZADO */}
 
-          <p>
-            Gestión y monitoreo de operaciones
-            portuarias.
-          </p>
-        </div>
+          <div className="encabezado-login-talassa">
 
-        <form onSubmit={handleSubmit}>
-          <label>
-            Usuario o correo
+            <h1>
+              Bienvenido
+            </h1>
 
-            <div className="login-input">
-              <UserRound size={20} />
 
-              <input
-                placeholder="Ingresa tu usuario o correo"
-              />
-            </div>
-          </label>
+            <p>
+              Ingresa tus credenciales
+              para acceder al sistema.
+            </p>
 
-          <label>
-            Contraseña
+          </div>
 
-            <div className="login-input">
-              <LockKeyhole size={20} />
 
-              <input
-                type={
-                  mostrarPassword
-                    ? "text"
-                    : "password"
+          {/* FORMULARIO */}
+
+          <form
+            className="formulario-login-talassa"
+            onSubmit={manejarSubmit}
+            noValidate
+          >
+
+            {/* USUARIO */}
+
+            <div className="campo-login-talassa">
+
+              <label htmlFor="usuario">
+                Usuario
+              </label>
+
+
+              <div
+                className={
+                  `entrada-login-talassa ${
+                    errores.usuario
+                      ? "con-error"
+                      : ""
+                  }`
                 }
-                placeholder="Ingresa tu contraseña"
-              />
+              >
+
+                <ShieldCheck size={18} />
+
+
+                <input
+                  id="usuario"
+                  name="usuario"
+                  type="text"
+                  placeholder="Ingresa tu usuario"
+                  autoComplete="username"
+                  value={form.usuario}
+                  onChange={manejarCambio}
+                  disabled={loading}
+                />
+
+              </div>
+
+
+              {errores.usuario && (
+
+                <span className="error-campo-login">
+                  {errores.usuario}
+                </span>
+
+              )}
+
+            </div>
+
+
+            {/* CONTRASEÑA */}
+
+            <div className="campo-login-talassa">
+
+              <label htmlFor="password">
+                Contraseña
+              </label>
+
+
+              <div
+                className={
+                  `entrada-login-talassa ${
+                    errores.password
+                      ? "con-error"
+                      : ""
+                  }`
+                }
+              >
+
+                <KeyRound size={18} />
+
+
+                <input
+                  id="password"
+                  name="password"
+                  type={
+                    mostrarPassword
+                      ? "text"
+                      : "password"
+                  }
+                  placeholder="Ingresa tu contraseña"
+                  autoComplete="current-password"
+                  value={form.password}
+                  onChange={manejarCambio}
+                  disabled={loading}
+                />
+
+
+                <button
+                  type="button"
+                  className="boton-ver-password-login"
+                  onClick={() =>
+                    setMostrarPassword(
+                      (actual) =>
+                        !actual
+                    )
+                  }
+                  disabled={loading}
+                  aria-label={
+                    mostrarPassword
+                      ? "Ocultar contraseña"
+                      : "Mostrar contraseña"
+                  }
+                >
+
+                  {mostrarPassword ? (
+                    <EyeOff size={17} />
+                  ) : (
+                    <Eye size={17} />
+                  )}
+
+                </button>
+
+              </div>
+
+
+              {errores.password && (
+
+                <span className="error-campo-login">
+                  {errores.password}
+                </span>
+
+              )}
+
+            </div>
+
+
+            {/* OPCIONES */}
+
+            <div className="opciones-login-talassa">
+
+              <label className="recordar-login">
+
+                <input
+                  type="checkbox"
+                  name="recordar"
+                  checked={
+                    form.recordar
+                  }
+                  onChange={
+                    manejarCambio
+                  }
+                  disabled={
+                    loading
+                  }
+                />
+
+
+                <span />
+
+
+                Recordarme
+
+              </label>
+
 
               <button
                 type="button"
-                onClick={() =>
-                  setMostrarPassword(
-                    (valor) => !valor
-                  )
+                className="boton-recuperar-login"
+                onClick={
+                  manejarRecuperacion
+                }
+                disabled={
+                  loading
                 }
               >
-                {mostrarPassword ? (
-                  <EyeOff size={19} />
-                ) : (
-                  <Eye size={19} />
-                )}
+                ¿Olvidaste tu contraseña?
               </button>
+
             </div>
-          </label>
 
-          <div className="login-options">
-            <label>
-              <input
-                type="checkbox"
-                defaultChecked
-              />
-              Recordarme en este dispositivo
-            </label>
 
-            <button type="button">
-              ¿Olvidaste tu contraseña?
+            {/* ERROR DEL BACKEND */}
+
+            {errorGeneral && (
+
+              <div className="mensaje-login-talassa">
+
+                <LockKeyhole size={17} />
+
+
+                <span>
+                  {errorGeneral}
+                </span>
+
+              </div>
+
+            )}
+
+
+            {/* MENSAJE INFORMATIVO */}
+
+            {mensajeInformativo && (
+
+              <div className="mensaje-login-talassa">
+
+                <ShieldCheck size={17} />
+
+
+                <span>
+                  {mensajeInformativo}
+                </span>
+
+              </div>
+
+            )}
+
+
+            {/* BOTÓN LOGIN */}
+
+            <button
+              type="submit"
+              className="boton-ingresar-talassa"
+              disabled={loading}
+            >
+
+              <span>
+                {loading
+                  ? "Verificando..."
+                  : "Iniciar sesión"}
+              </span>
+
+
+              {loading ? (
+
+                <LoaderCircle
+                  size={18}
+                  className="icono-cargando-login"
+                />
+
+              ) : (
+
+                <ArrowRight size={18} />
+
+              )}
+
             </button>
+
+          </form>
+
+
+          {/* SEGURIDAD */}
+
+          <div className="seguridad-login-talassa">
+
+            <div className="icono-seguridad-login">
+
+              <LockKeyhole size={15} />
+
+            </div>
+
+
+            <p>
+              Acceso protegido para
+              usuarios autorizados.
+            </p>
+
           </div>
 
-          <button className="login-submit">
-            Iniciar sesión
-            <span>→</span>
-          </button>
-        </form>
+        </article>
 
-        <div className="login-first-time">
-          <span />
-          <p>
-            ¿Primera vez en TALASSA?
-          </p>
-          <span />
-        </div>
 
-        <button className="contact-admin">
-          Contacta a tu administrador
-        </button>
-      </div>
+        {/* ================================
+            INFORMACIÓN LATERAL
+        ================================ */}
 
-      <footer className="login-footer">
-        <div>
-          <Anchor size={25} />
+        <aside className="informacion-lateral-login">
+
+          <div className="linea-lateral-login" />
+
 
           <span>
-            Conectando puertos. Moviendo el
-            mundo.
+            SISTEMA TALASSA
           </span>
+
+
+          <h2>
+            Operaciones
+            <br />
+            portuarias
+            <br />
+            conectadas.
+          </h2>
+
+
+          <p>
+            Gestión, seguimiento y control
+            de las operaciones portuarias
+            desde una experiencia
+            centralizada.
+          </p>
+
+        </aside>
+
+      </section>
+
+
+      {/* ==================================
+          FOOTER
+      ================================== */}
+
+      <footer className="footer-login-talassa">
+
+        <div>
+
+          <LockKeyhole size={13} />
+
+
+          <span>
+            Acceso seguro
+          </span>
+
         </div>
 
-        <span>
-          TALASSA © 2026
-        </span>
+
+        <div>
+
+          <span>
+            © 2026 TALASSA
+          </span>
+
+        </div>
+
       </footer>
-    </div>
+
+    </main>
   );
 }
+
 
 export default LoginPage;

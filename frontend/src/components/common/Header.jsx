@@ -6,7 +6,6 @@ import {
   ChevronDown,
   LogOut,
   Search,
-  Settings,
   UserRound,
 } from "lucide-react";
 
@@ -95,14 +94,15 @@ function Header() {
 
               <div className="profile-divider" />
 
-              <button type="button">
+              <button
+                type="button"
+                onClick={() => {
+                  setProfileOpen(false);
+                  navigate("/perfil");
+                }}
+              >
                 <UserRound size={19} />
                 Mi perfil
-              </button>
-
-              <button type="button">
-                <Settings size={19} />
-                Configuración
               </button>
 
               <div className="profile-divider" />
