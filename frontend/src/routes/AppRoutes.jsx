@@ -21,6 +21,8 @@ import OperacionesPage from "../pages/operaciones/OperacionesPage.jsx";
 import FormularioOperacionPage from "../pages/operaciones/FormularioOperacionPage.jsx";
 import DetalleOperacionPage from "../pages/operaciones/DetalleOperacionPage.jsx";
 
+import PerfilPage from "../pages/perfil/PerfilPage";
+
 function AppRoutes() {
   return (
     <Routes>
@@ -45,6 +47,7 @@ function AppRoutes() {
         <Route path="/usuarios" element={<UsuariosPage />} />
         <Route path="/usuarios/nuevo" element={<UsuarioFormPage />} />
         <Route path="/usuarios/:id/editar" element={<UsuarioFormPage />} />
+        <Route path="/perfil" element={<PerfilPage />}/>
 
         <Route path="/roles" element={<RolesPermisosPage />} />
 

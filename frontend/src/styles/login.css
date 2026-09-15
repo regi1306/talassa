@@ -1,0 +1,978 @@
+/* ======================================
+   PAGINA LOGIN
+====================================== */
+
+.pagina-login-talassa {
+  position: relative;
+
+  width: 100%;
+
+  min-height: 100vh;
+
+  overflow: hidden;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  isolation: isolate;
+}
+
+
+/* ======================================
+   FONDO
+====================================== */
+
+.fondo-login-talassa {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: -2;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(221, 238, 249, 0.88) 0%,
+      rgba(213, 233, 246, 0.75) 38%,
+      rgba(192, 219, 237, 0.35) 70%,
+      rgba(13, 59, 142, 0.10) 100%
+    ),
+    url("/port-bg.jpg")
+      center center / cover no-repeat;
+
+  transform:
+    scale(1.01);
+}
+
+
+.fondo-login-talassa::after {
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  background:
+    linear-gradient(
+      120deg,
+      rgba(237, 248, 255, 0.45),
+      rgba(188, 219, 239, 0.12)
+    );
+
+  backdrop-filter:
+    blur(1.5px);
+}
+
+
+/* ======================================
+   MENSAJE SUPERIOR
+====================================== */
+
+.mensaje-superior-login {
+  position: absolute;
+
+  top: 55px;
+
+  right: 7%;
+
+  display: flex;
+
+  align-items:
+    flex-start;
+
+  gap: 17px;
+
+  color:
+    rgba(
+      47,
+      89,
+      130,
+      0.80
+    );
+}
+
+
+.mensaje-superior-login span {
+  width: 50px;
+
+  height: 2px;
+
+  margin-top: 8px;
+
+  background:
+    var(--navy);
+}
+
+
+.mensaje-superior-login p {
+  margin: 0;
+
+  font-size: 9px;
+
+  line-height: 1.7;
+
+  letter-spacing:
+    2.5px;
+
+  font-weight: 600;
+}
+
+
+/* ======================================
+   CONTENIDO
+====================================== */
+
+.contenido-login-talassa {
+  width:
+    min(
+      1250px,
+      calc(100% - 80px)
+    );
+
+  margin:
+    0 auto;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(
+      390px,
+      540px
+    )
+    minmax(
+      300px,
+      1fr
+    );
+
+  align-items: center;
+
+  gap: 90px;
+}
+
+
+/* ======================================
+   PANEL LOGIN
+====================================== */
+
+.panel-login-talassa {
+  width: 100%;
+
+  padding:
+    36px 44px 32px;
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.78
+    );
+
+  border-radius: 25px;
+
+  background:
+    rgba(
+      243,
+      250,
+      255,
+      0.78
+    );
+
+  backdrop-filter:
+    blur(24px);
+
+  box-shadow:
+    0 20px 55px
+    rgba(
+      32,
+      72,
+      108,
+      0.14
+    );
+}
+
+
+/* ======================================
+   LOGO
+====================================== */
+
+.marca-login-talassa {
+  display: flex;
+
+  justify-content: center;
+
+  margin-bottom: 16px;
+}
+
+
+.marca-login-talassa img {
+  width: 160px;
+
+  max-width: 65%;
+
+  height: auto;
+
+  object-fit: contain;
+}
+
+
+/* ======================================
+   TITULO
+====================================== */
+
+.encabezado-login-talassa {
+  margin-bottom: 26px;
+
+  text-align: center;
+}
+
+
+.encabezado-login-talassa h1 {
+  margin: 0;
+
+  color:
+    var(--navy-dark);
+
+  font-size: 32px;
+
+  line-height: 1;
+
+  letter-spacing:
+    -0.8px;
+}
+
+
+.encabezado-login-talassa p {
+  margin:
+    8px 0 0;
+
+  color:
+    var(--text-soft);
+
+  font-size: 12px;
+}
+
+
+/* ======================================
+   FORMULARIO
+====================================== */
+
+.formulario-login-talassa {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 18px;
+}
+
+
+.campo-login-talassa {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 7px;
+}
+
+
+.campo-login-talassa label {
+  color: #315a82;
+
+  font-size: 11px;
+
+  font-weight: 600;
+}
+
+
+/* ======================================
+   INPUT
+====================================== */
+
+.entrada-login-talassa {
+  min-height: 51px;
+
+  padding:
+    0 14px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  border:
+    1px solid
+    rgba(
+      127,
+      162,
+      192,
+      0.23
+    );
+
+  border-radius: 14px;
+
+  color: #6383a3;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.62
+    );
+
+  transition:
+    border 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+
+.entrada-login-talassa:focus-within {
+  border-color:
+    rgba(
+      13,
+      59,
+      142,
+      0.42
+    );
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.88
+    );
+
+  box-shadow:
+    0 0 0 3px
+    rgba(
+      143,
+      197,
+      255,
+      0.18
+    );
+}
+
+
+.entrada-login-talassa.con-error {
+  border-color:
+    rgba(
+      225,
+      45,
+      51,
+      0.48
+    );
+
+  box-shadow:
+    0 0 0 3px
+    rgba(
+      225,
+      45,
+      51,
+      0.06
+    );
+}
+
+
+.entrada-login-talassa input {
+  width: 100%;
+
+  min-width: 0;
+
+  border: none;
+
+  outline: none;
+
+  color:
+    var(--navy-dark);
+
+  background:
+    transparent;
+
+  font-family: inherit;
+
+  font-size: 12px;
+}
+
+
+.entrada-login-talassa
+input::placeholder {
+  color: #91a7ba;
+}
+
+
+/* ======================================
+   VER CONTRASEÑA
+====================================== */
+
+.boton-ver-password-login {
+  width: 31px;
+
+  height: 31px;
+
+  flex-shrink: 0;
+
+  display: grid;
+
+  place-items: center;
+
+  border: none;
+
+  border-radius: 8px;
+
+  color: #557796;
+
+  background: transparent;
+
+  cursor: pointer;
+}
+
+
+.boton-ver-password-login:hover {
+  background:
+    rgba(
+      143,
+      197,
+      255,
+      0.15
+    );
+}
+
+
+/* ======================================
+   ERRORES
+====================================== */
+
+.error-campo-login {
+  color: #b94047;
+
+  font-size: 9px;
+}
+
+
+/* ======================================
+   OPCIONES
+====================================== */
+
+.opciones-login-talassa {
+  display: flex;
+
+  align-items: center;
+
+  justify-content:
+    space-between;
+
+  gap: 12px;
+
+  margin-top: -2px;
+}
+
+
+.recordar-login {
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  color: #537493;
+
+  font-size: 10px;
+
+  cursor: pointer;
+}
+
+
+.recordar-login input {
+  position: absolute;
+
+  opacity: 0;
+}
+
+
+.recordar-login > span {
+  position: relative;
+
+  width: 17px;
+
+  height: 17px;
+
+  display: block;
+
+  border:
+    1px solid
+    #98b0c5;
+
+  border-radius: 5px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.70
+    );
+}
+
+
+.recordar-login
+input:checked
++ span {
+  border-color:
+    var(--navy);
+
+  background:
+    var(--navy);
+}
+
+
+.recordar-login
+input:checked
++ span::after {
+  content: "";
+
+  position: absolute;
+
+  left: 5px;
+
+  top: 2px;
+
+  width: 4px;
+
+  height: 8px;
+
+  border: solid white;
+
+  border-width:
+    0 2px 2px 0;
+
+  transform:
+    rotate(45deg);
+}
+
+
+.boton-recuperar-login {
+  padding: 0;
+
+  border: none;
+
+  color: #126dc5;
+
+  background:
+    transparent;
+
+  font-family: inherit;
+
+  font-size: 10px;
+
+  cursor: pointer;
+}
+
+
+.boton-recuperar-login:hover {
+  text-decoration:
+    underline;
+}
+
+
+/* ======================================
+   MENSAJE
+====================================== */
+
+.mensaje-login-talassa {
+  padding:
+    11px 12px;
+
+  display: flex;
+
+  align-items:
+    flex-start;
+
+  gap: 8px;
+
+  border:
+    1px solid
+    rgba(
+      143,
+      197,
+      255,
+      0.28
+    );
+
+  border-radius: 11px;
+
+  color: #3d6790;
+
+  background:
+    rgba(
+      226,
+      241,
+      254,
+      0.70
+    );
+
+  font-size: 10px;
+
+  line-height: 1.45;
+}
+
+
+.mensaje-login-talassa svg {
+  flex-shrink: 0;
+}
+
+
+/* ======================================
+   BOTON INGRESAR
+====================================== */
+
+.boton-ingresar-talassa {
+  min-height: 52px;
+
+  margin-top: 1px;
+
+  padding:
+    0 20px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content:
+    space-between;
+
+  gap: 12px;
+
+  border: none;
+
+  border-radius: 13px;
+
+  color: white;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--navy),
+      #115db0
+    );
+
+  box-shadow:
+    0 10px 22px
+    rgba(
+      13,
+      59,
+      142,
+      0.20
+    );
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.boton-ingresar-talassa:hover:not(:disabled) {
+  transform:
+    translateY(-1px);
+
+  box-shadow:
+    0 13px 26px
+    rgba(
+      13,
+      59,
+      142,
+      0.27
+    );
+}
+
+
+.boton-ingresar-talassa:disabled {
+  opacity: 0.65;
+
+  cursor: not-allowed;
+}
+
+
+/* ======================================
+   SEGURIDAD
+====================================== */
+
+.seguridad-login-talassa {
+  margin-top: 24px;
+
+  padding-top: 18px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 8px;
+
+  border-top:
+    1px solid
+    rgba(
+      151,
+      182,
+      206,
+      0.28
+    );
+
+  color: #6e89a5;
+}
+
+
+.icono-seguridad-login {
+  width: 29px;
+
+  height: 29px;
+
+  display: grid;
+
+  place-items: center;
+
+  border-radius: 9px;
+
+  color:
+    var(--navy);
+
+  background:
+    rgba(
+      143,
+      197,
+      255,
+      0.19
+    );
+}
+
+
+.seguridad-login-talassa p {
+  margin: 0;
+
+  font-size: 9px;
+}
+
+
+/* ======================================
+   INFORMACION LATERAL
+====================================== */
+
+.informacion-lateral-login {
+  max-width: 390px;
+
+  padding-top: 70px;
+
+  color:
+    var(--navy-dark);
+}
+
+
+.linea-lateral-login {
+  width: 55px;
+
+  height: 3px;
+
+  margin-bottom: 20px;
+
+  border-radius: 4px;
+
+  background:
+    var(--navy);
+}
+
+
+.informacion-lateral-login
+> span {
+  color: #54789d;
+
+  font-size: 9px;
+
+  font-weight: 600;
+
+  letter-spacing:
+    3px;
+}
+
+
+.informacion-lateral-login h2 {
+  margin:
+    13px 0 16px;
+
+  color:
+    var(--navy-dark);
+
+  font-size:
+    clamp(
+      37px,
+      4vw,
+      57px
+    );
+
+  line-height: 0.97;
+
+  letter-spacing:
+    -2px;
+}
+
+
+.informacion-lateral-login p {
+  max-width: 320px;
+
+  margin: 0;
+
+  color: #547494;
+
+  font-size: 12px;
+
+  line-height: 1.65;
+}
+
+
+/* ======================================
+   FOOTER
+====================================== */
+
+.footer-login-talassa {
+  position: absolute;
+
+  left: 5%;
+
+  right: 5%;
+
+  bottom: 27px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content:
+    space-between;
+
+  color:
+    rgba(
+      44,
+      82,
+      119,
+      0.74
+    );
+
+  font-size: 9px;
+}
+
+
+.footer-login-talassa
+> div {
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+}
+
+
+/* ======================================
+   CARGANDO
+====================================== */
+
+.icono-cargando-login {
+  animation:
+    girar-login
+    0.9s linear infinite;
+}
+
+
+@keyframes girar-login {
+  to {
+    transform:
+      rotate(360deg);
+  }
+}
+
+
+/* ======================================
+   RESPONSIVE
+====================================== */
+
+@media (max-width: 950px) {
+
+  .contenido-login-talassa {
+    width:
+      min(
+        560px,
+        calc(100% - 40px)
+      );
+
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .informacion-lateral-login,
+  .mensaje-superior-login {
+    display: none;
+  }
+
+}
+
+
+@media (max-width: 600px) {
+
+  .pagina-login-talassa {
+    justify-content:
+      flex-start;
+
+    padding:
+      35px 0 80px;
+  }
+
+
+  .contenido-login-talassa {
+    width:
+      calc(100% - 28px);
+  }
+
+
+  .panel-login-talassa {
+    padding:
+      28px 20px;
+  }
+
+
+  .marca-login-talassa img {
+    width: 140px;
+  }
+
+
+  .opciones-login-talassa {
+    align-items:
+      flex-start;
+
+    flex-direction:
+      column;
+  }
+
+
+  .footer-login-talassa {
+    left: 20px;
+
+    right: 20px;
+
+    bottom: 18px;
+  }
+
+}

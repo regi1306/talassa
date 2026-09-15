@@ -1,0 +1,1076 @@
+/* ======================================
+   PAGINA
+====================================== */
+
+.pagina-roles {
+  position: relative;
+
+  width: 100%;
+
+  min-height:
+    calc(100vh - 130px);
+
+  padding: 22px;
+
+  overflow: hidden;
+
+  border-radius: 28px;
+
+  isolation: isolate;
+}
+
+
+/* ======================================
+   FONDO
+====================================== */
+
+.fondo-roles {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 0;
+
+  border-radius: 28px;
+
+  background:
+    linear-gradient(
+      rgba(228, 241, 250, 0.68),
+      rgba(213, 231, 242, 0.72)
+    ),
+    url("/dashboard-buque.jpg")
+      center center / cover no-repeat;
+
+  filter:
+    blur(1px);
+
+  transform:
+    scale(1.015);
+}
+
+
+.pagina-roles
+> *:not(.fondo-roles) {
+  position: relative;
+
+  z-index: 1;
+}
+
+
+/* ======================================
+   ENCABEZADO
+====================================== */
+
+.encabezado-roles {
+  margin-bottom: 24px;
+}
+
+
+.encabezado-roles h1 {
+  margin: 0;
+
+  color:
+    var(--navy-dark);
+
+  font-size:
+    clamp(
+      34px,
+      4vw,
+      50px
+    );
+
+  line-height: 1;
+
+  letter-spacing:
+    -1.7px;
+}
+
+
+.encabezado-roles p {
+  margin:
+    8px 0 0;
+
+  color:
+    var(--text-soft);
+
+  font-size: 14px;
+}
+
+
+/* ======================================
+   RESUMEN
+====================================== */
+
+.resumen-roles {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap: 14px;
+
+  margin-bottom: 16px;
+}
+
+
+.tarjeta-resumen-rol {
+  min-height: 105px;
+
+  padding: 17px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.72
+    );
+
+  border-radius: 18px;
+
+  box-shadow:
+    var(--shadow);
+
+  backdrop-filter:
+    blur(18px);
+}
+
+
+.tarjeta-resumen-rol.azul {
+  background:
+    rgba(
+      226,
+      241,
+      254,
+      0.82
+    );
+}
+
+
+.tarjeta-resumen-rol.menta {
+  background:
+    rgba(
+      224,
+      255,
+      242,
+      0.80
+    );
+}
+
+
+.tarjeta-resumen-rol.blanco {
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.78
+    );
+}
+
+
+.icono-resumen-rol {
+  width: 47px;
+
+  height: 47px;
+
+  flex-shrink: 0;
+
+  display: grid;
+
+  place-items: center;
+
+  border-radius: 50%;
+
+  color:
+    var(--navy);
+
+  background:
+    rgba(
+      143,
+      197,
+      255,
+      0.28
+    );
+}
+
+
+.tarjeta-resumen-rol.menta
+.icono-resumen-rol {
+  color: #08745d;
+
+  background:
+    rgba(
+      172,
+      252,
+      204,
+      0.58
+    );
+}
+
+
+.tarjeta-resumen-rol
+> div:last-child {
+  display: flex;
+
+  flex-direction: column;
+}
+
+
+.tarjeta-resumen-rol span {
+  color:
+    var(--navy-dark);
+
+  font-size: 12px;
+}
+
+
+.tarjeta-resumen-rol strong {
+  margin:
+    2px 0;
+
+  color:
+    var(--navy-dark);
+
+  font-size: 32px;
+
+  line-height: 1;
+}
+
+
+.tarjeta-resumen-rol small {
+  color:
+    var(--text-soft);
+
+  font-size: 10px;
+}
+
+
+/* ======================================
+   REJILLA PRINCIPAL
+====================================== */
+
+.rejilla-roles-permisos {
+  display: grid;
+
+  grid-template-columns:
+    minmax(250px, 0.72fr)
+    minmax(0, 2fr);
+
+  gap: 15px;
+
+  align-items: start;
+}
+
+
+/* ======================================
+   LISTADO ROLES
+====================================== */
+
+.tarjeta-listado-roles {
+  padding: 18px;
+}
+
+
+.titulo-listado-roles {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-bottom: 16px;
+
+  color:
+    var(--navy);
+}
+
+
+.titulo-listado-roles
+> div {
+  display: flex;
+
+  flex-direction: column;
+}
+
+
+.titulo-listado-roles h2 {
+  margin: 0;
+
+  color:
+    var(--navy-dark);
+
+  font-size: 18px;
+}
+
+
+.titulo-listado-roles span {
+  color: #7892ad;
+
+  font-size: 10px;
+}
+
+
+.lista-roles {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 9px;
+}
+
+
+.item-rol {
+  width: 100%;
+
+  min-height: 82px;
+
+  padding: 12px;
+
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 11px;
+
+  border:
+    1px solid
+    rgba(
+      128,
+      162,
+      191,
+      0.15
+    );
+
+  border-radius: 14px;
+
+  text-align: left;
+
+  color: #4d7195;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.45
+    );
+
+  font-family: inherit;
+
+  cursor: pointer;
+
+  transition:
+    border 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.item-rol:hover {
+  transform:
+    translateY(-1px);
+
+  background:
+    rgba(
+      244,
+      250,
+      255,
+      0.72
+    );
+}
+
+
+.item-rol.seleccionado {
+  border-color:
+    rgba(
+      13,
+      59,
+      142,
+      0.25
+    );
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(
+        218,
+        236,
+        252,
+        0.92
+      ),
+      rgba(
+        236,
+        246,
+        253,
+        0.82
+      )
+    );
+
+  box-shadow:
+    0 8px 20px
+    rgba(
+      30,
+      78,
+      120,
+      0.08
+    );
+}
+
+
+.icono-item-rol {
+  width: 36px;
+
+  height: 36px;
+
+  flex-shrink: 0;
+
+  display: grid;
+
+  place-items: center;
+
+  border-radius: 11px;
+
+  color:
+    var(--navy);
+
+  background:
+    rgba(
+      143,
+      197,
+      255,
+      0.23
+    );
+}
+
+
+.item-rol.seleccionado
+.icono-item-rol {
+  color: white;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--navy),
+      #3075bb
+    );
+}
+
+
+.contenido-item-rol {
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+
+.contenido-item-rol strong {
+  color:
+    var(--navy-dark);
+
+  font-size: 12px;
+}
+
+
+.contenido-item-rol span {
+  color: #718ba5;
+
+  font-size: 9px;
+
+  line-height: 1.4;
+}
+
+
+.contenido-item-rol small {
+  margin-top: 3px;
+
+  color: #4c779d;
+
+  font-size: 9px;
+
+  font-weight: 600;
+}
+
+
+/* ======================================
+   TARJETA PERMISOS
+====================================== */
+
+.tarjeta-permisos {
+  min-width: 0;
+
+  padding: 19px;
+}
+
+
+.encabezado-permisos {
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  margin-bottom: 17px;
+}
+
+
+.encabezado-permisos h2 {
+  margin: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  color:
+    var(--navy-dark);
+
+  font-size: 19px;
+}
+
+
+.rol-seleccionado-permisos {
+  margin-top: 7px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+
+.rol-seleccionado-permisos strong {
+  padding:
+    5px 10px;
+
+  border-radius: 12px;
+
+  color: #1265bb;
+
+  background:
+    rgba(
+      143,
+      197,
+      255,
+      0.24
+    );
+
+  font-size: 10px;
+}
+
+
+.rol-seleccionado-permisos span {
+  color: #7892ad;
+
+  font-size: 10px;
+}
+
+
+/* ======================================
+   LEYENDA
+====================================== */
+
+.leyenda-permisos {
+  display: flex;
+
+  gap: 13px;
+
+  color: #6f89a3;
+
+  font-size: 9px;
+}
+
+
+.leyenda-permisos span {
+  display: flex;
+
+  align-items: center;
+
+  gap: 5px;
+}
+
+
+.leyenda-permisos i {
+  width: 9px;
+
+  height: 9px;
+
+  border-radius: 3px;
+}
+
+
+.permiso-activo {
+  background:
+    #1676d2;
+}
+
+
+.permiso-inactivo {
+  border:
+    1px solid #98adbf;
+
+  background: white;
+}
+
+
+/* ======================================
+   MÓDULOS
+====================================== */
+
+.rejilla-modulos-permisos {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap: 11px;
+}
+
+
+.modulo-permisos {
+  min-height: 180px;
+
+  padding: 14px;
+
+  border:
+    1px solid
+    rgba(
+      150,
+      182,
+      208,
+      0.15
+    );
+
+  border-radius: 14px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.48
+    );
+}
+
+
+.encabezado-modulo-permisos {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 8px;
+
+  margin-bottom: 13px;
+}
+
+
+.encabezado-modulo-permisos
+> div {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+}
+
+
+.icono-modulo-permisos {
+  width: 34px;
+
+  height: 34px;
+
+  display: grid;
+
+  place-items: center;
+
+  flex-shrink: 0;
+
+  border-radius: 10px;
+
+  color:
+    var(--navy);
+
+  background:
+    rgba(
+      143,
+      197,
+      255,
+      0.21
+    );
+}
+
+
+.encabezado-modulo-permisos strong {
+  color:
+    var(--navy-dark);
+
+  font-size: 11px;
+}
+
+
+.encabezado-modulo-permisos button {
+  padding: 0;
+
+  border: none;
+
+  color: #3274b4;
+
+  background: transparent;
+
+  font-family: inherit;
+
+  font-size: 8px;
+
+  cursor: pointer;
+}
+
+
+/* ======================================
+   CHECKBOXES
+====================================== */
+
+.lista-permisos {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 7px;
+}
+
+
+.opcion-permiso {
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  color: #718ba4;
+
+  font-size: 9px;
+
+  cursor: pointer;
+}
+
+
+.opcion-permiso input {
+  position: absolute;
+
+  opacity: 0;
+
+  pointer-events: none;
+}
+
+
+.checkbox-personalizado {
+  width: 17px;
+
+  height: 17px;
+
+  flex-shrink: 0;
+
+  display: grid;
+
+  place-items: center;
+
+  border:
+    1px solid
+    #9eb3c6;
+
+  border-radius: 5px;
+
+  color: white;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.75
+    );
+}
+
+
+.opcion-permiso.seleccionada
+.checkbox-personalizado {
+  border-color:
+    #1676d2;
+
+  background:
+    linear-gradient(
+      135deg,
+      #1877d4,
+      #0d5fae
+    );
+}
+
+
+.opcion-permiso.seleccionada {
+  color: #42698f;
+}
+
+
+/* ======================================
+   MENSAJE ÉXITO
+====================================== */
+
+.mensaje-exito-permisos {
+  margin-top: 16px;
+
+  padding:
+    11px 13px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  border:
+    1px solid
+    rgba(
+      32,
+      184,
+      120,
+      0.16
+    );
+
+  border-radius: 12px;
+
+  color: #08745d;
+
+  background:
+    rgba(
+      220,
+      255,
+      239,
+      0.82
+    );
+
+  font-size: 10px;
+}
+
+
+/* ======================================
+   ACCIONES
+====================================== */
+
+.acciones-permisos {
+  margin-top: 18px;
+
+  padding-top: 17px;
+
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  border-top:
+    1px solid
+    rgba(
+      151,
+      182,
+      206,
+      0.28
+    );
+}
+
+
+.boton-restablecer-permisos,
+.boton-guardar-permisos {
+  min-height: 41px;
+
+  padding:
+    0 16px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 7px;
+
+  border-radius: 11px;
+
+  font-family: inherit;
+
+  font-size: 11px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+
+.boton-restablecer-permisos {
+  border:
+    1px solid
+    rgba(
+      90,
+      129,
+      165,
+      0.22
+    );
+
+  color: #557493;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.68
+    );
+}
+
+
+.boton-guardar-permisos {
+  border: none;
+
+  color: white;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--navy),
+      #185baa
+    );
+
+  box-shadow:
+    0 8px 20px
+    rgba(
+      13,
+      59,
+      142,
+      0.18
+    );
+}
+
+
+.boton-restablecer-permisos:disabled,
+.boton-guardar-permisos:disabled {
+  opacity: 0.58;
+
+  cursor: not-allowed;
+}
+
+
+/* ======================================
+   CARGANDO
+====================================== */
+
+.icono-girando-permisos {
+  animation:
+    girar-permisos
+    0.9s linear infinite;
+}
+
+
+@keyframes girar-permisos {
+  to {
+    transform:
+      rotate(360deg);
+  }
+}
+
+
+/* ======================================
+   RESPONSIVE
+====================================== */
+
+@media (max-width: 1200px) {
+
+  .rejilla-modulos-permisos {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+}
+
+
+@media (max-width: 950px) {
+
+  .resumen-roles {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .rejilla-roles-permisos {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .lista-roles {
+    display: grid;
+
+    grid-template-columns:
+      repeat(3, 1fr);
+  }
+
+}
+
+
+@media (max-width: 700px) {
+
+  .pagina-roles {
+    padding: 16px;
+  }
+
+
+  .lista-roles,
+  .rejilla-modulos-permisos {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .encabezado-permisos {
+    flex-direction:
+      column;
+  }
+
+
+  .leyenda-permisos {
+    flex-wrap: wrap;
+  }
+
+
+  .acciones-permisos {
+    flex-direction:
+      column-reverse;
+  }
+
+
+  .boton-restablecer-permisos,
+  .boton-guardar-permisos {
+    width: 100%;
+  }
+
+}

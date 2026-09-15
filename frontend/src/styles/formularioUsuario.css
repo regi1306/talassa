@@ -1,0 +1,880 @@
+/* ======================================
+   PAGINA
+====================================== */
+
+.pagina-formulario-usuario {
+  width: 100%;
+
+  min-height:
+    calc(100vh - 130px);
+
+  padding: 24px;
+
+  border-radius: 28px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f5fafe 0%,
+      #eaf4fa 52%,
+      #e3f0f8 100%
+    );
+
+  box-shadow:
+    inset 0 0 0 1px
+    rgba(
+      255,
+      255,
+      255,
+      0.65
+    );
+}
+
+
+/* ======================================
+   ENCABEZADO
+====================================== */
+
+.encabezado-formulario-usuario {
+  margin-bottom: 22px;
+}
+
+
+.boton-volver-usuarios {
+  margin-bottom: 18px;
+
+  padding: 8px 0;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  border: none;
+
+  color: #426f9c;
+
+  background: transparent;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  cursor: pointer;
+}
+
+
+.boton-volver-usuarios:hover {
+  color:
+    var(--navy);
+}
+
+
+.encabezado-formulario-usuario h1 {
+  margin: 0;
+
+  color:
+    var(--navy-dark);
+
+  font-size:
+    clamp(
+      32px,
+      3.5vw,
+      45px
+    );
+
+  line-height: 1;
+
+  letter-spacing:
+    -1.3px;
+}
+
+
+.encabezado-formulario-usuario p {
+  margin:
+    8px 0 0;
+
+  color:
+    var(--text-soft);
+
+  font-size: 14px;
+}
+
+
+/* ======================================
+   FORMULARIO
+====================================== */
+
+.formulario-usuario {
+  max-width: 1080px;
+
+  margin:
+    0 auto;
+
+  padding: 28px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.77
+    );
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.92
+    );
+
+  box-shadow:
+    0 18px 45px
+    rgba(
+      45,
+      91,
+      130,
+      0.10
+    );
+
+  backdrop-filter:
+    blur(18px);
+}
+
+
+/* ======================================
+   SECCIONES
+====================================== */
+
+.seccion-formulario-usuario {
+  width: 100%;
+}
+
+
+.titulo-seccion-usuario {
+  margin-bottom: 20px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+}
+
+
+.icono-seccion-usuario {
+  width: 42px;
+
+  height: 42px;
+
+  flex-shrink: 0;
+
+  display: grid;
+
+  place-items: center;
+
+  border-radius: 13px;
+
+  color:
+    var(--navy);
+
+  background:
+    rgba(
+      143,
+      197,
+      255,
+      0.25
+    );
+}
+
+
+.titulo-seccion-usuario h2 {
+  margin: 0;
+
+  color:
+    var(--navy-dark);
+
+  font-size: 18px;
+}
+
+
+.titulo-seccion-usuario p {
+  margin:
+    3px 0 0;
+
+  color: #7892ad;
+
+  font-size: 11px;
+}
+
+
+.separador-formulario-usuario {
+  width: 100%;
+
+  height: 1px;
+
+  margin:
+    28px 0;
+
+  background:
+    rgba(
+      151,
+      182,
+      206,
+      0.32
+    );
+}
+
+
+/* ======================================
+   REJILLA
+====================================== */
+
+.rejilla-formulario-usuario {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap:
+    20px 22px;
+}
+
+
+/* ======================================
+   CAMPOS
+====================================== */
+
+.campo-formulario-usuario {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 7px;
+}
+
+
+.campo-formulario-usuario label {
+  display: flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  color: #395f85;
+
+  font-size: 12px;
+
+  font-weight: 600;
+}
+
+
+.campo-formulario-usuario
+label > span {
+  color:
+    var(--red);
+}
+
+
+.entrada-usuario {
+  min-height: 46px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 9px;
+
+  padding:
+    0 13px;
+
+  border:
+    1px solid
+    rgba(
+      128,
+      162,
+      191,
+      0.26
+    );
+
+  border-radius: 13px;
+
+  color: #6483a3;
+
+  background:
+    rgba(
+      247,
+      251,
+      254,
+      0.90
+    );
+
+  transition:
+    border 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+
+.entrada-usuario:focus-within {
+  border-color:
+    rgba(
+      13,
+      59,
+      142,
+      0.40
+    );
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.98
+    );
+
+  box-shadow:
+    0 0 0 3px
+    rgba(
+      143,
+      197,
+      255,
+      0.16
+    );
+}
+
+
+.entrada-usuario.con-error {
+  border-color:
+    rgba(
+      225,
+      45,
+      51,
+      0.50
+    );
+
+  box-shadow:
+    0 0 0 3px
+    rgba(
+      225,
+      45,
+      51,
+      0.07
+    );
+}
+
+
+.entrada-usuario input,
+.entrada-usuario select {
+  width: 100%;
+
+  min-width: 0;
+
+  border: none;
+
+  outline: none;
+
+  color: #31597e;
+
+  background:
+    transparent;
+
+  font-family: inherit;
+
+  font-size: 12px;
+}
+
+
+.entrada-usuario input::placeholder {
+  color: #9aadc0;
+}
+
+
+.entrada-usuario select {
+  cursor: pointer;
+}
+
+
+/* ======================================
+   BOTÓN MOSTRAR PASSWORD
+====================================== */
+
+.boton-ver-password {
+  width: 30px;
+
+  height: 30px;
+
+  flex-shrink: 0;
+
+  display: grid;
+
+  place-items: center;
+
+  border: none;
+
+  border-radius: 8px;
+
+  color: #54789c;
+
+  background: transparent;
+
+  cursor: pointer;
+}
+
+
+.boton-ver-password:hover {
+  background:
+    rgba(
+      143,
+      197,
+      255,
+      0.16
+    );
+}
+
+
+/* ======================================
+   AVISO CONTRASEÑA
+====================================== */
+
+.aviso-password-usuario {
+  margin-bottom: 18px;
+
+  padding:
+    11px 13px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 9px;
+
+  border:
+    1px solid
+    rgba(
+      143,
+      197,
+      255,
+      0.24
+    );
+
+  border-radius: 12px;
+
+  color: #3f6b94;
+
+  background:
+    rgba(
+      226,
+      241,
+      254,
+      0.60
+    );
+}
+
+
+.aviso-password-usuario p {
+  margin: 0;
+
+  font-size: 10px;
+
+  line-height: 1.5;
+}
+
+
+/* ======================================
+   ESTADO
+====================================== */
+
+.selector-estado-usuario-formulario {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap: 9px;
+}
+
+
+.opcion-estado-usuario {
+  min-height: 46px;
+
+  padding:
+    0 14px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  border:
+    1px solid
+    rgba(
+      128,
+      162,
+      191,
+      0.26
+    );
+
+  border-radius: 13px;
+
+  color: #5f7d9c;
+
+  background:
+    rgba(
+      247,
+      251,
+      254,
+      0.90
+    );
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  cursor: pointer;
+}
+
+
+.opcion-estado-usuario i {
+  width: 9px;
+
+  height: 9px;
+
+  border-radius: 50%;
+
+  background: #a9bacb;
+}
+
+
+.opcion-estado-usuario.activo.seleccionado {
+  color: #08745d;
+
+  border-color:
+    rgba(
+      32,
+      184,
+      120,
+      0.30
+    );
+
+  background:
+    rgba(
+      220,
+      255,
+      239,
+      0.82
+    );
+}
+
+
+.opcion-estado-usuario.activo.seleccionado i {
+  background:
+    #20b878;
+}
+
+
+.opcion-estado-usuario.inactivo.seleccionado {
+  color: #a43a40;
+
+  border-color:
+    rgba(
+      225,
+      45,
+      51,
+      0.24
+    );
+
+  background:
+    rgba(
+      255,
+      232,
+      234,
+      0.82
+    );
+}
+
+
+.opcion-estado-usuario.inactivo.seleccionado i {
+  background:
+    var(--red);
+}
+
+
+/* ======================================
+   VALIDACIONES
+====================================== */
+
+.mensaje-error-campo-usuario {
+  color: #bd444a;
+
+  font-size: 10px;
+}
+
+
+.mensaje-error-usuario-formulario,
+.mensaje-exito-usuario-formulario,
+.mensaje-informativo-usuario {
+  margin-top: 20px;
+
+  padding:
+    12px 14px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  border-radius: 12px;
+
+  font-size: 11px;
+}
+
+
+.mensaje-error-usuario-formulario {
+  color: #a63c42;
+
+  border:
+    1px solid
+    rgba(
+      225,
+      45,
+      51,
+      0.16
+    );
+
+  background:
+    rgba(
+      255,
+      232,
+      234,
+      0.80
+    );
+}
+
+
+.mensaje-exito-usuario-formulario {
+  color: #08745d;
+
+  border:
+    1px solid
+    rgba(
+      32,
+      184,
+      120,
+      0.16
+    );
+
+  background:
+    rgba(
+      220,
+      255,
+      239,
+      0.86
+    );
+}
+
+
+.mensaje-informativo-usuario {
+  min-height: 120px;
+
+  justify-content: center;
+
+  color: #3f6b94;
+
+  background:
+    rgba(
+      226,
+      241,
+      254,
+      0.72
+    );
+}
+
+
+/* ======================================
+   ACCIONES
+====================================== */
+
+.acciones-formulario-usuario {
+  margin-top: 30px;
+
+  padding-top: 22px;
+
+  display: flex;
+
+  justify-content:
+    flex-end;
+
+  gap: 11px;
+
+  border-top:
+    1px solid
+    rgba(
+      151,
+      182,
+      206,
+      0.28
+    );
+}
+
+
+.boton-cancelar-usuario,
+.boton-guardar-usuario {
+  min-height: 43px;
+
+  padding:
+    0 18px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 8px;
+
+  border-radius: 12px;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+
+.boton-cancelar-usuario {
+  border:
+    1px solid
+    rgba(
+      90,
+      129,
+      165,
+      0.24
+    );
+
+  color: #537493;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.70
+    );
+}
+
+
+.boton-guardar-usuario {
+  border: none;
+
+  color: white;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--navy),
+      #185baa
+    );
+
+  box-shadow:
+    0 8px 20px
+    rgba(
+      13,
+      59,
+      142,
+      0.18
+    );
+}
+
+
+.boton-guardar-usuario:hover:not(:disabled) {
+  transform:
+    translateY(-1px);
+}
+
+
+.boton-cancelar-usuario:disabled,
+.boton-guardar-usuario:disabled {
+  opacity: 0.58;
+
+  cursor: not-allowed;
+}
+
+
+/* ======================================
+   CARGANDO
+====================================== */
+
+.icono-girando-usuario {
+  animation:
+    girar-formulario-usuario
+    0.9s linear infinite;
+}
+
+
+@keyframes girar-formulario-usuario {
+  to {
+    transform:
+      rotate(360deg);
+  }
+}
+
+
+/* ======================================
+   RESPONSIVE
+====================================== */
+
+@media (max-width: 850px) {
+
+  .rejilla-formulario-usuario {
+    grid-template-columns:
+      1fr;
+  }
+
+}
+
+
+@media (max-width: 600px) {
+
+  .pagina-formulario-usuario {
+    padding: 16px;
+  }
+
+
+  .formulario-usuario {
+    padding: 20px;
+  }
+
+
+  .selector-estado-usuario-formulario {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .acciones-formulario-usuario {
+    flex-direction:
+      column-reverse;
+  }
+
+
+  .boton-cancelar-usuario,
+  .boton-guardar-usuario {
+    width: 100%;
+  }
+
+}

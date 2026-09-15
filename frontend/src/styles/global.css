@@ -288,6 +288,9 @@ a {
 ====================================== */
 
 .header {
+  position: relative;
+  z-index: 1000;
+
   height: 74px;
 
   display: flex;
@@ -310,6 +313,8 @@ a {
   box-shadow:
     0 6px 25px
     rgba(23, 64, 104, 0.07);
+
+  overflow: visible;
 }
 
 .header-search {
