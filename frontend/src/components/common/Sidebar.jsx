@@ -32,6 +32,11 @@ function Sidebar() {
         <span>Buques</span>
         </NavLink>
 
+        <NavLink to="/operaciones" className={linkClass}>
+        <ClipboardList size={22} />
+        <span>Operaciones</span>
+        </NavLink>
+
         <NavLink to="/usuarios" className={linkClass}>
           <Users size={22} />
           <span>Usuarios</span>
