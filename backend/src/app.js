@@ -13,9 +13,13 @@ import operacionesRoutes
 import muellesRoutes
   from "./routes/muelles.routes.js";
 
+  import inspeccionesRoutes from "./routes/inspecciones.routes.js";
+
+  import incidenciasRoutes from "./routes/incidencias.routes.js";
 import pool
   from "./config/db.js";
 
+  
 
 const app =
   express();
@@ -30,7 +34,9 @@ app.use(
 );
 
 app.use(
-  express.json()
+  express.json({
+    limit: "15mb",
+  })
 );
 
 
@@ -59,6 +65,15 @@ app.use(
   muellesRoutes
 );
 
+app.use(
+  "/api/inspecciones",
+  inspeccionesRoutes
+);
+
+app.use(
+  "/api/incidencias",
+  incidenciasRoutes
+);
 
 /* ======================================
    RUTAS DE REGINA
