@@ -880,6 +880,38 @@ tbody tr:hover {
 
 
 /* ======================================
+   ACCIONES ACTIVAR / DESACTIVAR
+====================================== */
+
+.acciones-usuario
+.accion-desactivar-usuario {
+  color: #a44046;
+
+  background:
+    rgba(
+      255,
+      238,
+      240,
+      0.72
+    );
+}
+
+
+.acciones-usuario
+.accion-activar-usuario {
+  color: #08745d;
+
+  background:
+    rgba(
+      224,
+      255,
+      242,
+      0.76
+    );
+}
+
+
+/* ======================================
    CARGANDO
 ====================================== */
 
@@ -925,20 +957,609 @@ tbody tr:hover {
 
 
 /* ======================================
-   RESPONSIVE
+   MENSAJE ERROR LISTADO
+====================================== */
+
+.mensaje-error-listado-usuarios {
+  margin-bottom: 14px;
+
+  padding: 11px 13px;
+
+  border:
+    1px solid
+    rgba(
+      225,
+      45,
+      51,
+      0.17
+    );
+
+  border-radius: 12px;
+
+  color: #a63c42;
+
+  background:
+    rgba(
+      255,
+      232,
+      234,
+      0.84
+    );
+
+  font-size: 11px;
+}
+
+
+/* ======================================
+   FONDO DE MODALES
+====================================== */
+
+.modal-fondo-usuarios {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 5000;
+
+  padding: 22px;
+
+  display: grid;
+
+  place-items: center;
+
+  background:
+    rgba(
+      11,
+      34,
+      58,
+      0.34
+    );
+
+  backdrop-filter:
+    blur(6px);
+}
+
+
+/* ======================================
+   MODAL DETALLE
+====================================== */
+
+.modal-usuario {
+  width:
+    min(
+      100%,
+      570px
+    );
+
+  max-height:
+    calc(100vh - 44px);
+
+  overflow-y: auto;
+
+  padding: 24px;
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.86
+    );
+
+  border-radius: 22px;
+
+  background:
+    rgba(
+      247,
+      252,
+      255,
+      0.96
+    );
+
+  box-shadow:
+    0 26px 70px
+    rgba(
+      12,
+      50,
+      84,
+      0.25
+    );
+}
+
+
+.encabezado-modal-usuario {
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  margin-bottom: 22px;
+}
+
+
+.encabezado-modal-usuario
+span {
+  color: #7b95ad;
+
+  font-size: 10px;
+}
+
+
+.encabezado-modal-usuario
+h2 {
+  margin:
+    3px 0 0;
+
+  color:
+    var(--navy-dark);
+
+  font-size: 24px;
+}
+
+
+.encabezado-modal-usuario
+> button {
+  width: 34px;
+
+  height: 34px;
+
+  display: grid;
+
+  place-items: center;
+
+  border:
+    1px solid
+    rgba(
+      110,
+      148,
+      184,
+      0.18
+    );
+
+  border-radius: 10px;
+
+  color: #54789c;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.78
+    );
+
+  cursor: pointer;
+}
+
+
+/* ======================================
+   IDENTIDAD MODAL
+====================================== */
+
+.identidad-modal-usuario {
+  padding: 17px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 13px;
+
+  border-radius: 16px;
+
+  background:
+    rgba(
+      226,
+      241,
+      254,
+      0.62
+    );
+}
+
+
+.avatar-modal-usuario {
+  width: 48px;
+
+  height: 48px;
+
+  flex-shrink: 0;
+
+  display: grid;
+
+  place-items: center;
+
+  border-radius: 50%;
+
+  color: white;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--navy),
+      var(--blue)
+    );
+
+  font-size: 12px;
+
+  font-weight: 700;
+}
+
+
+.identidad-modal-usuario
+h3 {
+  margin: 0;
+
+  color:
+    var(--navy-dark);
+
+  font-size: 17px;
+}
+
+
+.identidad-modal-usuario
+span {
+  color: #7490aa;
+
+  font-size: 10px;
+}
+
+
+/* ======================================
+   DATOS MODAL
+====================================== */
+
+.datos-modal-usuario {
+  margin-top: 16px;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap: 10px;
+}
+
+
+.datos-modal-usuario
+> div {
+  min-width: 0;
+
+  padding: 13px;
+
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 9px;
+
+  border:
+    1px solid
+    rgba(
+      128,
+      162,
+      191,
+      0.18
+    );
+
+  border-radius: 13px;
+
+  color: #567b9e;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.67
+    );
+}
+
+
+.datos-modal-usuario
+section {
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+
+.datos-modal-usuario
+span {
+  color: #8499ad;
+
+  font-size: 9px;
+}
+
+
+.datos-modal-usuario
+strong {
+  overflow-wrap:
+    anywhere;
+
+  color: #365f86;
+
+  font-size: 11px;
+}
+
+
+/* ======================================
+   ACCIONES MODAL DETALLE
+====================================== */
+
+.acciones-modal-usuario {
+  margin-top: 20px;
+
+  display: flex;
+
+  justify-content: flex-end;
+}
+
+
+.boton-cerrar-modal-usuario {
+  min-height: 40px;
+
+  padding:
+    0 18px;
+
+  border: none;
+
+  border-radius: 11px;
+
+  color: white;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--navy),
+      #185baa
+    );
+
+  font-family: inherit;
+
+  font-size: 11px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+
+/* ======================================
+   MODAL CONFIRMACIÓN
+====================================== */
+
+.modal-confirmacion-usuario {
+  width:
+    min(
+      100%,
+      430px
+    );
+
+  padding: 27px;
+
+  text-align: center;
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.88
+    );
+
+  border-radius: 22px;
+
+  background:
+    rgba(
+      249,
+      253,
+      255,
+      0.97
+    );
+
+  box-shadow:
+    0 26px 70px
+    rgba(
+      12,
+      50,
+      84,
+      0.25
+    );
+}
+
+
+.icono-confirmacion-usuario {
+  width: 58px;
+
+  height: 58px;
+
+  margin:
+    0 auto 15px;
+
+  display: grid;
+
+  place-items: center;
+
+  border-radius: 50%;
+}
+
+
+.icono-confirmacion-usuario.desactivar {
+  color: #a44046;
+
+  background:
+    rgba(
+      225,
+      45,
+      51,
+      0.11
+    );
+}
+
+
+.icono-confirmacion-usuario.activar {
+  color: #08745d;
+
+  background:
+    rgba(
+      32,
+      184,
+      120,
+      0.12
+    );
+}
+
+
+.modal-confirmacion-usuario
+h2 {
+  margin:
+    0 0 10px;
+
+  color:
+    var(--navy-dark);
+
+  font-size: 21px;
+}
+
+
+.modal-confirmacion-usuario
+p {
+  margin:
+    0 auto;
+
+  max-width: 340px;
+
+  color: #6d88a3;
+
+  font-size: 11px;
+
+  line-height: 1.7;
+}
+
+
+.modal-confirmacion-usuario
+p strong {
+  color: #365f86;
+}
+
+
+/* ======================================
+   BOTONES CONFIRMACIÓN
+====================================== */
+
+.acciones-confirmacion-usuario {
+  margin-top: 23px;
+
+  display: flex;
+
+  justify-content: center;
+
+  gap: 10px;
+}
+
+
+.boton-cancelar-modal-usuario,
+.boton-confirmar-desactivar,
+.boton-confirmar-activar {
+  min-height: 41px;
+
+  padding:
+    0 17px;
+
+  border-radius: 11px;
+
+  font-family: inherit;
+
+  font-size: 11px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+
+.boton-cancelar-modal-usuario {
+  border:
+    1px solid
+    rgba(
+      90,
+      129,
+      165,
+      0.24
+    );
+
+  color: #537493;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.80
+    );
+}
+
+
+.boton-confirmar-desactivar {
+  border: none;
+
+  color: white;
+
+  background: #b9444a;
+}
+
+
+.boton-confirmar-activar {
+  border: none;
+
+  color: white;
+
+  background: #13805f;
+}
+
+
+.boton-cancelar-modal-usuario:disabled,
+.boton-confirmar-desactivar:disabled,
+.boton-confirmar-activar:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+
+/* ======================================
+   RESPONSIVE GENERAL
 ====================================== */
 
 @media (max-width: 1200px) {
 
   .resumen-usuarios {
     grid-template-columns:
-      repeat(2, 1fr);
+      repeat(
+        2,
+        1fr
+      );
   }
 
 
   .filtros-usuarios {
     grid-template-columns:
-      repeat(2, 1fr);
+      repeat(
+        2,
+        1fr
+      );
   }
 
 
@@ -949,6 +1570,10 @@ tbody tr:hover {
 
 }
 
+
+/* ======================================
+   RESPONSIVE MOVIL
+====================================== */
 
 @media (max-width: 760px) {
 
@@ -979,7 +1604,8 @@ tbody tr:hover {
 
 
   .buscador-usuarios {
-    grid-column: auto;
+    grid-column:
+      auto;
   }
 
 
@@ -1006,6 +1632,44 @@ tbody tr:hover {
 
     justify-content:
       center;
+  }
+
+}
+
+
+/* ======================================
+   RESPONSIVE MODALES
+====================================== */
+
+@media (max-width: 600px) {
+
+  .modal-fondo-usuarios {
+    padding: 14px;
+  }
+
+
+  .modal-usuario,
+  .modal-confirmacion-usuario {
+    padding: 20px;
+  }
+
+
+  .datos-modal-usuario {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .acciones-confirmacion-usuario {
+    flex-direction:
+      column;
+  }
+
+
+  .boton-cancelar-modal-usuario,
+  .boton-confirmar-desactivar,
+  .boton-confirmar-activar {
+    width: 100%;
   }
 
 }

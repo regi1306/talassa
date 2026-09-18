@@ -1,17 +1,25 @@
 import {
+  AtSign,
+  CalendarDays,
   Eye,
   Filter,
+  LockKeyhole,
+  Mail,
   Pencil,
   Plus,
+  Power,
   RefreshCw,
   Search,
   ShieldCheck,
+  UserCheck,
   UserRound,
   Users,
   UserX,
+  X,
 } from "lucide-react";
 
 import {
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -20,88 +28,31 @@ import {
   useNavigate,
 } from "react-router-dom";
 
+import {
+  cambiarEstadoUsuario,
+  listarUsuarios,
+} from "../../services/usuarios.service.js";
+
+import {
+  cerrarSesion,
+} from "../../services/auth.service.js";
+
 import "../../styles/usuarios.css";
 
 
-/* ======================================
-   DATOS TEMPORALES
-
-   Más adelante serán sustituidos
-   por datos provenientes de la API.
-====================================== */
-
-const usuariosIniciales = [
-  {
-    id_usuario: 1,
-    nombres: "Regina",
-    apellidos: "Cadenas",
-    correo: "regina.cadenas@talassa.com",
-    usuario: "regina.cadenas",
-    rol: "Administrador",
-    activo: true,
-    ultimo_acceso: "Hoy, 09:24",
-  },
-  {
-    id_usuario: 2,
-    nombres: "Carlos",
-    apellidos: "Romero",
-    correo: "carlos.romero@talassa.com",
-    usuario: "carlos.romero",
-    rol: "Operador portuario",
-    activo: true,
-    ultimo_acceso: "Hoy, 08:17",
-  },
-  {
-    id_usuario: 3,
-    nombres: "María",
-    apellidos: "López",
-    correo: "maria.lopez@talassa.com",
-    usuario: "maria.lopez",
-    rol: "Inspector",
-    activo: true,
-    ultimo_acceso: "Ayer, 17:36",
-  },
-  {
-    id_usuario: 4,
-    nombres: "José",
-    apellidos: "Martínez",
-    correo: "jose.martinez@talassa.com",
-    usuario: "jose.martinez",
-    rol: "Operador portuario",
-    activo: false,
-    ultimo_acceso: "Hace 5 días",
-  },
-  {
-    id_usuario: 5,
-    nombres: "Sofía",
-    apellidos: "Torres",
-    correo: "sofia.torres@talassa.com",
-    usuario: "sofia.torres",
-    rol: "Inspector",
-    activo: true,
-    ultimo_acceso: "Hoy, 11:03",
-  },
-  {
-    id_usuario: 6,
-    nombres: "Andrés",
-    apellidos: "Ruiz",
-    correo: "andres.ruiz@talassa.com",
-    usuario: "andres.ruiz",
-    rol: "Operador portuario",
-    activo: false,
-    ultimo_acceso: "Hace 12 días",
-  },
-];
-
-
 function UsuariosPage() {
-  const navigate = useNavigate();
+  const navigate =
+    useNavigate();
 
+
+  /* ======================================
+     ESTADOS
+  ====================================== */
 
   const [
     usuarios,
     setUsuarios,
-  ] = useState(usuariosIniciales);
+  ] = useState([]);
 
 
   const [
@@ -125,61 +76,249 @@ function UsuariosPage() {
   const [
     cargando,
     setCargando,
+  ] = useState(true);
+
+
+  const [
+    error,
+    setError,
+  ] = useState("");
+
+
+  const [
+    usuarioDetalle,
+    setUsuarioDetalle,
+  ] = useState(null);
+
+
+  const [
+    usuarioEstado,
+    setUsuarioEstado,
+  ] = useState(null);
+
+
+  const [
+    procesandoEstado,
+    setProcesandoEstado,
   ] = useState(false);
 
 
-  const usuariosFiltrados = useMemo(() => {
-    const texto =
-      busqueda
-        .trim()
-        .toLowerCase();
+  /* ======================================
+     CARGAR AL ABRIR LA PÁGINA
+  ====================================== */
+
+  useEffect(() => {
+    let componenteActivo =
+      true;
 
 
-    return usuarios.filter((usuario) => {
-      const nombreCompleto =
-        `${usuario.nombres} ${usuario.apellidos}`
+    async function cargarInicial() {
+      try {
+        const respuesta =
+          await listarUsuarios();
+
+
+        if (!componenteActivo) {
+          return;
+        }
+
+
+        setUsuarios(
+          respuesta.data || []
+        );
+
+
+      } catch (error) {
+        console.error(
+          "Error al cargar usuarios:",
+          error
+        );
+
+
+        if (!componenteActivo) {
+          return;
+        }
+
+
+        if (
+          error.response?.status ===
+          401
+        ) {
+          cerrarSesion();
+
+
+          navigate(
+            "/login",
+            {
+              replace: true,
+            }
+          );
+
+
+          return;
+        }
+
+
+        setError(
+          error.response?.data?.message
+          ||
+          "No fue posible cargar los usuarios."
+        );
+
+
+      } finally {
+        if (componenteActivo) {
+          setCargando(false);
+        }
+      }
+    }
+
+
+    cargarInicial();
+
+
+    return () => {
+      componenteActivo =
+        false;
+    };
+
+  }, [navigate]);
+
+
+  /* ======================================
+     ACTUALIZAR LISTADO
+  ====================================== */
+
+  async function cargarUsuarios() {
+    try {
+      setCargando(true);
+
+      setError("");
+
+
+      const respuesta =
+        await listarUsuarios();
+
+
+      setUsuarios(
+        respuesta.data || []
+      );
+
+
+    } catch (error) {
+      console.error(
+        "Error al actualizar usuarios:",
+        error
+      );
+
+
+      if (
+        error.response?.status ===
+        401
+      ) {
+        cerrarSesion();
+
+
+        navigate(
+          "/login",
+          {
+            replace: true,
+          }
+        );
+
+
+        return;
+      }
+
+
+      setError(
+        error.response?.data?.message
+        ||
+        "No fue posible actualizar los usuarios."
+      );
+
+
+    } finally {
+      setCargando(false);
+    }
+  }
+
+
+  /* ======================================
+     FILTROS
+  ====================================== */
+
+  const usuariosFiltrados =
+    useMemo(() => {
+      const texto =
+        busqueda
+          .trim()
           .toLowerCase();
 
 
-      const coincideBusqueda =
-        !texto ||
-        nombreCompleto.includes(texto) ||
-        usuario.correo
-          .toLowerCase()
-          .includes(texto) ||
-        usuario.usuario
-          .toLowerCase()
-          .includes(texto);
+      return usuarios.filter(
+        (usuario) => {
+          const nombreCompleto =
+            `${usuario.nombres} ${usuario.apellidos}`
+              .toLowerCase();
 
 
-      const coincideRol =
-        !filtroRol ||
-        usuario.rol === filtroRol;
+          const coincideBusqueda =
+            !texto
+            ||
+            nombreCompleto.includes(
+              texto
+            )
+            ||
+            usuario.correo
+              .toLowerCase()
+              .includes(texto)
+            ||
+            usuario.usuario
+              .toLowerCase()
+              .includes(texto);
 
 
-      const coincideEstado =
-        !filtroEstado ||
-        String(usuario.activo) ===
-          filtroEstado;
+          const coincideRol =
+            !filtroRol
+            ||
+            usuario.rol ===
+              filtroRol;
 
 
-      return (
-        coincideBusqueda &&
-        coincideRol &&
-        coincideEstado
+          const coincideEstado =
+            !filtroEstado
+            ||
+            String(
+              usuario.activo
+            ) === filtroEstado;
+
+
+          return (
+            coincideBusqueda
+            &&
+            coincideRol
+            &&
+            coincideEstado
+          );
+        }
       );
-    });
-  }, [
-    usuarios,
-    busqueda,
-    filtroRol,
-    filtroEstado,
-  ]);
+    }, [
+      usuarios,
+      busqueda,
+      filtroRol,
+      filtroEstado,
+    ]);
 
+
+  /* ======================================
+     RESUMEN
+  ====================================== */
 
   const totalActivos =
     usuarios.filter(
-      (usuario) => usuario.activo
+      (usuario) =>
+        usuario.activo
     ).length;
 
 
@@ -196,31 +335,125 @@ function UsuariosPage() {
     ).length;
 
 
+  /* ======================================
+     UTILIDADES
+  ====================================== */
+
   function limpiarFiltros() {
     setBusqueda("");
+
     setFiltroRol("");
+
     setFiltroEstado("");
   }
 
 
-  function actualizarUsuarios() {
-    setCargando(true);
-
-    setTimeout(() => {
-      setUsuarios(
-        [...usuariosIniciales]
-      );
-
-      setCargando(false);
-    }, 500);
+  function obtenerIniciales(
+    usuario
+  ) {
+    return (
+      `${usuario.nombres?.charAt(0) || ""}${usuario.apellidos?.charAt(0) || ""}`
+        .toUpperCase()
+    );
   }
 
 
-  function obtenerIniciales(usuario) {
-    return (
-      `${usuario.nombres.charAt(0)}${usuario.apellidos.charAt(0)}`
-        .toUpperCase()
+  function formatearFecha(
+    fecha
+  ) {
+    if (!fecha) {
+      return "Sin registro";
+    }
+
+
+    return new Intl.DateTimeFormat(
+      "es-SV",
+      {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }
+    ).format(
+      new Date(fecha)
     );
+  }
+
+
+  function formatearFechaHora(
+    fecha
+  ) {
+    if (!fecha) {
+      return "Sin acceso";
+    }
+
+
+    return new Intl.DateTimeFormat(
+      "es-SV",
+      {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }
+    ).format(
+      new Date(fecha)
+    );
+  }
+
+
+  /* ======================================
+     CAMBIAR ESTADO
+  ====================================== */
+
+  async function confirmarCambioEstado() {
+    if (!usuarioEstado) {
+      return;
+    }
+
+
+    const nuevoEstado =
+      !usuarioEstado.activo;
+
+
+    try {
+      setProcesandoEstado(true);
+
+      setError("");
+
+
+      await cambiarEstadoUsuario(
+        usuarioEstado.id_usuario,
+        nuevoEstado
+      );
+
+
+      setUsuarioEstado(null);
+
+
+      await cargarUsuarios();
+
+
+    } catch (error) {
+      console.error(
+        "Error al cambiar estado:",
+        error
+      );
+
+
+      setError(
+        error.response?.data?.message
+        ||
+        "No fue posible cambiar el estado del usuario."
+      );
+
+
+      setUsuarioEstado(null);
+
+
+    } finally {
+      setProcesandoEstado(false);
+    }
   }
 
 
@@ -241,14 +474,17 @@ function UsuariosPage() {
       <div className="encabezado-usuarios">
 
         <div>
+
           <h1>
             Usuarios
           </h1>
+
 
           <p>
             Administra las cuentas y accesos
             de los usuarios de TALASSA.
           </p>
+
         </div>
 
 
@@ -256,12 +492,16 @@ function UsuariosPage() {
           type="button"
           className="boton-nuevo-usuario"
           onClick={() =>
-            navigate("/usuarios/nuevo")
+            navigate(
+              "/usuarios/nuevo"
+            )
           }
         >
+
           <Plus size={19} />
 
           Nuevo usuario
+
         </button>
 
       </div>
@@ -281,6 +521,7 @@ function UsuariosPage() {
 
 
           <div>
+
             <span>
               Total de usuarios
             </span>
@@ -292,6 +533,7 @@ function UsuariosPage() {
             <small>
               Cuentas registradas
             </small>
+
           </div>
 
         </article>
@@ -305,6 +547,7 @@ function UsuariosPage() {
 
 
           <div>
+
             <span>
               Usuarios activos
             </span>
@@ -316,6 +559,7 @@ function UsuariosPage() {
             <small>
               Con acceso habilitado
             </small>
+
           </div>
 
         </article>
@@ -329,6 +573,7 @@ function UsuariosPage() {
 
 
           <div>
+
             <span>
               Usuarios inactivos
             </span>
@@ -340,6 +585,7 @@ function UsuariosPage() {
             <small>
               Sin acceso al sistema
             </small>
+
           </div>
 
         </article>
@@ -353,6 +599,7 @@ function UsuariosPage() {
 
 
           <div>
+
             <span>
               Administradores
             </span>
@@ -364,6 +611,7 @@ function UsuariosPage() {
             <small>
               Cuentas administrativas
             </small>
+
           </div>
 
         </article>
@@ -377,15 +625,16 @@ function UsuariosPage() {
 
       <article className="glass-card tarjeta-listado-usuarios">
 
-
         <div className="encabezado-listado-usuarios">
 
           <div>
 
             <h2>
+
               <Users size={21} />
 
               Listado de usuarios
+
             </h2>
 
 
@@ -407,20 +656,30 @@ function UsuariosPage() {
               type="button"
               className="boton-roles-usuarios"
               onClick={() =>
-                navigate("/roles")
+                navigate(
+                  "/roles"
+                )
               }
             >
+
               <ShieldCheck size={17} />
 
               Roles y permisos
+
             </button>
 
 
             <button
               type="button"
               className="boton-actualizar-usuarios"
-              onClick={actualizarUsuarios}
+              onClick={
+                cargarUsuarios
+              }
+              disabled={
+                cargando
+              }
             >
+
               <RefreshCw
                 size={17}
                 className={
@@ -431,6 +690,7 @@ function UsuariosPage() {
               />
 
               Actualizar
+
             </button>
 
           </div>
@@ -451,11 +711,14 @@ function UsuariosPage() {
 
             <input
               type="text"
-              value={busqueda}
-              onChange={(evento) =>
-                setBusqueda(
-                  evento.target.value
-                )
+              value={
+                busqueda
+              }
+              onChange={
+                (evento) =>
+                  setBusqueda(
+                    evento.target.value
+                  )
               }
               placeholder="Buscar por nombre, usuario o correo..."
             />
@@ -469,13 +732,17 @@ function UsuariosPage() {
 
 
             <select
-              value={filtroRol}
-              onChange={(evento) =>
-                setFiltroRol(
-                  evento.target.value
-                )
+              value={
+                filtroRol
+              }
+              onChange={
+                (evento) =>
+                  setFiltroRol(
+                    evento.target.value
+                  )
               }
             >
+
               <option value="">
                 Todos los roles
               </option>
@@ -491,6 +758,7 @@ function UsuariosPage() {
               <option value="Inspector">
                 Inspector
               </option>
+
             </select>
 
           </div>
@@ -499,13 +767,17 @@ function UsuariosPage() {
           <div className="campo-filtro-usuarios">
 
             <select
-              value={filtroEstado}
-              onChange={(evento) =>
-                setFiltroEstado(
-                  evento.target.value
-                )
+              value={
+                filtroEstado
+              }
+              onChange={
+                (evento) =>
+                  setFiltroEstado(
+                    evento.target.value
+                  )
               }
             >
+
               <option value="">
                 Todos los estados
               </option>
@@ -517,6 +789,7 @@ function UsuariosPage() {
               <option value="false">
                 Inactivos
               </option>
+
             </select>
 
           </div>
@@ -525,7 +798,9 @@ function UsuariosPage() {
           <button
             type="button"
             className="boton-limpiar-usuarios"
-            onClick={limpiarFiltros}
+            onClick={
+              limpiarFiltros
+            }
           >
             Limpiar
           </button>
@@ -534,10 +809,24 @@ function UsuariosPage() {
 
 
         {/* ======================================
+            ERROR
+        ====================================== */}
+
+        {error && (
+
+          <div className="mensaje-error-listado-usuarios">
+            {error}
+          </div>
+
+        )}
+
+
+        {/* ======================================
             CARGANDO
         ====================================== */}
 
         {cargando && (
+
           <div className="estado-carga-usuarios">
 
             <RefreshCw
@@ -546,10 +835,11 @@ function UsuariosPage() {
             />
 
             <span>
-              Actualizando usuarios...
+              Cargando usuarios...
             </span>
 
           </div>
+
         )}
 
 
@@ -558,6 +848,7 @@ function UsuariosPage() {
         ====================================== */}
 
         {!cargando && (
+
           <div className="contenedor-tabla-usuarios">
 
             <table className="tabla-usuarios">
@@ -565,12 +856,31 @@ function UsuariosPage() {
               <thead>
 
                 <tr>
-                  <th>Usuario</th>
-                  <th>Correo</th>
-                  <th>Rol</th>
-                  <th>Estado</th>
-                  <th>Último acceso</th>
-                  <th>Acciones</th>
+
+                  <th>
+                    Usuario
+                  </th>
+
+                  <th>
+                    Correo
+                  </th>
+
+                  <th>
+                    Rol
+                  </th>
+
+                  <th>
+                    Estado
+                  </th>
+
+                  <th>
+                    Último acceso
+                  </th>
+
+                  <th>
+                    Acciones
+                  </th>
+
                 </tr>
 
               </thead>
@@ -602,27 +912,38 @@ function UsuariosPage() {
                         }
                       >
 
+                        {/* USUARIO */}
+
                         <td>
 
                           <div className="usuario-tabla">
 
                             <div className="avatar-usuario-tabla">
+
                               {obtenerIniciales(
                                 usuario
                               )}
+
                             </div>
 
 
                             <div>
 
                               <strong>
+
                                 {usuario.nombres}
+
                                 {" "}
+
                                 {usuario.apellidos}
+
                               </strong>
 
+
                               <small>
+
                                 @{usuario.usuario}
+
                               </small>
 
                             </div>
@@ -632,10 +953,14 @@ function UsuariosPage() {
                         </td>
 
 
+                        {/* CORREO */}
+
                         <td>
                           {usuario.correo}
                         </td>
 
+
+                        {/* ROL */}
 
                         <td>
 
@@ -645,6 +970,8 @@ function UsuariosPage() {
 
                         </td>
 
+
+                        {/* ESTADO */}
 
                         <td>
 
@@ -667,22 +994,41 @@ function UsuariosPage() {
                         </td>
 
 
+                        {/* ÚLTIMO ACCESO */}
+
                         <td>
-                          {usuario.ultimo_acceso}
+
+                          {formatearFechaHora(
+                            usuario.ultimo_acceso
+                          )}
+
                         </td>
 
+
+                        {/* ACCIONES */}
 
                         <td>
 
                           <div className="acciones-usuario">
 
+                            {/* VER */}
+
                             <button
                               type="button"
                               title="Ver usuario"
+                              onClick={() =>
+                                setUsuarioDetalle(
+                                  usuario
+                                )
+                              }
                             >
+
                               <Eye size={17} />
+
                             </button>
 
+
+                            {/* EDITAR */}
 
                             <button
                               type="button"
@@ -693,7 +1039,43 @@ function UsuariosPage() {
                                 )
                               }
                             >
+
                               <Pencil size={16} />
+
+                            </button>
+
+
+                            {/* ACTIVAR / DESACTIVAR */}
+
+                            <button
+                              type="button"
+                              className={
+                                usuario.activo
+                                  ? "accion-desactivar-usuario"
+                                  : "accion-activar-usuario"
+                              }
+                              title={
+                                usuario.activo
+                                  ? "Desactivar usuario"
+                                  : "Reactivar usuario"
+                              }
+                              onClick={() =>
+                                setUsuarioEstado(
+                                  usuario
+                                )
+                              }
+                            >
+
+                              {usuario.activo ? (
+
+                                <Power size={17} />
+
+                              ) : (
+
+                                <UserCheck size={17} />
+
+                              )}
+
                             </button>
 
                           </div>
@@ -712,9 +1094,405 @@ function UsuariosPage() {
             </table>
 
           </div>
+
         )}
 
       </article>
+
+
+      {/* ======================================
+          MODAL DETALLE
+      ====================================== */}
+
+      {usuarioDetalle && (
+
+        <div
+          className="modal-fondo-usuarios"
+          onMouseDown={(evento) => {
+
+            if (
+              evento.target ===
+              evento.currentTarget
+            ) {
+              setUsuarioDetalle(
+                null
+              );
+            }
+
+          }}
+        >
+
+          <article className="modal-usuario">
+
+            <div className="encabezado-modal-usuario">
+
+              <div>
+
+                <span>
+                  Información de la cuenta
+                </span>
+
+
+                <h2>
+                  Detalle del usuario
+                </h2>
+
+              </div>
+
+
+              <button
+                type="button"
+                onClick={() =>
+                  setUsuarioDetalle(
+                    null
+                  )
+                }
+                aria-label="Cerrar"
+              >
+
+                <X size={19} />
+
+              </button>
+
+            </div>
+
+
+            <div className="identidad-modal-usuario">
+
+              <div className="avatar-modal-usuario">
+
+                {obtenerIniciales(
+                  usuarioDetalle
+                )}
+
+              </div>
+
+
+              <div>
+
+                <h3>
+
+                  {usuarioDetalle.nombres}
+
+                  {" "}
+
+                  {usuarioDetalle.apellidos}
+
+                </h3>
+
+
+                <span>
+                  @{usuarioDetalle.usuario}
+                </span>
+
+              </div>
+
+            </div>
+
+
+            <div className="datos-modal-usuario">
+
+              {/* CORREO */}
+
+              <div>
+
+                <Mail size={18} />
+
+                <section>
+
+                  <span>
+                    Correo electrónico
+                  </span>
+
+                  <strong>
+                    {usuarioDetalle.correo}
+                  </strong>
+
+                </section>
+
+              </div>
+
+
+              {/* USUARIO */}
+
+              <div>
+
+                <AtSign size={18} />
+
+                <section>
+
+                  <span>
+                    Nombre de usuario
+                  </span>
+
+                  <strong>
+                    {usuarioDetalle.usuario}
+                  </strong>
+
+                </section>
+
+              </div>
+
+
+              {/* ROL */}
+
+              <div>
+
+                <ShieldCheck size={18} />
+
+                <section>
+
+                  <span>
+                    Rol
+                  </span>
+
+                  <strong>
+                    {usuarioDetalle.rol}
+                  </strong>
+
+                </section>
+
+              </div>
+
+
+              {/* ESTADO */}
+
+              <div>
+
+                <LockKeyhole size={18} />
+
+                <section>
+
+                  <span>
+                    Estado
+                  </span>
+
+                  <strong>
+
+                    {usuarioDetalle.activo
+                      ? "Activo"
+                      : "Inactivo"}
+
+                  </strong>
+
+                </section>
+
+              </div>
+
+
+              {/* CUENTA CREADA */}
+
+              <div>
+
+                <CalendarDays size={18} />
+
+                <section>
+
+                  <span>
+                    Cuenta creada
+                  </span>
+
+                  <strong>
+
+                    {formatearFecha(
+                      usuarioDetalle.fecha_creacion
+                    )}
+
+                  </strong>
+
+                </section>
+
+              </div>
+
+
+              {/* ÚLTIMO ACCESO */}
+
+              <div>
+
+                <RefreshCw size={18} />
+
+                <section>
+
+                  <span>
+                    Último acceso
+                  </span>
+
+                  <strong>
+
+                    {formatearFechaHora(
+                      usuarioDetalle.ultimo_acceso
+                    )}
+
+                  </strong>
+
+                </section>
+
+              </div>
+
+            </div>
+
+
+            <div className="acciones-modal-usuario">
+
+              <button
+                type="button"
+                className="boton-cerrar-modal-usuario"
+                onClick={() =>
+                  setUsuarioDetalle(
+                    null
+                  )
+                }
+              >
+                Cerrar
+              </button>
+
+            </div>
+
+          </article>
+
+        </div>
+
+      )}
+
+
+      {/* ======================================
+          MODAL CAMBIAR ESTADO
+      ====================================== */}
+
+      {usuarioEstado && (
+
+        <div className="modal-fondo-usuarios">
+
+          <article className="modal-confirmacion-usuario">
+
+            <div
+              className={
+                usuarioEstado.activo
+                  ? "icono-confirmacion-usuario desactivar"
+                  : "icono-confirmacion-usuario activar"
+              }
+            >
+
+              {usuarioEstado.activo ? (
+
+                <Power size={27} />
+
+              ) : (
+
+                <UserCheck size={27} />
+
+              )}
+
+            </div>
+
+
+            <h2>
+
+              {usuarioEstado.activo
+                ? "Desactivar usuario"
+                : "Reactivar usuario"}
+
+            </h2>
+
+
+            <p>
+
+              {usuarioEstado.activo ? (
+
+                <>
+
+                  ¿Está seguro de que desea
+                  desactivar a{" "}
+
+                  <strong>
+
+                    {usuarioEstado.nombres}
+
+                    {" "}
+
+                    {usuarioEstado.apellidos}
+
+                  </strong>
+
+                  ? El usuario ya no podrá
+                  iniciar sesión.
+
+                </>
+
+              ) : (
+
+                <>
+
+                  ¿Desea reactivar la cuenta de{" "}
+
+                  <strong>
+
+                    {usuarioEstado.nombres}
+
+                    {" "}
+
+                    {usuarioEstado.apellidos}
+
+                  </strong>
+
+                  ? El usuario recuperará el
+                  acceso al sistema.
+
+                </>
+
+              )}
+
+            </p>
+
+
+            <div className="acciones-confirmacion-usuario">
+
+              <button
+                type="button"
+                className="boton-cancelar-modal-usuario"
+                disabled={
+                  procesandoEstado
+                }
+                onClick={() =>
+                  setUsuarioEstado(
+                    null
+                  )
+                }
+              >
+                Cancelar
+              </button>
+
+
+              <button
+                type="button"
+                className={
+                  usuarioEstado.activo
+                    ? "boton-confirmar-desactivar"
+                    : "boton-confirmar-activar"
+                }
+                disabled={
+                  procesandoEstado
+                }
+                onClick={
+                  confirmarCambioEstado
+                }
+              >
+
+                {procesandoEstado
+                  ? "Procesando..."
+                  : usuarioEstado.activo
+                    ? "Desactivar"
+                    : "Reactivar"}
+
+              </button>
+
+            </div>
+
+          </article>
+
+        </div>
+
+      )}
 
     </section>
   );

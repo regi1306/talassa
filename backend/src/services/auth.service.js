@@ -6,6 +6,7 @@ import {
   buscarUsuarioPorLogin,
   obtenerUsuarioPorId,
   registrarLoginAuditoria,
+  obtenerPermisosPorRol,
 } from "../repositories/auth.repository.js";
 
 
@@ -101,6 +102,11 @@ export async function iniciarSesion(
     usuario.id_usuario
   );
 
+  const permisos =
+  await obtenerPermisosPorRol(
+    usuario.id_rol
+  );
+
 
   return {
     token,
@@ -126,6 +132,8 @@ export async function iniciarSesion(
 
       rol:
         usuario.rol,
+
+      permisos,
     },
   };
 }
@@ -134,7 +142,6 @@ export async function iniciarSesion(
 export async function obtenerPerfil(
   idUsuario
 ) {
-
   const usuario =
     await obtenerUsuarioPorId(
       idUsuario
@@ -142,7 +149,6 @@ export async function obtenerPerfil(
 
 
   if (!usuario) {
-
     const error =
       new Error(
         "Usuario no encontrado."
@@ -154,5 +160,14 @@ export async function obtenerPerfil(
   }
 
 
-  return usuario;
+  const permisos =
+    await obtenerPermisosPorRol(
+      usuario.id_rol
+    );
+
+
+  return {
+    ...usuario,
+    permisos,
+  };
 }

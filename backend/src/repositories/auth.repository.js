@@ -111,3 +111,29 @@ export async function registrarLoginAuditoria(
     ]
   );
 }
+
+
+export async function obtenerPermisosPorRol(
+  idRol
+) {
+  const resultado =
+    await pool.query(
+      `
+        SELECT
+          p.codigo
+        FROM rol_permiso rp
+        INNER JOIN permisos p
+          ON p.id_permiso =
+             rp.id_permiso
+        WHERE rp.id_rol = $1
+        ORDER BY p.codigo
+      `,
+      [idRol]
+    );
+
+
+  return resultado.rows.map(
+    (fila) =>
+      fila.codigo
+  );
+}

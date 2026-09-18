@@ -4,7 +4,7 @@ import cors from "cors";
 import authRoutes from "./routes/auth.routes.js";
 import buquesRoutes from "./routes/buques.routes.js";
 import operacionesRoutes from "./routes/operaciones.routes.js";
-
+import usuariosRoutes from "./routes/usuarios.routes.js";
 import pool from "./config/db.js";
 
 
@@ -37,6 +37,11 @@ app.use(
 app.use(
   "/api/auth",
   authRoutes
+);
+
+app.use(
+  "/api/usuarios",
+  usuariosRoutes
 );
 
 /* ======================================

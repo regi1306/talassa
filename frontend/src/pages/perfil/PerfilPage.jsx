@@ -1,135 +1,319 @@
 import {
   AtSign,
   CalendarDays,
-  CheckCircle2,
   Clock3,
   KeyRound,
   LockKeyhole,
   Mail,
   Monitor,
-  Save,
   ShieldCheck,
   UserRound,
 } from "lucide-react";
 
 import {
+  useEffect,
   useState,
 } from "react";
+
+import {
+  obtenerPerfil,
+} from "../../services/auth.service.js";
 
 import "../../styles/perfil.css";
 
 
 function PerfilPage() {
-  /*
-    Datos temporales.
-
-    Cuando implementemos autenticación real,
-    esta información vendrá del usuario
-    almacenado en la sesión.
-  */
+  /* ======================================
+     ESTADOS
+  ====================================== */
 
   const [
     perfil,
     setPerfil,
-  ] = useState({
-    nombres: "Regina",
-    apellidos: "Cadenas",
-    usuario: "regina.cadenas",
-    correo:
-      "regina.cadenas@talassa.com",
-    rol: "Administrador",
-  });
+  ] = useState(null);
 
 
   const [
-    formulario,
-    setFormulario,
-  ] = useState(perfil);
+    cargando,
+    setCargando,
+  ] = useState(true);
 
 
   const [
-    editando,
-    setEditando,
-  ] = useState(false);
-
-
-  const [
-    guardando,
-    setGuardando,
-  ] = useState(false);
-
-
-  const [
-    mensajeExito,
-    setMensajeExito,
+    error,
+    setError,
   ] = useState("");
 
 
-  function manejarCambio(
-    evento
+  /* ======================================
+     CARGAR PERFIL REAL
+  ====================================== */
+
+  useEffect(() => {
+    let componenteActivo = true;
+
+
+    async function cargarPerfil() {
+      try {
+        setCargando(true);
+
+        setError("");
+
+
+        /*
+          obtenerPerfil() llama a:
+
+          GET /api/auth/me
+
+          enviando el JWT en:
+
+          Authorization: Bearer TOKEN
+        */
+
+        const respuesta =
+          await obtenerPerfil();
+
+
+        if (componenteActivo) {
+          setPerfil(
+            respuesta.data
+          );
+        }
+
+      } catch (error) {
+        console.error(
+          "Error al cargar el perfil:",
+          error
+        );
+
+
+        if (componenteActivo) {
+          setError(
+            error.response
+              ?.data
+              ?.message
+            ||
+            "No fue posible cargar la información del perfil."
+          );
+        }
+
+      } finally {
+        if (componenteActivo) {
+          setCargando(false);
+        }
+      }
+    }
+
+
+    cargarPerfil();
+
+
+    return () => {
+      componenteActivo = false;
+    };
+  }, []);
+
+
+  /* ======================================
+     FORMATEAR FECHAS
+  ====================================== */
+
+  function formatearFecha(
+    fecha
   ) {
-    const {
-      name,
-      value,
-    } = evento.target;
+    if (!fecha) {
+      return "Sin registro";
+    }
 
 
-    setFormulario(
-      (actual) => ({
-        ...actual,
-        [name]: value,
-      })
+    return new Intl.DateTimeFormat(
+      "es-SV",
+      {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }
+    ).format(
+      new Date(fecha)
     );
-
-
-    setMensajeExito("");
   }
 
 
-  function cancelarEdicion() {
-    setFormulario(perfil);
-
-    setEditando(false);
-
-    setMensajeExito("");
-  }
-
-
-  function guardarPerfil(
-    evento
+  function formatearFechaHora(
+    fecha
   ) {
-    evento.preventDefault();
+    if (!fecha) {
+      return "Sin registro";
+    }
 
 
-    setGuardando(true);
-
-    setMensajeExito("");
-
-
-    /*
-      TEMPORAL.
-
-      Después aquí llamaremos
-      al servicio correspondiente.
-    */
-
-    setTimeout(() => {
-      setPerfil(formulario);
-
-      setGuardando(false);
-
-      setEditando(false);
-
-      setMensajeExito(
-        "La información del perfil fue actualizada correctamente."
-      );
-    }, 600);
+    return new Intl.DateTimeFormat(
+      "es-SV",
+      {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }
+    ).format(
+      new Date(fecha)
+    );
   }
+
+
+  /* ======================================
+     CARGANDO
+  ====================================== */
+
+  if (cargando) {
+    return (
+      <section className="pagina-perfil">
+
+        <div className="fondo-perfil" />
+
+
+        <div className="encabezado-perfil">
+
+          <div>
+
+            <h1>
+              Mi perfil
+            </h1>
+
+
+            <p>
+              Consultando la información
+              de tu cuenta.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <article className="glass-card tarjeta-perfil">
+
+          <div className="titulo-tarjeta-perfil">
+
+            <div className="icono-titulo-perfil">
+              <UserRound size={20} />
+            </div>
+
+
+            <div>
+
+              <h2>
+                Cargando perfil...
+              </h2>
+
+
+              <p>
+                Estamos verificando tus
+                datos con TALASSA.
+              </p>
+
+            </div>
+
+          </div>
+
+        </article>
+
+      </section>
+    );
+  }
+
+
+  /* ======================================
+     ERROR
+  ====================================== */
+
+  if (
+    error ||
+    !perfil
+  ) {
+    return (
+      <section className="pagina-perfil">
+
+        <div className="fondo-perfil" />
+
+
+        <div className="encabezado-perfil">
+
+          <div>
+
+            <h1>
+              Mi perfil
+            </h1>
+
+
+            <p>
+              Información de tu cuenta
+              de TALASSA.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <article className="glass-card tarjeta-perfil">
+
+          <div className="titulo-tarjeta-perfil">
+
+            <div className="icono-titulo-perfil seguridad">
+              <LockKeyhole size={20} />
+            </div>
+
+
+            <div>
+
+              <h2>
+                No se pudo cargar el perfil
+              </h2>
+
+
+              <p>
+                {error}
+              </p>
+
+            </div>
+
+          </div>
+
+        </article>
+
+      </section>
+    );
+  }
+
+
+  /* ======================================
+     DATOS DERIVADOS
+  ====================================== */
+
+  const nombres =
+    perfil.nombres || "";
+
+
+  const apellidos =
+    perfil.apellidos || "";
+
+
+  const nombreCompleto =
+    `${nombres} ${apellidos}`
+      .trim();
 
 
   const iniciales =
-    `${perfil.nombres.charAt(0)}${perfil.apellidos.charAt(0)}`
+    `${nombres.charAt(0)}${apellidos.charAt(0)}`
       .toUpperCase();
+
+
+  const estadoTexto =
+    perfil.activo
+      ? "Activo"
+      : "Inactivo";
 
 
   return (
@@ -156,30 +340,11 @@ function PerfilPage() {
 
 
           <p>
-            Consulta y administra la información
+            Consulta la información
             asociada a tu cuenta de TALASSA.
           </p>
 
         </div>
-
-
-        {!editando && (
-          <button
-            type="button"
-            className="boton-editar-perfil"
-            onClick={() => {
-              setFormulario(perfil);
-
-              setEditando(true);
-
-              setMensajeExito("");
-            }}
-          >
-            <UserRound size={18} />
-
-            Editar perfil
-          </button>
-        )}
 
       </div>
 
@@ -203,14 +368,12 @@ function PerfilPage() {
 
 
           <h2>
-            {perfil.nombres}
-            {" "}
-            {perfil.apellidos}
+            {nombreCompleto}
           </h2>
 
 
           <p>
-            @{perfil.usuario}
+            @{perfil.nombre_usuario}
           </p>
 
         </div>
@@ -218,6 +381,8 @@ function PerfilPage() {
 
         <div className="separador-identidad-perfil" />
 
+
+        {/* ROL */}
 
         <div className="dato-rapido-perfil">
 
@@ -227,13 +392,17 @@ function PerfilPage() {
 
 
           <strong>
+
             <ShieldCheck size={16} />
 
             {perfil.rol}
+
           </strong>
 
         </div>
 
+
+        {/* ESTADO */}
 
         <div className="dato-rapido-perfil">
 
@@ -242,14 +411,26 @@ function PerfilPage() {
           </span>
 
 
-          <strong className="estado-cuenta-perfil">
-            <i />
+          <strong
+            className={
+              perfil.activo
+                ? "estado-cuenta-perfil"
+                : ""
+            }
+          >
 
-            Activo
+            {perfil.activo && (
+              <i />
+            )}
+
+            {estadoTexto}
+
           </strong>
 
         </div>
 
+
+        {/* FECHA CREACIÓN */}
 
         <div className="dato-rapido-perfil">
 
@@ -259,7 +440,9 @@ function PerfilPage() {
 
 
           <strong>
-            12 ene. 2026
+            {formatearFecha(
+              perfil.fecha_creacion
+            )}
           </strong>
 
         </div>
@@ -274,7 +457,7 @@ function PerfilPage() {
       <div className="rejilla-perfil">
 
         {/* ======================================
-            INFORMACION PERSONAL
+            INFORMACIÓN PERSONAL
         ====================================== */}
 
         <article className="glass-card tarjeta-perfil">
@@ -294,7 +477,8 @@ function PerfilPage() {
 
 
               <p>
-                Datos asociados a tu cuenta.
+                Datos registrados
+                en tu cuenta.
               </p>
 
             </div>
@@ -302,286 +486,115 @@ function PerfilPage() {
           </div>
 
 
-          {!editando ? (
+          <div className="lista-informacion-perfil">
 
-            <div className="lista-informacion-perfil">
+            {/* NOMBRE */}
 
-              <div className="dato-perfil">
+            <div className="dato-perfil">
 
-                <div className="icono-dato-perfil">
-                  <UserRound size={18} />
-                </div>
-
-
-                <div>
-
-                  <span>
-                    Nombre completo
-                  </span>
-
-
-                  <strong>
-                    {perfil.nombres}
-                    {" "}
-                    {perfil.apellidos}
-                  </strong>
-
-                </div>
-
+              <div className="icono-dato-perfil">
+                <UserRound size={18} />
               </div>
 
 
-              <div className="dato-perfil">
+              <div>
 
-                <div className="icono-dato-perfil">
-                  <AtSign size={18} />
-                </div>
-
-
-                <div>
-
-                  <span>
-                    Nombre de usuario
-                  </span>
+                <span>
+                  Nombre completo
+                </span>
 
 
-                  <strong>
-                    {perfil.usuario}
-                  </strong>
-
-                </div>
-
-              </div>
-
-
-              <div className="dato-perfil">
-
-                <div className="icono-dato-perfil">
-                  <Mail size={18} />
-                </div>
-
-
-                <div>
-
-                  <span>
-                    Correo electrónico
-                  </span>
-
-
-                  <strong>
-                    {perfil.correo}
-                  </strong>
-
-                </div>
-
-              </div>
-
-
-              <div className="dato-perfil">
-
-                <div className="icono-dato-perfil">
-                  <ShieldCheck size={18} />
-                </div>
-
-
-                <div>
-
-                  <span>
-                    Rol asignado
-                  </span>
-
-
-                  <strong>
-                    {perfil.rol}
-                  </strong>
-
-
-                  <small>
-                    El rol solo puede ser modificado
-                    desde Administración de usuarios.
-                  </small>
-
-                </div>
+                <strong>
+                  {nombreCompleto}
+                </strong>
 
               </div>
 
             </div>
 
-          ) : (
 
-            <form
-              className="formulario-editar-perfil"
-              onSubmit={guardarPerfil}
-            >
+            {/* USUARIO */}
 
-              <div className="rejilla-formulario-perfil">
+            <div className="dato-perfil">
 
-                <div className="campo-perfil">
-
-                  <label htmlFor="nombres">
-                    Nombres
-                  </label>
-
-
-                  <div className="entrada-perfil">
-
-                    <UserRound size={17} />
-
-
-                    <input
-                      id="nombres"
-                      name="nombres"
-                      type="text"
-                      value={
-                        formulario.nombres
-                      }
-                      onChange={
-                        manejarCambio
-                      }
-                    />
-
-                  </div>
-
-                </div>
-
-
-                <div className="campo-perfil">
-
-                  <label htmlFor="apellidos">
-                    Apellidos
-                  </label>
-
-
-                  <div className="entrada-perfil">
-
-                    <UserRound size={17} />
-
-
-                    <input
-                      id="apellidos"
-                      name="apellidos"
-                      type="text"
-                      value={
-                        formulario.apellidos
-                      }
-                      onChange={
-                        manejarCambio
-                      }
-                    />
-
-                  </div>
-
-                </div>
-
-
-                <div className="campo-perfil campo-perfil-completo">
-
-                  <label htmlFor="correo">
-                    Correo electrónico
-                  </label>
-
-
-                  <div className="entrada-perfil">
-
-                    <Mail size={17} />
-
-
-                    <input
-                      id="correo"
-                      name="correo"
-                      type="email"
-                      value={
-                        formulario.correo
-                      }
-                      onChange={
-                        manejarCambio
-                      }
-                    />
-
-                  </div>
-
-                </div>
-
-
-                <div className="campo-perfil campo-perfil-completo">
-
-                  <label htmlFor="usuario">
-                    Nombre de usuario
-                  </label>
-
-
-                  <div className="entrada-perfil">
-
-                    <AtSign size={17} />
-
-
-                    <input
-                      id="usuario"
-                      name="usuario"
-                      type="text"
-                      value={
-                        formulario.usuario
-                      }
-                      onChange={
-                        manejarCambio
-                      }
-                    />
-
-                  </div>
-
-                </div>
-
+              <div className="icono-dato-perfil">
+                <AtSign size={18} />
               </div>
 
 
-              <div className="acciones-editar-perfil">
+              <div>
 
-                <button
-                  type="button"
-                  className="boton-cancelar-perfil"
-                  onClick={
-                    cancelarEdicion
-                  }
-                  disabled={
-                    guardando
-                  }
-                >
-                  Cancelar
-                </button>
+                <span>
+                  Nombre de usuario
+                </span>
 
 
-                <button
-                  type="submit"
-                  className="boton-guardar-perfil"
-                  disabled={
-                    guardando
-                  }
-                >
-                  <Save size={17} />
-
-                  {guardando
-                    ? "Guardando..."
-                    : "Guardar cambios"}
-                </button>
+                <strong>
+                  {perfil.nombre_usuario}
+                </strong>
 
               </div>
-
-            </form>
-
-          )}
-
-
-          {mensajeExito && (
-
-            <div className="mensaje-exito-perfil">
-
-              <CheckCircle2 size={17} />
-
-              {mensajeExito}
 
             </div>
 
-          )}
+
+            {/* CORREO */}
+
+            <div className="dato-perfil">
+
+              <div className="icono-dato-perfil">
+                <Mail size={18} />
+              </div>
+
+
+              <div>
+
+                <span>
+                  Correo electrónico
+                </span>
+
+
+                <strong>
+                  {perfil.correo}
+                </strong>
+
+              </div>
+
+            </div>
+
+
+            {/* ROL */}
+
+            <div className="dato-perfil">
+
+              <div className="icono-dato-perfil">
+                <ShieldCheck size={18} />
+              </div>
+
+
+              <div>
+
+                <span>
+                  Rol asignado
+                </span>
+
+
+                <strong>
+                  {perfil.rol}
+                </strong>
+
+
+                <small>
+                  El rol solo puede ser
+                  modificado desde
+                  Administración de usuarios.
+                </small>
+
+              </div>
+
+            </div>
+
+          </div>
 
         </article>
 
@@ -595,7 +608,9 @@ function PerfilPage() {
           <div className="titulo-tarjeta-perfil">
 
             <div className="icono-titulo-perfil seguridad">
+
               <LockKeyhole size={20} />
+
             </div>
 
 
@@ -607,8 +622,8 @@ function PerfilPage() {
 
 
               <p>
-                Información relacionada con
-                tus credenciales.
+                Información relacionada
+                con tus credenciales.
               </p>
 
             </div>
@@ -621,7 +636,9 @@ function PerfilPage() {
             <div className="item-seguridad-perfil">
 
               <div className="icono-opcion-seguridad">
+
                 <KeyRound size={19} />
+
               </div>
 
 
@@ -633,9 +650,8 @@ function PerfilPage() {
 
 
                 <span>
-                  Última actualización:
-                  {" "}
-                  20 ago. 2026
+                  Credencial protegida
+                  por el sistema.
                 </span>
 
               </div>
@@ -644,7 +660,7 @@ function PerfilPage() {
               <button
                 type="button"
                 disabled
-                title="Disponible al conectar la autenticación"
+                title="Esta función se implementará posteriormente."
               >
                 Cambiar
               </button>
@@ -658,10 +674,11 @@ function PerfilPage() {
 
 
               <p>
-                Las credenciales y cambios de
-                contraseña estarán protegidos
-                por el sistema de autenticación
-                cuando conectemos el backend.
+                Tu contraseña no se almacena
+                en texto plano. El sistema
+                utiliza una contraseña
+                protegida mediante hash
+                para validar el acceso.
               </p>
 
             </div>
@@ -682,7 +699,9 @@ function PerfilPage() {
         <div className="titulo-tarjeta-perfil">
 
           <div className="icono-titulo-perfil sesion">
+
             <Monitor size={20} />
+
           </div>
 
 
@@ -694,8 +713,8 @@ function PerfilPage() {
 
 
             <p>
-              Información de la sesión
-              iniciada actualmente.
+              Información asociada
+              al último inicio de sesión.
             </p>
 
           </div>
@@ -704,6 +723,8 @@ function PerfilPage() {
 
 
         <div className="rejilla-sesion-perfil">
+
+          {/* DISPOSITIVO */}
 
           <div className="dato-sesion-perfil">
 
@@ -726,6 +747,8 @@ function PerfilPage() {
           </div>
 
 
+          {/* ÚLTIMO ACCESO */}
+
           <div className="dato-sesion-perfil">
 
             <CalendarDays size={19} />
@@ -734,18 +757,22 @@ function PerfilPage() {
             <div>
 
               <span>
-                Fecha de acceso
+                Último acceso
               </span>
 
 
               <strong>
-                15 sep. 2026
+                {formatearFechaHora(
+                  perfil.ultimo_acceso
+                )}
               </strong>
 
             </div>
 
           </div>
 
+
+          {/* ESTADO */}
 
           <div className="dato-sesion-perfil">
 
@@ -760,9 +787,11 @@ function PerfilPage() {
 
 
               <strong className="sesion-activa-perfil">
+
                 <i />
 
                 Sesión activa
+
               </strong>
 
             </div>

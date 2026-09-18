@@ -21,6 +21,12 @@ import {
   useParams,
 } from "react-router-dom";
 
+import {
+  actualizarUsuario,
+  crearUsuario,
+  obtenerUsuario,
+} from "../../services/usuarios.service.js";
+
 import "../../styles/formularioUsuario.css";
 
 
@@ -37,9 +43,14 @@ const formularioInicial = {
 
 
 function UsuarioFormPage() {
-  const navigate = useNavigate();
+  const navigate =
+    useNavigate();
 
-  const { id } = useParams();
+
+  const {
+    id,
+  } = useParams();
+
 
   const esEdicion =
     Boolean(id);
@@ -48,7 +59,9 @@ function UsuarioFormPage() {
   const [
     formulario,
     setFormulario,
-  ] = useState(formularioInicial);
+  ] = useState(
+    formularioInicial
+  );
 
 
   const [
@@ -72,7 +85,9 @@ function UsuarioFormPage() {
   const [
     cargandoPagina,
     setCargandoPagina,
-  ] = useState(esEdicion);
+  ] = useState(
+    esEdicion
+  );
 
 
   const [
@@ -94,10 +109,7 @@ function UsuarioFormPage() {
 
 
   /* ======================================
-     DATOS TEMPORALES PARA EDICIÓN
-
-     Más adelante esto será reemplazado
-     por una consulta a la API.
+     CARGAR USUARIO EN EDICIÓN
   ====================================== */
 
   useEffect(() => {
@@ -106,32 +118,109 @@ function UsuarioFormPage() {
     }
 
 
-    const temporizador =
-      setTimeout(() => {
+    let componenteActivo =
+      true;
+
+
+    async function cargarUsuario() {
+      try {
+        setCargandoPagina(
+          true
+        );
+
+
+        const respuesta =
+          await obtenerUsuario(
+            id
+          );
+
+
+        const usuario =
+          respuesta.data;
+
+
+        if (!componenteActivo) {
+          return;
+        }
+
+
         setFormulario({
-          nombres: "Carlos",
-          apellidos: "Romero",
+          nombres:
+            usuario.nombres || "",
+
+          apellidos:
+            usuario.apellidos || "",
+
           correo:
-            "carlos.romero@talassa.com",
+            usuario.correo || "",
+
           usuario:
-            "carlos.romero",
+            usuario.usuario || "",
+
           password: "",
-          confirmarPassword: "",
+
+          confirmarPassword:
+            "",
+
           rol:
-            "Operador portuario",
-          activo: true,
+            usuario.rol || "",
+
+          activo:
+            Boolean(
+              usuario.activo
+            ),
         });
 
-        setCargandoPagina(false);
-      }, 400);
+      } catch (error) {
+        console.error(
+          "Error al cargar usuario:",
+          error
+        );
 
 
-    return () =>
-      clearTimeout(temporizador);
-  }, [esEdicion, id]);
+        if (
+          componenteActivo
+        ) {
+          setErrorGeneral(
+            error.response?.data?.message
+            ||
+            "No fue posible cargar la información del usuario."
+          );
+        }
+
+      } finally {
+        if (
+          componenteActivo
+        ) {
+          setCargandoPagina(
+            false
+          );
+        }
+      }
+    }
 
 
-  function manejarCambio(evento) {
+    cargarUsuario();
+
+
+    return () => {
+      componenteActivo =
+        false;
+    };
+
+  }, [
+    esEdicion,
+    id,
+  ]);
+
+
+  /* ======================================
+     CAMBIOS
+  ====================================== */
+
+  function manejarCambio(
+    evento
+  ) {
     const {
       name,
       value,
@@ -139,7 +228,9 @@ function UsuarioFormPage() {
 
 
     setFormulario(
-      (formularioActual) => ({
+      (
+        formularioActual
+      ) => ({
         ...formularioActual,
         [name]: value,
       })
@@ -148,7 +239,9 @@ function UsuarioFormPage() {
 
     if (errores[name]) {
       setErrores(
-        (erroresActuales) => ({
+        (
+          erroresActuales
+        ) => ({
           ...erroresActuales,
           [name]: "",
         })
@@ -162,9 +255,13 @@ function UsuarioFormPage() {
   }
 
 
-  function cambiarEstado(estado) {
+  function cambiarEstado(
+    estado
+  ) {
     setFormulario(
-      (formularioActual) => ({
+      (
+        formularioActual
+      ) => ({
         ...formularioActual,
         activo: estado,
       })
@@ -172,25 +269,37 @@ function UsuarioFormPage() {
   }
 
 
+  /* ======================================
+     VALIDACIONES
+  ====================================== */
+
   function validarFormulario() {
-    const nuevosErrores = {};
+    const nuevosErrores =
+      {};
 
 
-    if (!formulario.nombres.trim()) {
+    if (
+      !formulario.nombres.trim()
+    ) {
       nuevosErrores.nombres =
         "Ingrese el nombre del usuario.";
     }
 
 
-    if (!formulario.apellidos.trim()) {
+    if (
+      !formulario.apellidos.trim()
+    ) {
       nuevosErrores.apellidos =
         "Ingrese el apellido del usuario.";
     }
 
 
-    if (!formulario.correo.trim()) {
+    if (
+      !formulario.correo.trim()
+    ) {
       nuevosErrores.correo =
         "Ingrese un correo electrónico.";
+
     } else if (
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
         formulario.correo
@@ -201,23 +310,22 @@ function UsuarioFormPage() {
     }
 
 
-    if (!formulario.usuario.trim()) {
+    if (
+      !formulario.usuario.trim()
+    ) {
       nuevosErrores.usuario =
         "Ingrese un nombre de usuario.";
     }
 
 
-    /*
-      En edición, dejar la contraseña vacía
-      significa conservar la contraseña actual.
-    */
-
     if (!esEdicion) {
       if (!formulario.password) {
         nuevosErrores.password =
           "Ingrese una contraseña.";
+
       } else if (
-        formulario.password.length < 8
+        formulario.password.length <
+        8
       ) {
         nuevosErrores.password =
           "La contraseña debe tener al menos 8 caracteres.";
@@ -235,11 +343,13 @@ function UsuarioFormPage() {
 
 
     if (
-      esEdicion &&
+      esEdicion
+      &&
       formulario.password
     ) {
       if (
-        formulario.password.length < 8
+        formulario.password.length <
+        8
       ) {
         nuevosErrores.password =
           "La contraseña debe tener al menos 8 caracteres.";
@@ -262,7 +372,9 @@ function UsuarioFormPage() {
     }
 
 
-    setErrores(nuevosErrores);
+    setErrores(
+      nuevosErrores
+    );
 
 
     return (
@@ -274,52 +386,116 @@ function UsuarioFormPage() {
 
 
   function regresar() {
-    navigate("/usuarios");
+    navigate(
+      "/usuarios"
+    );
   }
 
 
-  function manejarEnvio(evento) {
+  /* ======================================
+     GUARDAR
+  ====================================== */
+
+  async function manejarEnvio(
+    evento
+  ) {
     evento.preventDefault();
 
 
-    if (!validarFormulario()) {
+    if (
+      !validarFormulario()
+    ) {
       return;
     }
 
 
-    setEnviando(true);
+    try {
+      setEnviando(true);
 
-    setErrorGeneral("");
+      setErrorGeneral("");
 
-    setMensajeExito("");
-
-
-    /*
-      TEMPORAL:
-      Más adelante aquí se llamará
-      al servicio del backend.
-    */
-
-    setTimeout(() => {
-      setMensajeExito(
-        esEdicion
-          ? "Los cambios del usuario se guardaron correctamente."
-          : "El usuario fue registrado correctamente."
-      );
+      setMensajeExito("");
 
 
-      setEnviando(false);
+      const datos = {
+        nombres:
+          formulario.nombres.trim(),
+
+        apellidos:
+          formulario.apellidos.trim(),
+
+        correo:
+          formulario.correo.trim(),
+
+        usuario:
+          formulario.usuario.trim(),
+
+        password:
+          formulario.password,
+
+        rol:
+          formulario.rol,
+
+        activo:
+          formulario.activo,
+      };
+
+
+      if (esEdicion) {
+        await actualizarUsuario(
+          id,
+          datos
+        );
+
+
+        setMensajeExito(
+          "Los cambios del usuario se guardaron correctamente."
+        );
+
+      } else {
+        await crearUsuario(
+          datos
+        );
+
+
+        setMensajeExito(
+          "El usuario fue registrado correctamente."
+        );
+      }
 
 
       setTimeout(() => {
-        navigate("/usuarios");
+        navigate(
+          "/usuarios"
+        );
       }, 700);
-    }, 600);
+
+    } catch (error) {
+      console.error(
+        "Error al guardar usuario:",
+        error
+      );
+
+
+      setErrorGeneral(
+        error.response?.data?.message
+        ||
+        "No fue posible guardar el usuario."
+      );
+
+    } finally {
+      setEnviando(false);
+    }
   }
 
 
+  /* ======================================
+     CARGANDO
+  ====================================== */
+
   if (
-    cargandoPagina &&
+    cargandoPagina
+    &&
     esEdicion
   ) {
     return (
@@ -355,25 +531,31 @@ function UsuarioFormPage() {
           className="boton-volver-usuarios"
           onClick={regresar}
         >
+
           <ArrowLeft size={18} />
 
           Volver a Usuarios
+
         </button>
 
 
         <div>
 
           <h1>
+
             {esEdicion
               ? "Editar usuario"
               : "Registrar nuevo usuario"}
+
           </h1>
 
 
           <p>
+
             {esEdicion
               ? "Actualice la información, credenciales y permisos generales de la cuenta."
               : "Ingrese la información necesaria para crear una nueva cuenta en TALASSA."}
+
           </p>
 
         </div>
@@ -387,13 +569,13 @@ function UsuarioFormPage() {
 
       <form
         className="glass-card formulario-usuario"
-        onSubmit={manejarEnvio}
+        onSubmit={
+          manejarEnvio
+        }
         noValidate
       >
 
-        {/* ======================================
-            INFORMACIÓN PERSONAL
-        ====================================== */}
+        {/* INFORMACIÓN PERSONAL */}
 
         <section className="seccion-formulario-usuario">
 
@@ -427,8 +609,10 @@ function UsuarioFormPage() {
             <div className="campo-formulario-usuario">
 
               <label htmlFor="nombres">
+
                 Nombres
                 <span>*</span>
+
               </label>
 
 
@@ -450,7 +634,9 @@ function UsuarioFormPage() {
                   value={
                     formulario.nombres
                   }
-                  onChange={manejarCambio}
+                  onChange={
+                    manejarCambio
+                  }
                   placeholder="Ej. Carlos"
                   maxLength={100}
                 />
@@ -459,9 +645,11 @@ function UsuarioFormPage() {
 
 
               {errores.nombres && (
+
                 <small className="mensaje-error-campo-usuario">
                   {errores.nombres}
                 </small>
+
               )}
 
             </div>
@@ -472,8 +660,10 @@ function UsuarioFormPage() {
             <div className="campo-formulario-usuario">
 
               <label htmlFor="apellidos">
+
                 Apellidos
                 <span>*</span>
+
               </label>
 
 
@@ -495,7 +685,9 @@ function UsuarioFormPage() {
                   value={
                     formulario.apellidos
                   }
-                  onChange={manejarCambio}
+                  onChange={
+                    manejarCambio
+                  }
                   placeholder="Ej. Romero"
                   maxLength={100}
                 />
@@ -504,9 +696,11 @@ function UsuarioFormPage() {
 
 
               {errores.apellidos && (
+
                 <small className="mensaje-error-campo-usuario">
                   {errores.apellidos}
                 </small>
+
               )}
 
             </div>
@@ -517,8 +711,10 @@ function UsuarioFormPage() {
             <div className="campo-formulario-usuario">
 
               <label htmlFor="correo">
+
                 Correo electrónico
                 <span>*</span>
+
               </label>
 
 
@@ -540,7 +736,9 @@ function UsuarioFormPage() {
                   value={
                     formulario.correo
                   }
-                  onChange={manejarCambio}
+                  onChange={
+                    manejarCambio
+                  }
                   placeholder="usuario@talassa.com"
                   maxLength={150}
                 />
@@ -549,9 +747,11 @@ function UsuarioFormPage() {
 
 
               {errores.correo && (
+
                 <small className="mensaje-error-campo-usuario">
                   {errores.correo}
                 </small>
+
               )}
 
             </div>
@@ -562,8 +762,10 @@ function UsuarioFormPage() {
             <div className="campo-formulario-usuario">
 
               <label htmlFor="usuario">
+
                 Nombre de usuario
                 <span>*</span>
+
               </label>
 
 
@@ -585,7 +787,9 @@ function UsuarioFormPage() {
                   value={
                     formulario.usuario
                   }
-                  onChange={manejarCambio}
+                  onChange={
+                    manejarCambio
+                  }
                   placeholder="Ej. carlos.romero"
                   maxLength={80}
                 />
@@ -594,9 +798,11 @@ function UsuarioFormPage() {
 
 
               {errores.usuario && (
+
                 <small className="mensaje-error-campo-usuario">
                   {errores.usuario}
                 </small>
+
               )}
 
             </div>
@@ -639,6 +845,7 @@ function UsuarioFormPage() {
 
 
           {esEdicion && (
+
             <div className="aviso-password-usuario">
 
               <KeyRound size={17} />
@@ -650,6 +857,7 @@ function UsuarioFormPage() {
               </p>
 
             </div>
+
           )}
 
 
@@ -660,11 +868,13 @@ function UsuarioFormPage() {
             <div className="campo-formulario-usuario">
 
               <label htmlFor="password">
+
                 Contraseña
 
                 {!esEdicion && (
                   <span>*</span>
                 )}
+
               </label>
 
 
@@ -690,7 +900,9 @@ function UsuarioFormPage() {
                   value={
                     formulario.password
                   }
-                  onChange={manejarCambio}
+                  onChange={
+                    manejarCambio
+                  }
                   placeholder={
                     esEdicion
                       ? "Nueva contraseña"
@@ -704,10 +916,10 @@ function UsuarioFormPage() {
                   className="boton-ver-password"
                   onClick={() =>
                     setMostrarPassword(
-                      (valor) => !valor
+                      (valor) =>
+                        !valor
                     )
                   }
-                  aria-label="Mostrar contraseña"
                 >
 
                   {mostrarPassword ? (
@@ -722,24 +934,28 @@ function UsuarioFormPage() {
 
 
               {errores.password && (
+
                 <small className="mensaje-error-campo-usuario">
                   {errores.password}
                 </small>
+
               )}
 
             </div>
 
 
-            {/* CONFIRMAR */}
+            {/* CONFIRMACIÓN */}
 
             <div className="campo-formulario-usuario">
 
               <label htmlFor="confirmarPassword">
+
                 Confirmar contraseña
 
                 {!esEdicion && (
                   <span>*</span>
                 )}
+
               </label>
 
 
@@ -765,7 +981,9 @@ function UsuarioFormPage() {
                   value={
                     formulario.confirmarPassword
                   }
-                  onChange={manejarCambio}
+                  onChange={
+                    manejarCambio
+                  }
                   placeholder="Repita la contraseña"
                 />
 
@@ -775,10 +993,10 @@ function UsuarioFormPage() {
                   className="boton-ver-password"
                   onClick={() =>
                     setMostrarConfirmacion(
-                      (valor) => !valor
+                      (valor) =>
+                        !valor
                     )
                   }
-                  aria-label="Mostrar confirmación"
                 >
 
                   {mostrarConfirmacion ? (
@@ -793,9 +1011,11 @@ function UsuarioFormPage() {
 
 
               {errores.confirmarPassword && (
+
                 <small className="mensaje-error-campo-usuario">
                   {errores.confirmarPassword}
                 </small>
+
               )}
 
             </div>
@@ -844,8 +1064,10 @@ function UsuarioFormPage() {
             <div className="campo-formulario-usuario">
 
               <label htmlFor="rol">
+
                 Rol
                 <span>*</span>
+
               </label>
 
 
@@ -866,8 +1088,11 @@ function UsuarioFormPage() {
                   value={
                     formulario.rol
                   }
-                  onChange={manejarCambio}
+                  onChange={
+                    manejarCambio
+                  }
                 >
+
                   <option value="">
                     Seleccionar rol
                   </option>
@@ -890,9 +1115,11 @@ function UsuarioFormPage() {
 
 
               {errores.rol && (
+
                 <small className="mensaje-error-campo-usuario">
                   {errores.rol}
                 </small>
+
               )}
 
             </div>
@@ -918,12 +1145,16 @@ function UsuarioFormPage() {
                       : "opcion-estado-usuario activo"
                   }
                   onClick={() =>
-                    cambiarEstado(true)
+                    cambiarEstado(
+                      true
+                    )
                   }
                 >
+
                   <i />
 
                   Activo
+
                 </button>
 
 
@@ -935,12 +1166,16 @@ function UsuarioFormPage() {
                       : "opcion-estado-usuario inactivo"
                   }
                   onClick={() =>
-                    cambiarEstado(false)
+                    cambiarEstado(
+                      false
+                    )
                   }
                 >
+
                   <i />
 
                   Inactivo
+
                 </button>
 
               </div>
@@ -957,16 +1192,20 @@ function UsuarioFormPage() {
         ====================================== */}
 
         {errorGeneral && (
+
           <div className="mensaje-error-usuario-formulario">
             {errorGeneral}
           </div>
+
         )}
 
 
         {mensajeExito && (
+
           <div className="mensaje-exito-usuario-formulario">
             {mensajeExito}
           </div>
+
         )}
 
 
@@ -980,7 +1219,9 @@ function UsuarioFormPage() {
             type="button"
             className="boton-cancelar-usuario"
             onClick={regresar}
-            disabled={enviando}
+            disabled={
+              enviando
+            }
           >
             Cancelar
           </button>
@@ -989,7 +1230,9 @@ function UsuarioFormPage() {
           <button
             type="submit"
             className="boton-guardar-usuario"
-            disabled={enviando}
+            disabled={
+              enviando
+            }
           >
 
             {enviando ? (
