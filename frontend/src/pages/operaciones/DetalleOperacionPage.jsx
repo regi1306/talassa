@@ -239,9 +239,7 @@ function DetalleOperacionPage() {
 
   function irAsignarMuelle() {
     navigate(
-      `/operaciones/${encodeURIComponent(
-        operacion.codigo
-      )}/asignar-muelle`
+      `/operaciones/${operacion.id_operacion}/asignar-muelle`
     );
   }
 
@@ -527,60 +525,60 @@ function DetalleOperacionPage() {
           {operacion.estado !==
             "Finalizada" && (
 
-            <button
-              type="button"
-              className="boton-editar-operacion"
-              onClick={() =>
-                navigate(
-                  `/operaciones/${operacion.id_operacion}/editar`
-                )
-              }
-            >
-              <Edit3 size={18} />
+              <button
+                type="button"
+                className="boton-editar-operacion"
+                onClick={() =>
+                  navigate(
+                    `/operaciones/${operacion.id_operacion}/editar`
+                  )
+                }
+              >
+                <Edit3 size={18} />
 
-              Editar operación
-            </button>
+                Editar operación
+              </button>
 
-          )}
+            )}
 
 
           {operacion.estado ===
             "Programada" && (
 
-            <button
-              type="button"
-              className="boton-asignar-muelle"
-              onClick={
-                irAsignarMuelle
-              }
-            >
-              <Anchor size={18} />
+              <button
+                type="button"
+                className="boton-asignar-muelle"
+                onClick={
+                  irAsignarMuelle
+                }
+              >
+                <Anchor size={18} />
 
-              Asignar muelle
-            </button>
+                Asignar muelle
+              </button>
 
-          )}
+            )}
 
 
           {operacion.estado ===
             "Muelle asignado" &&
             !operacion.llegada_real && (
 
-            <button
-              type="button"
-              className="boton-evento-operacion llegada"
-              onClick={
-                abrirModalLlegada
-              }
-            >
-              <CalendarClock
-                size={18}
-              />
+              <button
+                type="button"
+                className="boton-evento-operacion llegada"
+                onClick={
+                  abrirModalLlegada
+                }
+              >
+                <CalendarClock
+                  size={18}
+                />
 
-              Registrar llegada
-            </button>
+                Registrar llegada
+              </button>
 
-          )}
+            )}
 
 
           {operacion.llegada_real &&
@@ -592,21 +590,21 @@ function DetalleOperacionPage() {
               operacion.estado
             ) && (
 
-            <button
-              type="button"
-              className="boton-evento-operacion salida"
-              onClick={
-                abrirModalSalida
-              }
-            >
-              <CheckCircle2
-                size={18}
-              />
+              <button
+                type="button"
+                className="boton-evento-operacion salida"
+                onClick={
+                  abrirModalSalida
+                }
+              >
+                <CheckCircle2
+                  size={18}
+                />
 
-              Registrar salida
-            </button>
+                Registrar salida
+              </button>
 
-          )}
+            )}
 
         </div>
 
@@ -1049,8 +1047,8 @@ function DetalleOperacionPage() {
               >
                 {operacion.llegada_real
                   ? formatearFechaHora(
-                      operacion.llegada_real
-                    )
+                    operacion.llegada_real
+                  )
                   : "Pendiente"}
               </strong>
 
@@ -1096,8 +1094,8 @@ function DetalleOperacionPage() {
               >
                 {operacion.salida_real
                   ? formatearFechaHora(
-                      operacion.salida_real
-                    )
+                    operacion.salida_real
+                  )
                   : "Pendiente"}
               </strong>
 

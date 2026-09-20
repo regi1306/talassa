@@ -25,6 +25,9 @@ import {
   obtenerInspecciones,
 } from "../../services/inspeccionesService.js";
 
+import ConfirmDeleteModal
+  from "../../components/common/ConfirmDeleteModal.jsx";
+
 import "../../styles/inspecciones.css";
 
 
@@ -163,6 +166,10 @@ function InspeccionesPage() {
     setError,
   ] = useState("");
 
+  const [
+    inspeccionAEliminar,
+    setInspeccionAEliminar,
+  ] = useState(null);
 
   /* ======================================
      CARGAR DESDE POSTGRESQL
@@ -298,19 +305,19 @@ function InspeccionesPage() {
           const coincideEstado =
             estadoActivo === "Todos" ||
             inspeccion.estado ===
-              estadoActivo;
+            estadoActivo;
 
 
           const coincideOperacion =
             filtroOperacion === "Todas" ||
             inspeccion.operacion ===
-              filtroOperacion;
+            filtroOperacion;
 
 
           const coincideInspector =
             filtroInspector === "Todos" ||
             inspeccion.inspector ===
-              filtroInspector;
+            filtroInspector;
 
 
           return (
@@ -389,27 +396,16 @@ function InspeccionesPage() {
      ELIMINAR
   ====================================== */
 
-  async function eliminarInspeccion(
-    inspeccion
-  ) {
-    const confirmado =
-      window.confirm(
-        `¿Estás segura de eliminar la inspección ${inspeccion.codigo}?`
-      );
-
-
-    if (!confirmado) {
+  async function confirmarEliminarInspeccion() {
+    if (!inspeccionAEliminar) {
       return;
     }
 
 
     try {
-      setError("");
-
-
       const respuesta =
         await eliminarInspeccionApi(
-          inspeccion.id_inspeccion
+          inspeccionAEliminar.id_inspeccion
         );
 
 
@@ -421,35 +417,31 @@ function InspeccionesPage() {
       }
 
 
-      await cargarInspecciones();
-
-
-      window.alert(
-        respuesta.mensaje ||
-        "Inspección eliminada correctamente."
+      setInspecciones(
+        (anteriores) =>
+          anteriores.filter(
+            (inspeccion) =>
+              inspeccion.id_inspeccion !==
+              inspeccionAEliminar.id_inspeccion
+          )
       );
+
+
+      setInspeccionAEliminar(
+        null
+      );
+
+
+      setError("");
 
     } catch (error) {
-      console.error(
-        "Error al eliminar inspección:",
-        error
-      );
 
-
-      const mensaje =
+      throw new Error(
         error.response?.data?.mensaje ||
         error.message ||
-        "No fue posible eliminar la inspección.";
-
-
-      setError(
-        mensaje
+        "No fue posible eliminar la inspección."
       );
 
-
-      window.alert(
-        mensaje
-      );
     }
   }
 
@@ -967,8 +959,8 @@ function InspeccionesPage() {
                           className={`
                             status-pill
                             ${obtenerClaseInspeccion(
-                              inspeccion.estado
-                            )}
+                            inspeccion.estado
+                          )}
                           `}
                         >
 
@@ -1025,7 +1017,7 @@ function InspeccionesPage() {
                             title="Eliminar inspección"
                             className="action-delete"
                             onClick={() =>
-                              eliminarInspeccion(
+                              setInspeccionAEliminar(
                                 inspeccion
                               )
                             }
@@ -1045,7 +1037,7 @@ function InspeccionesPage() {
 
               {!cargando &&
                 inspeccionesFiltradas.length ===
-                  0 && (
+                0 && (
 
                   <tr>
 
@@ -1105,6 +1097,28 @@ function InspeccionesPage() {
 
       </div>
 
+      <ConfirmDeleteModal
+        abierto={
+          Boolean(
+            inspeccionAEliminar
+          )
+        }
+        titulo="Eliminar inspección"
+        mensaje="¿Confirmas que deseas eliminar esta inspección?"
+        nombre={
+          inspeccionAEliminar
+            ? inspeccionAEliminar.codigo
+            : ""
+        }
+        onCancelar={() =>
+          setInspeccionAEliminar(
+            null
+          )
+        }
+        onConfirmar={
+          confirmarEliminarInspeccion
+        }
+      />
     </section>
   );
 }

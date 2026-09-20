@@ -24,6 +24,9 @@ import {
   obtenerMuelles,
 } from "../../services/muellesService.js";
 
+
+import ConfirmDeleteModal
+  from "../../components/common/ConfirmDeleteModal.jsx";
 import "../../styles/muelles.css";
 
 
@@ -38,7 +41,7 @@ function obtenerClaseEstado(
     case "Disponible":
       return "muelle-status-disponible";
 
-    
+
     case "Mantenimiento":
       return "muelle-status-mantenimiento";
 
@@ -89,6 +92,11 @@ function MuellesPage() {
     setError,
   ] = useState("");
 
+
+  const [
+    muelleAEliminar,
+    setMuelleAEliminar,
+  ] = useState(null);
 
   /* ======================================
      CARGAR MUELLES
@@ -182,7 +190,7 @@ function MuellesPage() {
           const coincideEstado =
             filtroEstado === "Todos" ||
             muelle.estado_operativo ===
-              filtroEstado;
+            filtroEstado;
 
 
           return (
@@ -255,27 +263,16 @@ function MuellesPage() {
      ELIMINAR
   ====================================== */
 
-  async function eliminarMuelle(
-    muelle
-  ) {
-    const confirmado =
-      window.confirm(
-        `¿Deseas eliminar ${muelle.codigo} - ${muelle.nombre}?`
-      );
-
-
-    if (!confirmado) {
+  async function confirmarEliminarMuelle() {
+    if (!muelleAEliminar) {
       return;
     }
 
 
     try {
-      setError("");
-
-
       const respuesta =
         await eliminarMuelleApi(
-          muelle.id_muelle
+          muelleAEliminar.id_muelle
         );
 
 
@@ -287,35 +284,31 @@ function MuellesPage() {
       }
 
 
-      await cargarMuelles();
-
-
-      window.alert(
-        respuesta.mensaje ||
-        "Muelle eliminado correctamente."
+      setMuelles(
+        (anteriores) =>
+          anteriores.filter(
+            (muelle) =>
+              muelle.id_muelle !==
+              muelleAEliminar.id_muelle
+          )
       );
+
+
+      setMuelleAEliminar(
+        null
+      );
+
+
+      setError("");
 
     } catch (error) {
-      console.error(
-        "Error al eliminar muelle:",
-        error
-      );
 
-
-      const mensaje =
+      throw new Error(
         error.response?.data?.mensaje ||
         error.message ||
-        "No fue posible eliminar el muelle.";
-
-
-      setError(
-        mensaje
+        "No fue posible eliminar el muelle."
       );
 
-
-      window.alert(
-        mensaje
-      );
     }
   }
 
@@ -419,7 +412,7 @@ function MuellesPage() {
         </article>
 
 
-        
+
 
 
         <article className="stat-card">
@@ -515,7 +508,7 @@ function MuellesPage() {
                 Disponible
               </option>
 
-    
+
 
               <option value="Mantenimiento">
                 Mantenimiento
@@ -679,8 +672,8 @@ function MuellesPage() {
                           className={`
                             status-pill
                             ${obtenerClaseEstado(
-                              muelle.estado_operativo
-                            )}
+                            muelle.estado_operativo
+                          )}
                           `}
                         >
 
@@ -801,7 +794,7 @@ function MuellesPage() {
                             title="Eliminar muelle"
                             className="action-delete"
                             onClick={() =>
-                              eliminarMuelle(
+                              setMuelleAEliminar(
                                 muelle
                               )
                             }
@@ -823,7 +816,7 @@ function MuellesPage() {
 
               {!cargando &&
                 muellesFiltrados.length ===
-                  0 && (
+                0 && (
 
                   <tr>
 
@@ -883,6 +876,28 @@ function MuellesPage() {
 
       </div>
 
+      <ConfirmDeleteModal
+        abierto={
+          Boolean(
+            muelleAEliminar
+          )
+        }
+        titulo="Eliminar muelle"
+        mensaje="¿Confirmas que deseas eliminar este muelle del sistema?"
+        nombre={
+          muelleAEliminar
+            ? `${muelleAEliminar.codigo} — ${muelleAEliminar.nombre}`
+            : ""
+        }
+        onCancelar={() =>
+          setMuelleAEliminar(
+            null
+          )
+        }
+        onConfirmar={
+          confirmarEliminarMuelle
+        }
+      />
     </section>
   );
 }

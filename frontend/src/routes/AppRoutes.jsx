@@ -101,9 +101,11 @@ import MuelleFormPage
 
 // Se activará después de comprobar que
 // el archivo existe y está integrado.
-
 // import EvaluacionMuellesPage
 //   from "../pages/asignaciones/EvaluacionMuellesPage.jsx";
+
+import EvaluacionMuellesPage
+  from "../pages/asignaciones/EvaluacionMuellesPage.jsx";
 
 
 /* ======================================
@@ -129,6 +131,7 @@ import IncidenciaDetallePage
 
 
 function AppRoutes() {
+
   return (
     <Routes>
 
@@ -210,7 +213,6 @@ function AppRoutes() {
 
         {/* =====================================
             STEPHANIEE - ASIGNACIÓN DE MUELLES
-
             Pendiente de comprobar su archivo
             antes de habilitarla.
         ===================================== */}
@@ -331,6 +333,16 @@ function AppRoutes() {
         <Route
           path="/muelles/:id/ver"
           element={<MuelleFormPage />}
+        />
+
+
+        {/* =====================================
+            STEPHANIEE - ASIGNACIÓN DE MUELLES
+        ===================================== */}
+
+        <Route
+          path="/operaciones/:id/asignar-muelle"
+          element={<EvaluacionMuellesPage />}
         />
 
 
