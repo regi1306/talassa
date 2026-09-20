@@ -25,6 +25,9 @@ import incidenciasRoutes
 import pool
   from "./config/db.js";
 
+import dashboardRoutes
+  from "./routes/dashboard.routes.js";
+
 
 const app =
   express();
@@ -62,6 +65,11 @@ app.use(
 app.use(
   "/api/contenedores",
   contenedoresRoutes
+);
+
+app.use(
+  "/api/dashboard",
+  dashboardRoutes
 );
 
 

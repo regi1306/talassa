@@ -745,7 +745,7 @@ function FormularioContenedorPage() {
           <div className="campo-formulario-contenedor">
 
             <label htmlFor="id_tipo_carga">
-              Tipo de carga
+              Tipo de carga del contenedor
               <span>*</span>
             </label>
 
