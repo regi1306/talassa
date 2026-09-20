@@ -33,6 +33,7 @@ function responderError(
     .status(statusCode)
     .json({
       ok: false,
+
       message:
         statusCode === 500
           ? "Ocurrió un error interno en el servidor."
@@ -58,6 +59,7 @@ export async function listar(
       ok: true,
       data: usuarios,
     });
+
 
   } catch (error) {
     return responderError(
@@ -88,6 +90,7 @@ export async function obtenerPorId(
       data: usuario,
     });
 
+
   } catch (error) {
     return responderError(
       res,
@@ -108,7 +111,8 @@ export async function crear(
   try {
     const usuario =
       await registrarUsuario(
-        req.body
+        req.body,
+        req.usuario?.id_usuario
       );
 
 
@@ -120,8 +124,10 @@ export async function crear(
         message:
           "Usuario registrado correctamente.",
 
-        data: usuario,
+        data:
+          usuario,
       });
+
 
   } catch (error) {
     return responderError(
@@ -144,7 +150,8 @@ export async function actualizar(
     const usuario =
       await editarUsuario(
         req.params.id,
-        req.body
+        req.body,
+        req.usuario?.id_usuario
       );
 
 
@@ -154,8 +161,10 @@ export async function actualizar(
       message:
         "Usuario actualizado correctamente.",
 
-      data: usuario,
+      data:
+        usuario,
     });
+
 
   } catch (error) {
     return responderError(
@@ -196,8 +205,10 @@ export async function cambiarEstado(
           ? "Usuario activado correctamente."
           : "Usuario desactivado correctamente.",
 
-      data: usuario,
+      data:
+        usuario,
     });
+
 
   } catch (error) {
     return responderError(

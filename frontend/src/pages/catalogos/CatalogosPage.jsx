@@ -16,15 +16,33 @@ import {
 } from "lucide-react";
 
 import {
+  useEffect,
   useMemo,
   useState,
 } from "react";
+
+import {
+  useNavigate,
+} from "react-router-dom";
+
+import {
+  actualizarRegistroCatalogo,
+  cambiarEstadoRegistroCatalogo,
+  crearRegistroCatalogo,
+  listarCatalogo,
+  listarTodosCatalogos,
+} from "../../services/catalogos.service.js";
+
+import {
+  cerrarSesion,
+  obtenerUsuarioGuardado,
+} from "../../services/auth.service.js";
 
 import "../../styles/catalogos.css";
 
 
 /* ======================================
-   CONFIGURACIÓN DE CATÁLOGOS
+   CATÁLOGOS DISPONIBLES
 ====================================== */
 
 const catalogosDisponibles = [
@@ -62,165 +80,21 @@ const catalogosDisponibles = [
 
 
 /* ======================================
-   DATOS TEMPORALES
-
-   Más adelante serán sustituidos
-   por información proveniente de la API.
+   ESTADO INICIAL DE LOS CATÁLOGOS
 ====================================== */
 
 const datosIniciales = {
-  tipos_buque: [
-    {
-      id: 1,
-      nombre: "Portacontenedores",
-      descripcion:
-        "Buque diseñado para transportar contenedores.",
-      activo: true,
-      fecha_actualizacion: "Hoy, 09:15",
-    },
-    {
-      id: 2,
-      nombre: "Granelero",
-      descripcion:
-        "Embarcación destinada al transporte de carga a granel.",
-      activo: true,
-      fecha_actualizacion: "12 sep. 2026",
-    },
-    {
-      id: 3,
-      nombre: "Tanquero",
-      descripcion:
-        "Buque utilizado para transportar líquidos a granel.",
-      activo: true,
-      fecha_actualizacion: "08 sep. 2026",
-    },
-    {
-      id: 4,
-      nombre: "Ro-Ro",
-      descripcion:
-        "Buque especializado en carga rodada.",
-      activo: true,
-      fecha_actualizacion: "04 sep. 2026",
-    },
-  ],
-
-  tipos_carga: [
-    {
-      id: 1,
-      nombre: "Carga general",
-      descripcion:
-        "Mercancías transportadas de manera convencional.",
-      activo: true,
-      fecha_actualizacion: "Hoy, 10:20",
-    },
-    {
-      id: 2,
-      nombre: "Contenedorizada",
-      descripcion:
-        "Carga movilizada mediante contenedores.",
-      activo: true,
-      fecha_actualizacion: "13 sep. 2026",
-    },
-    {
-      id: 3,
-      nombre: "Granel sólido",
-      descripcion:
-        "Carga sólida transportada sin embalaje.",
-      activo: true,
-      fecha_actualizacion: "10 sep. 2026",
-    },
-    {
-      id: 4,
-      nombre: "Granel líquido",
-      descripcion:
-        "Carga líquida transportada en grandes cantidades.",
-      activo: false,
-      fecha_actualizacion: "02 sep. 2026",
-    },
-  ],
-
-  tipos_contenedor: [
-    {
-      id: 1,
-      nombre: "Dry Van 20'",
-      descripcion:
-        "Contenedor estándar de veinte pies.",
-      activo: true,
-      fecha_actualizacion: "Hoy, 08:40",
-    },
-    {
-      id: 2,
-      nombre: "Dry Van 40'",
-      descripcion:
-        "Contenedor estándar de cuarenta pies.",
-      activo: true,
-      fecha_actualizacion: "11 sep. 2026",
-    },
-    {
-      id: 3,
-      nombre: "Reefer",
-      descripcion:
-        "Contenedor refrigerado para carga sensible a temperatura.",
-      activo: true,
-      fecha_actualizacion: "05 sep. 2026",
-    },
-  ],
-
-  tipos_inspeccion: [
-    {
-      id: 1,
-      nombre: "Documental",
-      descripcion:
-        "Verificación de documentación relacionada con la operación.",
-      activo: true,
-      fecha_actualizacion: "Hoy, 07:55",
-    },
-    {
-      id: 2,
-      nombre: "Visual",
-      descripcion:
-        "Inspección física visual del elemento revisado.",
-      activo: true,
-      fecha_actualizacion: "09 sep. 2026",
-    },
-    {
-      id: 3,
-      nombre: "Seguridad",
-      descripcion:
-        "Inspección asociada al cumplimiento de condiciones de seguridad.",
-      activo: true,
-      fecha_actualizacion: "01 sep. 2026",
-    },
-  ],
-
-  tipos_incidencia: [
-    {
-      id: 1,
-      nombre: "Daño de contenedor",
-      descripcion:
-        "Daño físico detectado en un contenedor.",
-      activo: true,
-      fecha_actualizacion: "Hoy, 11:05",
-    },
-    {
-      id: 2,
-      nombre: "Retraso operativo",
-      descripcion:
-        "Demora registrada durante una operación portuaria.",
-      activo: true,
-      fecha_actualizacion: "10 sep. 2026",
-    },
-    {
-      id: 3,
-      nombre: "Documentación incompleta",
-      descripcion:
-        "Información o documentación requerida no disponible.",
-      activo: true,
-      fecha_actualizacion: "03 sep. 2026",
-    },
-  ],
+  tipos_buque: [],
+  tipos_carga: [],
+  tipos_contenedor: [],
+  tipos_inspeccion: [],
+  tipos_incidencia: [],
 };
 
+
+/* ======================================
+   FORMULARIO INICIAL
+====================================== */
 
 const formularioInicial = {
   nombre: "",
@@ -230,16 +104,38 @@ const formularioInicial = {
 
 
 function CatalogosPage() {
+  const navigate =
+    useNavigate();
+
+
+  const usuario =
+    obtenerUsuarioGuardado();
+
+
+  const puedeGestionar =
+    usuario?.permisos?.includes(
+      "CAT_GESTIONAR"
+    ) ?? false;
+
+
+  /* ======================================
+     ESTADOS
+  ====================================== */
+
   const [
     catalogoActivo,
     setCatalogoActivo,
-  ] = useState("tipos_buque");
+  ] = useState(
+    "tipos_buque"
+  );
 
 
   const [
     datosCatalogos,
     setDatosCatalogos,
-  ] = useState(datosIniciales);
+  ] = useState(
+    datosIniciales
+  );
 
 
   const [
@@ -257,7 +153,7 @@ function CatalogosPage() {
   const [
     cargando,
     setCargando,
-  ] = useState(false);
+  ] = useState(true);
 
 
   const [
@@ -275,7 +171,9 @@ function CatalogosPage() {
   const [
     formulario,
     setFormulario,
-  ] = useState(formularioInicial);
+  ] = useState(
+    formularioInicial
+  );
 
 
   const [
@@ -296,6 +194,105 @@ function CatalogosPage() {
   ] = useState("");
 
 
+  const [
+    errorGeneral,
+    setErrorGeneral,
+  ] = useState("");
+
+
+  const [
+    errorFormulario,
+    setErrorFormulario,
+  ] = useState("");
+
+
+  /* ======================================
+     CARGA INICIAL
+  ====================================== */
+
+  useEffect(() => {
+    let componenteActivo =
+      true;
+
+
+    async function cargarInicial() {
+      try {
+        const respuesta =
+          await listarTodosCatalogos();
+
+
+        if (!componenteActivo) {
+          return;
+        }
+
+
+        setDatosCatalogos({
+          ...datosIniciales,
+          ...(respuesta.data || {}),
+        });
+
+
+      } catch (error) {
+        console.error(
+          "Error al cargar catálogos:",
+          error
+        );
+
+
+        if (!componenteActivo) {
+          return;
+        }
+
+
+        if (
+          error.response?.status ===
+          401
+        ) {
+          cerrarSesion();
+
+
+          navigate(
+            "/login",
+            {
+              replace: true,
+            }
+          );
+
+
+          return;
+        }
+
+
+        setErrorGeneral(
+          error.response?.data?.message
+          ||
+          "No fue posible cargar los catálogos."
+        );
+
+
+      } finally {
+        if (componenteActivo) {
+          setCargando(false);
+        }
+      }
+    }
+
+
+    cargarInicial();
+
+
+    return () => {
+      componenteActivo =
+        false;
+    };
+
+  }, [navigate]);
+
+
+  /* ======================================
+     CATÁLOGO SELECCIONADO
+  ====================================== */
+
   const catalogoSeleccionado =
     catalogosDisponibles.find(
       (catalogo) =>
@@ -305,8 +302,14 @@ function CatalogosPage() {
 
 
   const registros =
-    datosCatalogos[catalogoActivo] || [];
+    datosCatalogos[
+      catalogoActivo
+    ] || [];
 
+
+  /* ======================================
+     FILTROS
+  ====================================== */
 
   const registrosFiltrados =
     useMemo(() => {
@@ -319,33 +322,47 @@ function CatalogosPage() {
       return registros.filter(
         (registro) => {
           const coincideBusqueda =
-            !texto ||
+            !texto
+            ||
             registro.nombre
-              .toLowerCase()
-              .includes(texto) ||
-            registro.descripcion
+              ?.toLowerCase()
+              .includes(texto)
+            ||
+            (
+              registro.descripcion
+              || ""
+            )
               .toLowerCase()
               .includes(texto);
 
 
           const coincideEstado =
-            !filtroEstado ||
-            String(registro.activo) ===
+            !filtroEstado
+            ||
+            String(
+              registro.activo
+            ) ===
               filtroEstado;
 
 
           return (
-            coincideBusqueda &&
+            coincideBusqueda
+            &&
             coincideEstado
           );
         }
       );
+
     }, [
       registros,
       busqueda,
       filtroEstado,
     ]);
 
+
+  /* ======================================
+     INDICADORES
+  ====================================== */
 
   const totalActivos =
     registros.filter(
@@ -355,14 +372,22 @@ function CatalogosPage() {
 
 
   const totalInactivos =
-    registros.length -
+    registros.length
+    -
     totalActivos;
 
+
+  /* ======================================
+     CAMBIAR CATÁLOGO
+  ====================================== */
 
   function cambiarCatalogo(
     clave
   ) {
-    setCatalogoActivo(clave);
+    setCatalogoActivo(
+      clave
+    );
+
 
     setBusqueda("");
 
@@ -372,9 +397,17 @@ function CatalogosPage() {
 
     setRegistroEditando(null);
 
-    setFormulario(
-      formularioInicial
-    );
+    setFormulario({
+      ...formularioInicial,
+    });
+
+    setErrores({});
+
+    setMensajeExito("");
+
+    setErrorGeneral("");
+
+    setErrorFormulario("");
   }
 
 
@@ -385,34 +418,114 @@ function CatalogosPage() {
   }
 
 
-  function actualizarCatalogo() {
-    setCargando(true);
+  /* ======================================
+     ACTUALIZAR CATÁLOGO
+  ====================================== */
+
+  async function actualizarCatalogo() {
+    try {
+      setCargando(true);
+
+      setErrorGeneral("");
 
 
-    setTimeout(() => {
+      const respuesta =
+        await listarCatalogo(
+          catalogoActivo
+        );
+
+
+      setDatosCatalogos(
+        (actuales) => ({
+          ...actuales,
+
+          [catalogoActivo]:
+            respuesta.data || [],
+        })
+      );
+
+
+    } catch (error) {
+      console.error(
+        "Error al actualizar catálogo:",
+        error
+      );
+
+
+      if (
+        error.response?.status ===
+        401
+      ) {
+        cerrarSesion();
+
+
+        navigate(
+          "/login",
+          {
+            replace: true,
+          }
+        );
+
+
+        return;
+      }
+
+
+      setErrorGeneral(
+        error.response?.data?.message
+        ||
+        "No fue posible actualizar el catálogo."
+      );
+
+
+    } finally {
       setCargando(false);
-    }, 500);
+    }
   }
 
 
+  /* ======================================
+     ABRIR NUEVO REGISTRO
+  ====================================== */
+
   function abrirNuevoRegistro() {
+    if (!puedeGestionar) {
+      return;
+    }
+
+
     setRegistroEditando(null);
 
-    setFormulario(
-      formularioInicial
-    );
+
+    setFormulario({
+      ...formularioInicial,
+    });
+
 
     setErrores({});
 
     setMensajeExito("");
 
+    setErrorGeneral("");
+
+    setErrorFormulario("");
+
     setPanelAbierto(true);
   }
 
 
+  /* ======================================
+     EDITAR REGISTRO
+  ====================================== */
+
   function abrirEditarRegistro(
     registro
   ) {
+    if (!puedeGestionar) {
+      return;
+    }
+
+
     setRegistroEditando(
       registro
     );
@@ -420,10 +533,10 @@ function CatalogosPage() {
 
     setFormulario({
       nombre:
-        registro.nombre,
+        registro.nombre || "",
 
       descripcion:
-        registro.descripcion,
+        registro.descripcion || "",
 
       activo:
         registro.activo,
@@ -434,9 +547,17 @@ function CatalogosPage() {
 
     setMensajeExito("");
 
+    setErrorGeneral("");
+
+    setErrorFormulario("");
+
     setPanelAbierto(true);
   }
 
+
+  /* ======================================
+     CERRAR PANEL
+  ====================================== */
 
   function cerrarPanel() {
     if (guardando) {
@@ -448,15 +569,23 @@ function CatalogosPage() {
 
     setRegistroEditando(null);
 
-    setFormulario(
-      formularioInicial
-    );
+
+    setFormulario({
+      ...formularioInicial,
+    });
+
 
     setErrores({});
 
     setMensajeExito("");
+
+    setErrorFormulario("");
   }
 
+
+  /* ======================================
+     CAMBIOS EN FORMULARIO
+  ====================================== */
 
   function manejarCambio(
     evento
@@ -470,7 +599,9 @@ function CatalogosPage() {
     setFormulario(
       (actual) => ({
         ...actual,
-        [name]: value,
+
+        [name]:
+          value,
       })
     );
 
@@ -479,14 +610,21 @@ function CatalogosPage() {
       setErrores(
         (actuales) => ({
           ...actuales,
-          [name]: "",
+
+          [name]:
+            "",
         })
       );
+    }
+
+
+    if (errorFormulario) {
+      setErrorFormulario("");
     }
   }
 
 
-  function cambiarEstado(
+  function cambiarEstadoFormulario(
     activo
   ) {
     setFormulario(
@@ -495,14 +633,25 @@ function CatalogosPage() {
         activo,
       })
     );
+
+
+    if (errorFormulario) {
+      setErrorFormulario("");
+    }
   }
 
+
+  /* ======================================
+     VALIDAR FORMULARIO
+  ====================================== */
 
   function validarFormulario() {
     const nuevosErrores = {};
 
 
-    if (!formulario.nombre.trim()) {
+    if (
+      !formulario.nombre.trim()
+    ) {
       nuevosErrores.nombre =
         "Ingrese el nombre del registro.";
     }
@@ -529,24 +678,60 @@ function CatalogosPage() {
   }
 
 
-  function guardarRegistro(
+  /* ======================================
+     GUARDAR REGISTRO
+  ====================================== */
+
+  async function guardarRegistro(
     evento
   ) {
     evento.preventDefault();
 
 
-    if (!validarFormulario()) {
+    if (
+      !puedeGestionar
+      ||
+      !validarFormulario()
+    ) {
       return;
     }
 
 
-    setGuardando(true);
+    try {
+      setGuardando(true);
 
-    setMensajeExito("");
+      setMensajeExito("");
+
+      setErrorGeneral("");
+
+      setErrorFormulario("");
 
 
-    setTimeout(() => {
+      const datos = {
+        nombre:
+          formulario.nombre.trim(),
+
+        descripcion:
+          formulario.descripcion.trim(),
+
+        activo:
+          formulario.activo,
+      };
+
+
+      /* ======================================
+         ACTUALIZAR
+      ====================================== */
+
       if (registroEditando) {
+        const respuesta =
+          await actualizarRegistroCatalogo(
+            catalogoActivo,
+            registroEditando.id,
+            datos
+          );
+
+
         setDatosCatalogos(
           (actuales) => ({
             ...actuales,
@@ -558,21 +743,7 @@ function CatalogosPage() {
                 (registro) =>
                   registro.id ===
                   registroEditando.id
-                    ? {
-                        ...registro,
-
-                        nombre:
-                          formulario.nombre.trim(),
-
-                        descripcion:
-                          formulario.descripcion.trim(),
-
-                        activo:
-                          formulario.activo,
-
-                        fecha_actualizacion:
-                          "Ahora",
-                      }
+                    ? respuesta.data
                     : registro
               ),
           })
@@ -582,23 +753,18 @@ function CatalogosPage() {
         setMensajeExito(
           "El registro fue actualizado correctamente."
         );
+
+
+      /* ======================================
+         CREAR
+      ====================================== */
+
       } else {
-        const nuevoRegistro = {
-          id:
-            Date.now(),
-
-          nombre:
-            formulario.nombre.trim(),
-
-          descripcion:
-            formulario.descripcion.trim(),
-
-          activo:
-            formulario.activo,
-
-          fecha_actualizacion:
-            "Ahora",
-        };
+        const respuesta =
+          await crearRegistroCatalogo(
+            catalogoActivo,
+            datos
+          );
 
 
         setDatosCatalogos(
@@ -606,7 +772,7 @@ function CatalogosPage() {
             ...actuales,
 
             [catalogoActivo]: [
-              nuevoRegistro,
+              respuesta.data,
               ...actuales[
                 catalogoActivo
               ],
@@ -621,45 +787,154 @@ function CatalogosPage() {
       }
 
 
-      setGuardando(false);
-
+      /* ======================================
+         CERRAR DESPUÉS DEL ÉXITO
+      ====================================== */
 
       setTimeout(() => {
-        cerrarPanel();
+        setPanelAbierto(false);
+
+        setRegistroEditando(null);
+
+
+        setFormulario({
+          ...formularioInicial,
+        });
+
+
+        setErrores({});
+
+        setMensajeExito("");
+
+        setErrorFormulario("");
+
       }, 650);
-    }, 600);
+
+
+    } catch (error) {
+      console.error(
+        "Error al guardar catálogo:",
+        error
+      );
+
+
+      if (
+        error.response?.status ===
+        401
+      ) {
+        cerrarSesion();
+
+
+        navigate(
+          "/login",
+          {
+            replace: true,
+          }
+        );
+
+
+        return;
+      }
+
+
+      /*
+        Los errores de creación o edición
+        se muestran dentro del formulario.
+      */
+
+      setErrorFormulario(
+        error.response?.data?.message
+        ||
+        "No fue posible guardar el registro."
+      );
+
+
+    } finally {
+      setGuardando(false);
+    }
   }
 
 
-  function cambiarEstadoRegistro(
-    idRegistro
+  /* ======================================
+     ACTIVAR / DESACTIVAR
+  ====================================== */
+
+  async function cambiarEstadoRegistro(
+    registro
   ) {
-    setDatosCatalogos(
-      (actuales) => ({
-        ...actuales,
+    if (!puedeGestionar) {
+      return;
+    }
 
-        [catalogoActivo]:
-          actuales[
-            catalogoActivo
-          ].map(
-            (registro) =>
-              registro.id ===
-              idRegistro
-                ? {
-                    ...registro,
 
-                    activo:
-                      !registro.activo,
+    try {
+      setErrorGeneral("");
 
-                    fecha_actualizacion:
-                      "Ahora",
-                  }
-                : registro
-          ),
-      })
-    );
+
+      const respuesta =
+        await cambiarEstadoRegistroCatalogo(
+          catalogoActivo,
+          registro.id,
+          !registro.activo
+        );
+
+
+      setDatosCatalogos(
+        (actuales) => ({
+          ...actuales,
+
+          [catalogoActivo]:
+            actuales[
+              catalogoActivo
+            ].map(
+              (actual) =>
+                actual.id ===
+                registro.id
+                  ? respuesta.data
+                  : actual
+            ),
+        })
+      );
+
+
+    } catch (error) {
+      console.error(
+        "Error al cambiar estado:",
+        error
+      );
+
+
+      if (
+        error.response?.status ===
+        401
+      ) {
+        cerrarSesion();
+
+
+        navigate(
+          "/login",
+          {
+            replace: true,
+          }
+        );
+
+
+        return;
+      }
+
+
+      setErrorGeneral(
+        error.response?.data?.message
+        ||
+        "No fue posible cambiar el estado del registro."
+      );
+    }
   }
 
+
+  /* ======================================
+     ICONO DEL CATÁLOGO
+  ====================================== */
 
   const IconoCatalogo =
     catalogoSeleccionado.icono;
@@ -697,19 +972,46 @@ function CatalogosPage() {
         </div>
 
 
-        <button
-          type="button"
-          className="boton-nuevo-catalogo"
-          onClick={
-            abrirNuevoRegistro
-          }
-        >
-          <Plus size={19} />
+        {puedeGestionar && (
 
-          Nuevo registro
-        </button>
+          <button
+            type="button"
+            className="boton-nuevo-catalogo"
+            onClick={
+              abrirNuevoRegistro
+            }
+          >
+
+            <Plus size={19} />
+
+            Nuevo registro
+
+          </button>
+
+        )}
 
       </div>
+
+
+      {/* ======================================
+          ERROR GENERAL
+      ====================================== */}
+
+      {errorGeneral && (
+
+        <div className="mensaje-error-general-catalogo">
+
+          <TriangleAlert
+            size={17}
+          />
+
+          <span>
+            {errorGeneral}
+          </span>
+
+        </div>
+
+      )}
 
 
       {/* ======================================
@@ -750,7 +1052,11 @@ function CatalogosPage() {
               >
 
                 <div className="icono-tarjeta-catalogo">
-                  <Icono size={22} />
+
+                  <Icono
+                    size={22}
+                  />
+
                 </div>
 
 
@@ -781,7 +1087,7 @@ function CatalogosPage() {
 
 
       {/* ======================================
-          INDICADORES
+          RESUMEN
       ====================================== */}
 
       <div className="resumen-catalogos">
@@ -789,7 +1095,11 @@ function CatalogosPage() {
         <article className="tarjeta-resumen-catalogo azul">
 
           <div className="icono-resumen-catalogo">
-            <IconoCatalogo size={23} />
+
+            <IconoCatalogo
+              size={23}
+            />
+
           </div>
 
 
@@ -799,12 +1109,15 @@ function CatalogosPage() {
               Total de registros
             </span>
 
+
             <strong>
               {registros.length}
             </strong>
 
+
             <small>
-              En {catalogoSeleccionado.nombre.toLowerCase()}
+              En{" "}
+              {catalogoSeleccionado.nombre.toLowerCase()}
             </small>
 
           </div>
@@ -815,7 +1128,11 @@ function CatalogosPage() {
         <article className="tarjeta-resumen-catalogo menta">
 
           <div className="icono-resumen-catalogo">
-            <Tag size={23} />
+
+            <Tag
+              size={23}
+            />
+
           </div>
 
 
@@ -825,9 +1142,11 @@ function CatalogosPage() {
               Registros activos
             </span>
 
+
             <strong>
               {totalActivos}
             </strong>
+
 
             <small>
               Disponibles para utilizar
@@ -841,7 +1160,11 @@ function CatalogosPage() {
         <article className="tarjeta-resumen-catalogo rojo">
 
           <div className="icono-resumen-catalogo">
-            <Tag size={23} />
+
+            <Tag
+              size={23}
+            />
+
           </div>
 
 
@@ -851,9 +1174,11 @@ function CatalogosPage() {
               Registros inactivos
             </span>
 
+
             <strong>
               {totalInactivos}
             </strong>
+
 
             <small>
               No disponibles actualmente
@@ -877,6 +1202,7 @@ function CatalogosPage() {
           <div>
 
             <h2>
+
               <IconoCatalogo
                 size={21}
               />
@@ -884,6 +1210,7 @@ function CatalogosPage() {
               {
                 catalogoSeleccionado.nombre
               }
+
             </h2>
 
 
@@ -905,7 +1232,11 @@ function CatalogosPage() {
             onClick={
               actualizarCatalogo
             }
+            disabled={
+              cargando
+            }
           >
+
             <RefreshCw
               size={17}
               className={
@@ -916,6 +1247,7 @@ function CatalogosPage() {
             />
 
             Actualizar
+
           </button>
 
         </div>
@@ -929,12 +1261,16 @@ function CatalogosPage() {
 
           <div className="buscador-catalogos">
 
-            <Search size={18} />
+            <Search
+              size={18}
+            />
 
 
             <input
               type="text"
-              value={busqueda}
+              value={
+                busqueda
+              }
               onChange={(evento) =>
                 setBusqueda(
                   evento.target.value
@@ -948,17 +1284,22 @@ function CatalogosPage() {
 
           <div className="campo-filtro-catalogos">
 
-            <Filter size={16} />
+            <Filter
+              size={16}
+            />
 
 
             <select
-              value={filtroEstado}
+              value={
+                filtroEstado
+              }
               onChange={(evento) =>
                 setFiltroEstado(
                   evento.target.value
                 )
               }
             >
+
               <option value="">
                 Todos los estados
               </option>
@@ -970,6 +1311,7 @@ function CatalogosPage() {
               <option value="false">
                 Inactivos
               </option>
+
             </select>
 
           </div>
@@ -978,7 +1320,9 @@ function CatalogosPage() {
           <button
             type="button"
             className="boton-limpiar-catalogos"
-            onClick={limpiarFiltros}
+            onClick={
+              limpiarFiltros
+            }
           >
             Limpiar
           </button>
@@ -991,6 +1335,7 @@ function CatalogosPage() {
         ====================================== */}
 
         {cargando && (
+
           <div className="estado-carga-catalogos">
 
             <RefreshCw
@@ -1003,6 +1348,7 @@ function CatalogosPage() {
             </span>
 
           </div>
+
         )}
 
 
@@ -1011,6 +1357,7 @@ function CatalogosPage() {
         ====================================== */}
 
         {!cargando && (
+
           <div className="contenedor-tabla-catalogos">
 
             <table className="tabla-catalogos">
@@ -1018,13 +1365,23 @@ function CatalogosPage() {
               <thead>
 
                 <tr>
-                  <th>Nombre</th>
-                  <th>Descripción</th>
-                  <th>Estado</th>
+
                   <th>
-                    Última actualización
+                    Nombre
                   </th>
-                  <th>Acciones</th>
+
+                  <th>
+                    Descripción
+                  </th>
+
+                  <th>
+                    Estado
+                  </th>
+
+                  <th>
+                    Acciones
+                  </th>
+
                 </tr>
 
               </thead>
@@ -1037,7 +1394,7 @@ function CatalogosPage() {
                   <tr>
 
                     <td
-                      colSpan="5"
+                      colSpan="4"
                       className="tabla-sin-catalogos"
                     >
                       No se encontraron registros.
@@ -1051,7 +1408,9 @@ function CatalogosPage() {
                     (registro) => (
 
                       <tr
-                        key={registro.id}
+                        key={
+                          registro.id
+                        }
                       >
 
                         <td>
@@ -1077,7 +1436,13 @@ function CatalogosPage() {
 
 
                         <td className="descripcion-registro-catalogo">
-                          {registro.descripcion}
+
+                          {
+                            registro.descripcion
+                            ||
+                            "—"
+                          }
+
                         </td>
 
 
@@ -1093,6 +1458,7 @@ function CatalogosPage() {
 
                             <i />
 
+
                             {registro.activo
                               ? "Activo"
                               : "Inactivo"}
@@ -1103,55 +1469,62 @@ function CatalogosPage() {
 
 
                         <td>
-                          {
-                            registro.fecha_actualizacion
-                          }
-                        </td>
+
+                          {puedeGestionar ? (
+
+                            <div className="acciones-catalogo">
+
+                              <button
+                                type="button"
+                                title="Editar registro"
+                                onClick={() =>
+                                  abrirEditarRegistro(
+                                    registro
+                                  )
+                                }
+                              >
+
+                                <Pencil
+                                  size={16}
+                                />
+
+                              </button>
 
 
-                        <td>
+                              <button
+                                type="button"
+                                title={
+                                  registro.activo
+                                    ? "Desactivar"
+                                    : "Reactivar"
+                                }
+                                className={
+                                  registro.activo
+                                    ? "accion-desactivar-catalogo"
+                                    : "accion-reactivar-catalogo"
+                                }
+                                onClick={() =>
+                                  cambiarEstadoRegistro(
+                                    registro
+                                  )
+                                }
+                              >
 
-                          <div className="acciones-catalogo">
+                                <Tag
+                                  size={16}
+                                />
 
-                            <button
-                              type="button"
-                              title="Editar registro"
-                              onClick={() =>
-                                abrirEditarRegistro(
-                                  registro
-                                )
-                              }
-                            >
-                              <Pencil
-                                size={16}
-                              />
-                            </button>
+                              </button>
 
+                            </div>
 
-                            <button
-                              type="button"
-                              title={
-                                registro.activo
-                                  ? "Desactivar"
-                                  : "Reactivar"
-                              }
-                              className={
-                                registro.activo
-                                  ? "accion-desactivar-catalogo"
-                                  : "accion-reactivar-catalogo"
-                              }
-                              onClick={() =>
-                                cambiarEstadoRegistro(
-                                  registro.id
-                                )
-                              }
-                            >
-                              <Tag
-                                size={16}
-                              />
-                            </button>
+                          ) : (
 
-                          </div>
+                            <span>
+                              —
+                            </span>
+
+                          )}
 
                         </td>
 
@@ -1167,6 +1540,7 @@ function CatalogosPage() {
             </table>
 
           </div>
+
         )}
 
       </article>
@@ -1192,45 +1566,65 @@ function CatalogosPage() {
 
           <aside className="panel-formulario-catalogo">
 
+            {/* CERRAR */}
+
             <button
               type="button"
               className="cerrar-panel-catalogo"
-              onClick={cerrarPanel}
-              disabled={guardando}
+              onClick={
+                cerrarPanel
+              }
+              disabled={
+                guardando
+              }
               aria-label="Cerrar"
             >
-              <X size={19} />
+
+              <X
+                size={19}
+              />
+
             </button>
 
+
+            {/* ENCABEZADO PANEL */}
 
             <div className="encabezado-panel-catalogo">
 
               <div className="icono-panel-catalogo">
+
                 <IconoCatalogo
                   size={23}
                 />
+
               </div>
 
 
               <div>
 
                 <h2>
+
                   {registroEditando
                     ? `Editar ${catalogoSeleccionado.singular}`
                     : `Nuevo ${catalogoSeleccionado.singular}`}
+
                 </h2>
 
 
                 <p>
+
                   {registroEditando
                     ? "Actualice la información del registro seleccionado."
                     : "Registre una nueva opción para utilizarla dentro del sistema."}
+
                 </p>
 
               </div>
 
             </div>
 
+
+            {/* FORMULARIO */}
 
             <form
               className="formulario-catalogo"
@@ -1245,8 +1639,13 @@ function CatalogosPage() {
               <div className="campo-formulario-catalogo">
 
                 <label htmlFor="nombreCatalogo">
+
                   Nombre
-                  <span>*</span>
+
+                  <span>
+                    *
+                  </span>
+
                 </label>
 
 
@@ -1257,7 +1656,10 @@ function CatalogosPage() {
                       : "entrada-catalogo"
                   }
                 >
-                  <Tag size={17} />
+
+                  <Tag
+                    size={17}
+                  />
 
 
                   <input
@@ -1271,16 +1673,22 @@ function CatalogosPage() {
                       manejarCambio
                     }
                     placeholder="Ingrese el nombre"
-                    maxLength={120}
+                    maxLength={100}
                   />
 
                 </div>
 
 
                 {errores.nombre && (
+
                   <small className="mensaje-error-campo-catalogo">
-                    {errores.nombre}
+
+                    {
+                      errores.nombre
+                    }
+
                   </small>
+
                 )}
 
               </div>
@@ -1291,8 +1699,13 @@ function CatalogosPage() {
               <div className="campo-formulario-catalogo">
 
                 <label htmlFor="descripcionCatalogo">
+
                   Descripción
-                  <span>*</span>
+
+                  <span>
+                    *
+                  </span>
+
                 </label>
 
 
@@ -1312,16 +1725,20 @@ function CatalogosPage() {
                   }
                   placeholder="Describa brevemente este registro..."
                   rows="5"
-                  maxLength={300}
+                  maxLength={250}
                 />
 
 
                 {errores.descripcion && (
+
                   <small className="mensaje-error-campo-catalogo">
+
                     {
                       errores.descripcion
                     }
+
                   </small>
+
                 )}
 
               </div>
@@ -1332,8 +1749,13 @@ function CatalogosPage() {
               <div className="campo-formulario-catalogo">
 
                 <label>
+
                   Estado
-                  <span>*</span>
+
+                  <span>
+                    *
+                  </span>
+
                 </label>
 
 
@@ -1347,12 +1769,16 @@ function CatalogosPage() {
                         : "opcion-estado-catalogo activa"
                     }
                     onClick={() =>
-                      cambiarEstado(true)
+                      cambiarEstadoFormulario(
+                        true
+                      )
                     }
                   >
+
                     <i />
 
                     Activo
+
                   </button>
 
 
@@ -1364,12 +1790,16 @@ function CatalogosPage() {
                         : "opcion-estado-catalogo inactiva"
                     }
                     onClick={() =>
-                      cambiarEstado(false)
+                      cambiarEstadoFormulario(
+                        false
+                      )
                     }
                   >
+
                     <i />
 
                     Inactivo
+
                   </button>
 
                 </div>
@@ -1377,12 +1807,45 @@ function CatalogosPage() {
               </div>
 
 
-              {mensajeExito && (
-                <div className="mensaje-exito-catalogo">
-                  {mensajeExito}
+              {/* ======================================
+                  ERROR DEL FORMULARIO
+              ====================================== */}
+
+              {errorFormulario && (
+
+                <div className="mensaje-error-formulario-catalogo">
+
+                  <TriangleAlert
+                    size={16}
+                  />
+
+                  <span>
+                    {errorFormulario}
+                  </span>
+
                 </div>
+
               )}
 
+
+              {/* ======================================
+                  MENSAJE DE ÉXITO
+              ====================================== */}
+
+              {mensajeExito && (
+
+                <div className="mensaje-exito-catalogo">
+
+                  {mensajeExito}
+
+                </div>
+
+              )}
+
+
+              {/* ======================================
+                  BOTONES
+              ====================================== */}
 
               <div className="acciones-formulario-catalogo">
 
@@ -1396,7 +1859,9 @@ function CatalogosPage() {
                     guardando
                   }
                 >
+
                   Cancelar
+
                 </button>
 
 
@@ -1409,22 +1874,32 @@ function CatalogosPage() {
                 >
 
                   {guardando ? (
+
                     <>
+
                       <LoaderCircle
                         size={17}
                         className="icono-girando-catalogos"
                       />
 
                       Guardando...
+
                     </>
+
                   ) : (
+
                     <>
-                      <Save size={17} />
+
+                      <Save
+                        size={17}
+                      />
 
                       {registroEditando
                         ? "Guardar cambios"
                         : "Registrar"}
+
                     </>
+
                   )}
 
                 </button>

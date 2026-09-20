@@ -1,8 +1,11 @@
 import {
   Anchor,
+  BookOpen,
+  Building2,
   Check,
   ClipboardCheck,
   FileClock,
+  LayoutDashboard,
   LoaderCircle,
   Package,
   RotateCcw,
@@ -15,304 +18,156 @@ import {
 } from "lucide-react";
 
 import {
+  useEffect,
   useMemo,
   useState,
 } from "react";
+
+import {
+  useNavigate,
+} from "react-router-dom";
+
+import {
+  actualizarPermisosRol,
+  listarPermisos,
+  listarRoles,
+  obtenerPermisosRol,
+} from "../../services/roles.service.js";
+
+import {
+  cerrarSesion,
+} from "../../services/auth.service.js";
 
 import "../../styles/rolesPermisos.css";
 
 
 /* ======================================
-   ROLES DEL SISTEMA
+   ORDEN VISUAL DE MÓDULOS
 ====================================== */
 
-const roles = [
-  {
-    id: 1,
-    nombre: "Administrador",
-    descripcion:
-      "Administración y configuración general del sistema.",
-    usuarios: 2,
-  },
-  {
-    id: 2,
-    nombre: "Operador portuario",
-    descripcion:
-      "Gestión de las operaciones portuarias.",
-    usuarios: 8,
-  },
-  {
-    id: 3,
-    nombre: "Inspector",
-    descripcion:
-      "Registro y seguimiento de inspecciones e incidencias.",
-    usuarios: 5,
-  },
+const ordenModulos = [
+  "Dashboard",
+  "Usuarios",
+  "Roles",
+  "Roles y permisos",
+  "Empresas",
+  "Catálogos",
+  "Catalogos",
+  "Buques",
+  "Operaciones",
+  "Muelles",
+  "Contenedores",
+  "Inspecciones",
+  "Incidencias",
+  "Auditoría",
+  "Auditoria",
 ];
 
 
 /* ======================================
-   GRUPOS DE PERMISOS
+   ICONOS SEGÚN MÓDULO
 ====================================== */
 
-const gruposPermisos = [
-  {
-    modulo: "Usuarios",
-    icono: Users,
-    permisos: [
-      {
-        id: "usuarios_ver",
-        nombre: "Ver usuarios",
-      },
-      {
-        id: "usuarios_crear",
-        nombre: "Crear usuarios",
-      },
-      {
-        id: "usuarios_editar",
-        nombre: "Editar usuarios",
-      },
-      {
-        id: "usuarios_estado",
-        nombre: "Activar o desactivar usuarios",
-      },
-      {
-        id: "roles_gestionar",
-        nombre: "Gestionar roles y permisos",
-      },
-    ],
-  },
-
-  {
-    modulo: "Buques",
-    icono: Ship,
-    permisos: [
-      {
-        id: "buques_ver",
-        nombre: "Ver buques",
-      },
-      {
-        id: "buques_crear",
-        nombre: "Registrar buques",
-      },
-      {
-        id: "buques_editar",
-        nombre: "Editar buques",
-      },
-      {
-        id: "buques_estado",
-        nombre: "Cambiar estado de buques",
-      },
-    ],
-  },
-
-  {
-    modulo: "Operaciones",
-    icono: Settings,
-    permisos: [
-      {
-        id: "operaciones_ver",
-        nombre: "Ver operaciones",
-      },
-      {
-        id: "operaciones_crear",
-        nombre: "Crear operaciones",
-      },
-      {
-        id: "operaciones_editar",
-        nombre: "Editar operaciones",
-      },
-      {
-        id: "operaciones_finalizar",
-        nombre: "Finalizar operaciones",
-      },
-    ],
-  },
-
-  {
-    modulo: "Muelles",
-    icono: Anchor,
-    permisos: [
-      {
-        id: "muelles_ver",
-        nombre: "Ver muelles",
-      },
-      {
-        id: "muelles_gestionar",
-        nombre: "Gestionar muelles",
-      },
-      {
-        id: "asignaciones_ver",
-        nombre: "Ver asignaciones",
-      },
-      {
-        id: "asignaciones_crear",
-        nombre: "Asignar muelles",
-      },
-    ],
-  },
-
-  {
-    modulo: "Contenedores",
-    icono: Package,
-    permisos: [
-      {
-        id: "contenedores_ver",
-        nombre: "Ver contenedores",
-      },
-      {
-        id: "contenedores_crear",
-        nombre: "Registrar contenedores",
-      },
-      {
-        id: "contenedores_editar",
-        nombre: "Editar contenedores",
-      },
-    ],
-  },
-
-  {
-    modulo: "Inspecciones",
-    icono: ClipboardCheck,
-    permisos: [
-      {
-        id: "inspecciones_ver",
-        nombre: "Ver inspecciones",
-      },
-      {
-        id: "inspecciones_crear",
-        nombre: "Registrar inspecciones",
-      },
-      {
-        id: "inspecciones_editar",
-        nombre: "Actualizar inspecciones",
-      },
-    ],
-  },
-
-  {
-    modulo: "Incidencias",
-    icono: TriangleAlert,
-    permisos: [
-      {
-        id: "incidencias_ver",
-        nombre: "Ver incidencias",
-      },
-      {
-        id: "incidencias_crear",
-        nombre: "Registrar incidencias",
-      },
-      {
-        id: "incidencias_editar",
-        nombre: "Actualizar incidencias",
-      },
-    ],
-  },
-
-  {
-    modulo: "Auditoría",
-    icono: FileClock,
-    permisos: [
-      {
-        id: "auditoria_ver",
-        nombre: "Consultar auditoría",
-      },
-      {
-        id: "auditoria_detalle",
-        nombre: "Ver detalle de auditoría",
-      },
-    ],
-  },
-];
+function obtenerIconoModulo(
+  modulo
+) {
+  const nombre =
+    modulo
+      ?.toLowerCase()
+      .normalize("NFD")
+      .replace(
+        /[\u0300-\u036f]/g,
+        ""
+      );
 
 
-/* ======================================
-   PERMISOS TEMPORALES POR ROL
-====================================== */
+  switch (nombre) {
+    case "dashboard":
+      return LayoutDashboard;
 
-const permisosIniciales = {
-  Administrador: [
-    "usuarios_ver",
-    "usuarios_crear",
-    "usuarios_editar",
-    "usuarios_estado",
-    "roles_gestionar",
+    case "usuarios":
+      return Users;
 
-    "buques_ver",
-    "buques_crear",
-    "buques_editar",
-    "buques_estado",
+    case "roles":
+    case "roles y permisos":
+      return ShieldCheck;
 
-    "operaciones_ver",
-    "operaciones_crear",
-    "operaciones_editar",
-    "operaciones_finalizar",
+    case "empresas":
+      return Building2;
 
-    "muelles_ver",
-    "muelles_gestionar",
-    "asignaciones_ver",
-    "asignaciones_crear",
+    case "catalogos":
+      return BookOpen;
 
-    "contenedores_ver",
-    "contenedores_crear",
-    "contenedores_editar",
+    case "buques":
+      return Ship;
 
-    "inspecciones_ver",
-    "inspecciones_crear",
-    "inspecciones_editar",
+    case "operaciones":
+      return Settings;
 
-    "incidencias_ver",
-    "incidencias_crear",
-    "incidencias_editar",
+    case "muelles":
+      return Anchor;
 
-    "auditoria_ver",
-    "auditoria_detalle",
-  ],
+    case "contenedores":
+      return Package;
 
-  "Operador portuario": [
-    "buques_ver",
+    case "inspecciones":
+      return ClipboardCheck;
 
-    "operaciones_ver",
-    "operaciones_crear",
-    "operaciones_editar",
-    "operaciones_finalizar",
+    case "incidencias":
+      return TriangleAlert;
 
-    "muelles_ver",
-    "asignaciones_ver",
-    "asignaciones_crear",
+    case "auditoria":
+      return FileClock;
 
-    "contenedores_ver",
-    "contenedores_crear",
-    "contenedores_editar",
-  ],
-
-  Inspector: [
-    "operaciones_ver",
-
-    "contenedores_ver",
-
-    "inspecciones_ver",
-    "inspecciones_crear",
-    "inspecciones_editar",
-
-    "incidencias_ver",
-    "incidencias_crear",
-    "incidencias_editar",
-  ],
-};
+    default:
+      return ShieldCheck;
+  }
+}
 
 
 function RolesPermisosPage() {
+  const navigate =
+    useNavigate();
+
+
+  /* ======================================
+     ESTADOS
+  ====================================== */
+
   const [
-    rolSeleccionado,
-    setRolSeleccionado,
-  ] = useState("Administrador");
+    roles,
+    setRoles,
+  ] = useState([]);
+
+
+  const [
+    permisosDisponibles,
+    setPermisosDisponibles,
+  ] = useState([]);
+
+
+  const [
+    rolSeleccionadoId,
+    setRolSeleccionadoId,
+  ] = useState(null);
 
 
   const [
     permisosPorRol,
     setPermisosPorRol,
-  ] = useState(permisosIniciales);
+  ] = useState({});
+
+
+  const [
+    permisosGuardadosPorRol,
+    setPermisosGuardadosPorRol,
+  ] = useState({});
+
+
+  const [
+    cargando,
+    setCargando,
+  ] = useState(true);
 
 
   const [
@@ -322,57 +177,357 @@ function RolesPermisosPage() {
 
 
   const [
+    error,
+    setError,
+  ] = useState("");
+
+
+  const [
     mensajeExito,
     setMensajeExito,
   ] = useState("");
 
 
-  const rolActual = useMemo(
-    () =>
-      roles.find(
-        (rol) =>
-          rol.nombre === rolSeleccionado
-      ),
-    [rolSeleccionado]
-  );
+  /* ======================================
+     CARGAR DATOS REALES
+  ====================================== */
+
+  useEffect(() => {
+    let componenteActivo =
+      true;
 
 
-  const permisosActuales =
-    permisosPorRol[rolSeleccionado] || [];
+    async function cargarDatos() {
+      try {
+        const [
+          respuestaRoles,
+          respuestaPermisos,
+        ] =
+          await Promise.all([
+            listarRoles(),
+            listarPermisos(),
+          ]);
 
 
-  const totalPermisos =
-    gruposPermisos.reduce(
-      (total, grupo) =>
-        total + grupo.permisos.length,
-      0
+        if (!componenteActivo) {
+          return;
+        }
+
+
+        const listaRoles =
+          respuestaRoles.data || [];
+
+
+        const listaPermisos =
+          respuestaPermisos.data || [];
+
+
+        const respuestasPermisosRol =
+          await Promise.all(
+            listaRoles.map(
+              (rol) =>
+                obtenerPermisosRol(
+                  rol.id_rol
+                )
+            )
+          );
+
+
+        if (!componenteActivo) {
+          return;
+        }
+
+
+        const asignaciones = {};
+
+
+        listaRoles.forEach(
+          (rol, indice) => {
+            const permisosRol =
+              respuestasPermisosRol[
+                indice
+              ]?.data || [];
+
+
+            asignaciones[
+              rol.id_rol
+            ] =
+              permisosRol.map(
+                (permiso) =>
+                  permiso.id_permiso
+              );
+          }
+        );
+
+
+        setRoles(
+          listaRoles
+        );
+
+
+        setPermisosDisponibles(
+          listaPermisos
+        );
+
+
+        setPermisosPorRol(
+          asignaciones
+        );
+
+
+        setPermisosGuardadosPorRol(
+          asignaciones
+        );
+
+
+        if (
+          listaRoles.length > 0
+        ) {
+          setRolSeleccionadoId(
+            listaRoles[0].id_rol
+          );
+        }
+
+
+      } catch (error) {
+        console.error(
+          "Error al cargar roles y permisos:",
+          error
+        );
+
+
+        if (!componenteActivo) {
+          return;
+        }
+
+
+        if (
+          error.response?.status ===
+          401
+        ) {
+          cerrarSesion();
+
+
+          navigate(
+            "/login",
+            {
+              replace: true,
+            }
+          );
+
+
+          return;
+        }
+
+
+        setError(
+          error.response?.data?.message
+          ||
+          "No fue posible cargar los roles y permisos."
+        );
+
+
+      } finally {
+        if (componenteActivo) {
+          setCargando(false);
+        }
+      }
+    }
+
+
+    cargarDatos();
+
+
+    return () => {
+      componenteActivo =
+        false;
+    };
+
+  }, [navigate]);
+
+
+  /* ======================================
+     ROL ACTUAL
+  ====================================== */
+
+  const rolActual =
+    useMemo(
+      () =>
+        roles.find(
+          (rol) =>
+            rol.id_rol ===
+            rolSeleccionadoId
+        ),
+      [
+        roles,
+        rolSeleccionadoId,
+      ]
     );
 
 
-  function tienePermiso(idPermiso) {
+  const permisosActuales =
+    permisosPorRol[
+      rolSeleccionadoId
+    ] || [];
+
+
+  /* ======================================
+     AGRUPAR PERMISOS POR MÓDULO
+  ====================================== */
+
+  const gruposPermisos =
+    useMemo(() => {
+      const grupos = {};
+
+
+      permisosDisponibles.forEach(
+        (permiso) => {
+          const modulo =
+            permiso.modulo ||
+            "Otros";
+
+
+          if (!grupos[modulo]) {
+            grupos[modulo] = [];
+          }
+
+
+          grupos[modulo].push(
+            permiso
+          );
+        }
+      );
+
+
+      return Object.entries(
+        grupos
+      )
+        .map(
+          ([
+            modulo,
+            permisos,
+          ]) => ({
+            modulo,
+
+            permisos,
+
+            icono:
+              obtenerIconoModulo(
+                modulo
+              ),
+          })
+        )
+        .sort(
+          (grupoA, grupoB) => {
+            const indiceA =
+              ordenModulos.indexOf(
+                grupoA.modulo
+              );
+
+
+            const indiceB =
+              ordenModulos.indexOf(
+                grupoB.modulo
+              );
+
+
+            if (
+              indiceA === -1
+              &&
+              indiceB === -1
+            ) {
+              return grupoA.modulo
+                .localeCompare(
+                  grupoB.modulo
+                );
+            }
+
+
+            if (indiceA === -1) {
+              return 1;
+            }
+
+
+            if (indiceB === -1) {
+              return -1;
+            }
+
+
+            return (
+              indiceA -
+              indiceB
+            );
+          }
+        );
+
+    }, [
+      permisosDisponibles,
+    ]);
+
+
+  const totalPermisos =
+    permisosDisponibles.length;
+
+
+  /* ======================================
+     UTILIDADES
+  ====================================== */
+
+  function tienePermiso(
+    idPermiso
+  ) {
     return permisosActuales.includes(
       idPermiso
     );
   }
 
 
-  function alternarPermiso(idPermiso) {
+  function seleccionarRol(
+    idRol
+  ) {
+    setRolSeleccionadoId(
+      idRol
+    );
+
     setMensajeExito("");
+
+    setError("");
+  }
+
+
+  /* ======================================
+     ALTERNAR PERMISO
+  ====================================== */
+
+  function alternarPermiso(
+    idPermiso
+  ) {
+    if (!rolSeleccionadoId) {
+      return;
+    }
+
+
+    setMensajeExito("");
+
+    setError("");
 
 
     setPermisosPorRol(
       (estadoActual) => {
         const permisosRol =
           estadoActual[
-            rolSeleccionado
+            rolSeleccionadoId
           ] || [];
 
 
         const nuevosPermisos =
-          permisosRol.includes(idPermiso)
+          permisosRol.includes(
+            idPermiso
+          )
             ? permisosRol.filter(
                 (permiso) =>
-                  permiso !== idPermiso
+                  permiso !==
+                  idPermiso
               )
             : [
                 ...permisosRol,
@@ -383,7 +538,7 @@ function RolesPermisosPage() {
         return {
           ...estadoActual,
 
-          [rolSeleccionado]:
+          [rolSeleccionadoId]:
             nuevosPermisos,
         };
       }
@@ -391,22 +546,36 @@ function RolesPermisosPage() {
   }
 
 
+  /* ======================================
+     SELECCIONAR TODOS LOS DEL MÓDULO
+  ====================================== */
+
   function seleccionarTodosModulo(
     permisosModulo
   ) {
+    if (!rolSeleccionadoId) {
+      return;
+    }
+
+
     setMensajeExito("");
+
+    setError("");
 
 
     const idsModulo =
       permisosModulo.map(
-        (permiso) => permiso.id
+        (permiso) =>
+          permiso.id_permiso
       );
 
 
     const todosSeleccionados =
       idsModulo.every(
-        (id) =>
-          permisosActuales.includes(id)
+        (idPermiso) =>
+          permisosActuales.includes(
+            idPermiso
+          )
       );
 
 
@@ -414,21 +583,24 @@ function RolesPermisosPage() {
       (estadoActual) => {
         const permisosRol =
           estadoActual[
-            rolSeleccionado
+            rolSeleccionadoId
           ] || [];
 
 
         let nuevosPermisos;
 
 
-        if (todosSeleccionados) {
+        if (
+          todosSeleccionados
+        ) {
           nuevosPermisos =
             permisosRol.filter(
-              (permiso) =>
+              (idPermiso) =>
                 !idsModulo.includes(
-                  permiso
+                  idPermiso
                 )
             );
+
         } else {
           nuevosPermisos = [
             ...new Set([
@@ -442,7 +614,7 @@ function RolesPermisosPage() {
         return {
           ...estadoActual,
 
-          [rolSeleccionado]:
+          [rolSeleccionadoId]:
             nuevosPermisos,
         };
       }
@@ -450,41 +622,169 @@ function RolesPermisosPage() {
   }
 
 
+  /* ======================================
+     RESTABLECER CAMBIOS
+  ====================================== */
+
   function restablecerPermisos() {
+    if (!rolSeleccionadoId) {
+      return;
+    }
+
+
+    const permisosOriginales =
+      permisosGuardadosPorRol[
+        rolSeleccionadoId
+      ] || [];
+
+
     setPermisosPorRol(
       (estadoActual) => ({
         ...estadoActual,
 
-        [rolSeleccionado]:
-          permisosIniciales[
-            rolSeleccionado
+        [rolSeleccionadoId]:
+          [
+            ...permisosOriginales,
           ],
       })
     );
 
+
     setMensajeExito("");
+
+    setError("");
   }
 
 
-  function guardarCambios() {
-    setGuardando(true);
+  /* ======================================
+     GUARDAR EN POSTGRESQL
+  ====================================== */
 
-    setMensajeExito("");
+  async function guardarCambios() {
+    if (
+      !rolSeleccionadoId
+      ||
+      !rolActual
+    ) {
+      return;
+    }
 
 
-    /*
-      TEMPORAL:
-      después se enviará esta información
-      al backend.
-    */
+    try {
+      setGuardando(true);
 
-    setTimeout(() => {
-      setGuardando(false);
+      setMensajeExito("");
+
+      setError("");
+
+
+      const respuesta =
+        await actualizarPermisosRol(
+          rolSeleccionadoId,
+          permisosActuales
+        );
+
+
+      const permisosGuardados =
+        (
+          respuesta.data || []
+        ).map(
+          (permiso) =>
+            permiso.id_permiso
+        );
+
+
+      setPermisosPorRol(
+        (estadoActual) => ({
+          ...estadoActual,
+
+          [rolSeleccionadoId]:
+            permisosGuardados,
+        })
+      );
+
+
+      setPermisosGuardadosPorRol(
+        (estadoActual) => ({
+          ...estadoActual,
+
+          [rolSeleccionadoId]:
+            permisosGuardados,
+        })
+      );
+
 
       setMensajeExito(
-        `Los permisos de ${rolSeleccionado} se guardaron correctamente.`
+        `Los permisos de ${rolActual.nombre} se guardaron correctamente.`
       );
-    }, 600);
+
+
+    } catch (error) {
+      console.error(
+        "Error al guardar permisos:",
+        error
+      );
+
+
+      if (
+        error.response?.status ===
+        401
+      ) {
+        cerrarSesion();
+
+
+        navigate(
+          "/login",
+          {
+            replace: true,
+          }
+        );
+
+
+        return;
+      }
+
+
+      setError(
+        error.response?.data?.message
+        ||
+        "No fue posible guardar los permisos."
+      );
+
+
+    } finally {
+      setGuardando(false);
+    }
+  }
+
+
+  /* ======================================
+     CARGANDO
+  ====================================== */
+
+  if (cargando) {
+    return (
+      <section className="pagina-roles">
+
+        <div className="fondo-roles" />
+
+
+        <div className="estado-carga-roles">
+
+          <LoaderCircle
+            size={30}
+            className="icono-girando-permisos"
+          />
+
+
+          <span>
+            Cargando roles y permisos...
+          </span>
+
+        </div>
+
+      </section>
+    );
   }
 
 
@@ -523,6 +823,25 @@ function RolesPermisosPage() {
 
 
       {/* ======================================
+          ERROR GENERAL
+      ====================================== */}
+
+      {error && (
+
+        <div className="mensaje-error-permisos">
+
+          <TriangleAlert
+            size={17}
+          />
+
+          {error}
+
+        </div>
+
+      )}
+
+
+      {/* ======================================
           INDICADORES
       ====================================== */}
 
@@ -531,22 +850,28 @@ function RolesPermisosPage() {
         <article className="tarjeta-resumen-rol azul">
 
           <div className="icono-resumen-rol">
-            <ShieldCheck size={24} />
+            <ShieldCheck
+              size={24}
+            />
           </div>
 
 
           <div>
+
             <span>
               Roles del sistema
             </span>
+
 
             <strong>
               {roles.length}
             </strong>
 
+
             <small>
               Roles definidos en TALASSA
             </small>
+
           </div>
 
         </article>
@@ -555,22 +880,28 @@ function RolesPermisosPage() {
         <article className="tarjeta-resumen-rol menta">
 
           <div className="icono-resumen-rol">
-            <Users size={24} />
+            <Users
+              size={24}
+            />
           </div>
 
 
           <div>
+
             <span>
               Usuarios asociados
             </span>
+
 
             <strong>
               {rolActual?.usuarios || 0}
             </strong>
 
+
             <small>
               Para el rol seleccionado
             </small>
+
           </div>
 
         </article>
@@ -579,22 +910,28 @@ function RolesPermisosPage() {
         <article className="tarjeta-resumen-rol blanco">
 
           <div className="icono-resumen-rol">
-            <Check size={24} />
+            <Check
+              size={24}
+            />
           </div>
 
 
           <div>
+
             <span>
               Permisos asignados
             </span>
+
 
             <strong>
               {permisosActuales.length}
             </strong>
 
+
             <small>
               De {totalPermisos} disponibles
             </small>
+
           </div>
 
         </article>
@@ -616,16 +953,22 @@ function RolesPermisosPage() {
 
           <div className="titulo-listado-roles">
 
-            <ShieldCheck size={21} />
+            <ShieldCheck
+              size={21}
+            />
+
 
             <div>
+
               <h2>
                 Roles
               </h2>
 
+
               <span>
                 Seleccione un rol
               </span>
+
             </div>
 
           </div>
@@ -633,59 +976,72 @@ function RolesPermisosPage() {
 
           <div className="lista-roles">
 
-            {roles.map((rol) => (
+            {roles.map(
+              (rol) => (
 
-              <button
-                key={rol.id}
-                type="button"
-                className={
-                  rolSeleccionado ===
-                  rol.nombre
-                    ? "item-rol seleccionado"
-                    : "item-rol"
-                }
-                onClick={() => {
-                  setRolSeleccionado(
-                    rol.nombre
-                  );
+                <button
+                  key={
+                    rol.id_rol
+                  }
+                  type="button"
+                  className={
+                    rolSeleccionadoId ===
+                    rol.id_rol
+                      ? "item-rol seleccionado"
+                      : "item-rol"
+                  }
+                  onClick={() =>
+                    seleccionarRol(
+                      rol.id_rol
+                    )
+                  }
+                >
 
-                  setMensajeExito("");
-                }}
-              >
+                  <div className="icono-item-rol">
 
-                <div className="icono-item-rol">
-                  <ShieldCheck
-                    size={19}
-                  />
-                </div>
+                    <ShieldCheck
+                      size={19}
+                    />
 
-
-                <div className="contenido-item-rol">
-
-                  <strong>
-                    {rol.nombre}
-                  </strong>
+                  </div>
 
 
-                  <span>
-                    {rol.descripcion}
-                  </span>
+                  <div className="contenido-item-rol">
+
+                    <strong>
+                      {rol.nombre}
+                    </strong>
 
 
-                  <small>
-                    {rol.usuarios}
-                    {" "}
-                    usuario
-                    {rol.usuarios !== 1
-                      ? "s"
-                      : ""}
-                  </small>
+                    <span>
 
-                </div>
+                      {rol.descripcion
+                        ||
+                        "Rol del sistema TALASSA."}
 
-              </button>
+                    </span>
 
-            ))}
+
+                    <small>
+
+                      {rol.usuarios}
+
+                      {" "}
+
+                      usuario
+
+                      {rol.usuarios !== 1
+                        ? "s"
+                        : ""}
+
+                    </small>
+
+                  </div>
+
+                </button>
+
+              )
+            )}
 
           </div>
 
@@ -703,29 +1059,41 @@ function RolesPermisosPage() {
             <div>
 
               <h2>
+
                 <ShieldCheck
                   size={21}
                 />
 
                 Permisos del rol
+
               </h2>
 
 
               <div className="rol-seleccionado-permisos">
 
                 <strong>
-                  {rolSeleccionado}
+                  {rolActual?.nombre
+                    ||
+                    "Sin rol"}
                 </strong>
 
 
                 <span>
+
                   {permisosActuales.length}
+
                   {" "}
+
                   de
+
                   {" "}
+
                   {totalPermisos}
+
                   {" "}
+
                   permisos asignados
+
                 </span>
 
               </div>
@@ -736,14 +1104,20 @@ function RolesPermisosPage() {
             <div className="leyenda-permisos">
 
               <span>
+
                 <i className="permiso-activo" />
+
                 Con permiso
+
               </span>
 
 
               <span>
+
                 <i className="permiso-inactivo" />
+
                 Sin permiso
+
               </span>
 
             </div>
@@ -767,7 +1141,7 @@ function RolesPermisosPage() {
                   grupo.permisos.every(
                     (permiso) =>
                       tienePermiso(
-                        permiso.id
+                        permiso.id_permiso
                       )
                   );
 
@@ -775,7 +1149,9 @@ function RolesPermisosPage() {
                 return (
                   <section
                     className="modulo-permisos"
-                    key={grupo.modulo}
+                    key={
+                      grupo.modulo
+                    }
                   >
 
                     <div className="encabezado-modulo-permisos">
@@ -783,9 +1159,11 @@ function RolesPermisosPage() {
                       <div>
 
                         <div className="icono-modulo-permisos">
+
                           <Icono
                             size={19}
                           />
+
                         </div>
 
 
@@ -798,15 +1176,20 @@ function RolesPermisosPage() {
 
                       <button
                         type="button"
+                        disabled={
+                          guardando
+                        }
                         onClick={() =>
                           seleccionarTodosModulo(
                             grupo.permisos
                           )
                         }
                       >
+
                         {todosSeleccionados
                           ? "Quitar todos"
                           : "Seleccionar todos"}
+
                       </button>
 
                     </div>
@@ -819,11 +1202,11 @@ function RolesPermisosPage() {
 
                           <label
                             key={
-                              permiso.id
+                              permiso.id_permiso
                             }
                             className={
                               tienePermiso(
-                                permiso.id
+                                permiso.id_permiso
                               )
                                 ? "opcion-permiso seleccionada"
                                 : "opcion-permiso"
@@ -834,12 +1217,15 @@ function RolesPermisosPage() {
                               type="checkbox"
                               checked={
                                 tienePermiso(
-                                  permiso.id
+                                  permiso.id_permiso
                                 )
+                              }
+                              disabled={
+                                guardando
                               }
                               onChange={() =>
                                 alternarPermiso(
-                                  permiso.id
+                                  permiso.id_permiso
                                 )
                               }
                             />
@@ -848,11 +1234,13 @@ function RolesPermisosPage() {
                             <span className="checkbox-personalizado">
 
                               {tienePermiso(
-                                permiso.id
+                                permiso.id_permiso
                               ) && (
+
                                 <Check
                                   size={13}
                                 />
+
                               )}
 
                             </span>
@@ -878,17 +1266,21 @@ function RolesPermisosPage() {
 
 
           {/* ======================================
-              MENSAJE
+              MENSAJE DE ÉXITO
           ====================================== */}
 
           {mensajeExito && (
+
             <div className="mensaje-exito-permisos">
 
-              <Check size={17} />
+              <Check
+                size={17}
+              />
 
               {mensajeExito}
 
             </div>
+
           )}
 
 
@@ -904,36 +1296,60 @@ function RolesPermisosPage() {
               onClick={
                 restablecerPermisos
               }
-              disabled={guardando}
+              disabled={
+                guardando
+                ||
+                !rolSeleccionadoId
+              }
             >
-              <RotateCcw size={17} />
+
+              <RotateCcw
+                size={17}
+              />
 
               Restablecer
+
             </button>
 
 
             <button
               type="button"
               className="boton-guardar-permisos"
-              onClick={guardarCambios}
-              disabled={guardando}
+              onClick={
+                guardarCambios
+              }
+              disabled={
+                guardando
+                ||
+                !rolSeleccionadoId
+              }
             >
 
               {guardando ? (
+
                 <>
+
                   <LoaderCircle
                     size={17}
                     className="icono-girando-permisos"
                   />
 
                   Guardando...
+
                 </>
+
               ) : (
+
                 <>
-                  <Save size={17} />
+
+                  <Save
+                    size={17}
+                  />
 
                   Guardar cambios
+
                 </>
+
               )}
 
             </button>

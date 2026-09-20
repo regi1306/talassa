@@ -11,6 +11,10 @@ import {
   listarUsuarios,
 } from "../repositories/usuarios.repository.js";
 
+import {
+  registrarEventoAuditoria,
+} from "./auditoria.service.js";
+
 
 /* ======================================
    ERROR DE NEGOCIO
@@ -39,6 +43,44 @@ function correoValido(
 ) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     .test(correo);
+}
+
+
+/* ======================================
+   DATOS SEGUROS PARA AUDITORÍA
+
+   IMPORTANTE:
+   Nunca incluimos contraseña ni hash.
+====================================== */
+
+function datosUsuarioAuditoria(
+  usuario
+) {
+  return {
+    nombres:
+      usuario.nombres,
+
+    apellidos:
+      usuario.apellidos,
+
+    correo:
+      usuario.correo,
+
+    usuario:
+      usuario.usuario
+      ??
+      usuario.nombre_usuario,
+
+    rol:
+      usuario.rol
+      ??
+      usuario.nombre_rol
+      ??
+      usuario.id_rol,
+
+    activo:
+      usuario.activo,
+  };
 }
 
 
@@ -225,7 +267,8 @@ async function validarDatosUsuario(
 ====================================== */
 
 export async function registrarUsuario(
-  datos
+  datos,
+  idUsuarioActual
 ) {
   const {
     nombres,
@@ -280,17 +323,55 @@ export async function registrarUsuario(
         rolEncontrado.id_rol,
 
       nombres,
+
       apellidos,
+
       correo,
+
       usuario,
+
       passwordHash,
+
       activo,
     });
 
 
-  return obtenerUsuario(
-    creado.id_usuario
-  );
+  const usuarioCreado =
+    await obtenerUsuario(
+      creado.id_usuario
+    );
+
+
+  await registrarEventoAuditoria({
+    idUsuario:
+      idUsuarioActual,
+
+    accion:
+      "CREACIÓN",
+
+    modulo:
+      "Usuarios",
+
+    entidad:
+      "usuario",
+
+    idRegistroAfectado:
+      usuarioCreado.id_usuario,
+
+    valoresAnteriores:
+      null,
+
+    valoresNuevos:
+      datosUsuarioAuditoria(
+        usuarioCreado
+      ),
+
+    descripcion:
+      `Se registró la cuenta de usuario "${usuarioCreado.usuario ?? usuarioCreado.nombre_usuario}".`,
+  });
+
+
+  return usuarioCreado;
 }
 
 
@@ -300,11 +381,13 @@ export async function registrarUsuario(
 
 export async function editarUsuario(
   idUsuario,
-  datos
+  datos,
+  idUsuarioActual
 ) {
-  await obtenerUsuario(
-    idUsuario
-  );
+  const usuarioAnterior =
+    await obtenerUsuario(
+      idUsuario
+    );
 
 
   const {
@@ -362,8 +445,11 @@ export async function editarUsuario(
       rolEncontrado.id_rol,
 
     nombres,
+
     apellidos,
+
     correo,
+
     usuario,
 
     passwordHash,
@@ -373,9 +459,60 @@ export async function editarUsuario(
   });
 
 
-  return obtenerUsuario(
-    idUsuario
-  );
+  const usuarioActualizado =
+    await obtenerUsuario(
+      idUsuario
+    );
+
+
+  const valoresNuevos =
+    datosUsuarioAuditoria(
+      usuarioActualizado
+    );
+
+
+  /*
+    Solo indicamos que la contraseña cambió.
+    Nunca guardamos la contraseña ni el hash.
+  */
+
+  if (password) {
+    valoresNuevos.contrasena_actualizada =
+      true;
+  }
+
+
+  await registrarEventoAuditoria({
+    idUsuario:
+      idUsuarioActual,
+
+    accion:
+      "ACTUALIZACIÓN",
+
+    modulo:
+      "Usuarios",
+
+    entidad:
+      "usuario",
+
+    idRegistroAfectado:
+      usuarioActualizado.id_usuario,
+
+    valoresAnteriores:
+      datosUsuarioAuditoria(
+        usuarioAnterior
+      ),
+
+    valoresNuevos,
+
+    descripcion:
+      password
+        ? `Se actualizó la información y la contraseña del usuario "${usuarioActualizado.usuario ?? usuarioActualizado.nombre_usuario}".`
+        : `Se actualizó la información del usuario "${usuarioActualizado.usuario ?? usuarioActualizado.nombre_usuario}".`,
+  });
+
+
+  return usuarioActualizado;
 }
 
 
@@ -388,7 +525,7 @@ export async function actualizarEstadoUsuario(
   activo,
   idUsuarioActual
 ) {
-  const usuario =
+  const usuarioAnterior =
     await obtenerUsuario(
       idUsuario
     );
@@ -424,11 +561,17 @@ export async function actualizarEstadoUsuario(
   }
 
 
+  /*
+    Si ya tiene el mismo estado,
+    no hacemos UPDATE ni generamos
+    un evento innecesario.
+  */
+
   if (
-    usuario.activo ===
+    usuarioAnterior.activo ===
     activo
   ) {
-    return usuario;
+    return usuarioAnterior;
   }
 
 
@@ -438,7 +581,54 @@ export async function actualizarEstadoUsuario(
   );
 
 
-  return obtenerUsuario(
-    idUsuario
-  );
+  const usuarioActualizado =
+    await obtenerUsuario(
+      idUsuario
+    );
+
+
+  await registrarEventoAuditoria({
+    idUsuario:
+      idUsuarioActual,
+
+    accion:
+      "CAMBIO DE ESTADO",
+
+    modulo:
+      "Usuarios",
+
+    entidad:
+      "usuario",
+
+    idRegistroAfectado:
+      usuarioActualizado.id_usuario,
+
+    valoresAnteriores: {
+      usuario:
+        usuarioAnterior.usuario
+        ??
+        usuarioAnterior.nombre_usuario,
+
+      activo:
+        usuarioAnterior.activo,
+    },
+
+    valoresNuevos: {
+      usuario:
+        usuarioActualizado.usuario
+        ??
+        usuarioActualizado.nombre_usuario,
+
+      activo:
+        usuarioActualizado.activo,
+    },
+
+    descripcion:
+      usuarioActualizado.activo
+        ? `Se reactivó la cuenta del usuario "${usuarioActualizado.usuario ?? usuarioActualizado.nombre_usuario}".`
+        : `Se desactivó la cuenta del usuario "${usuarioActualizado.usuario ?? usuarioActualizado.nombre_usuario}".`,
+  });
+
+
+  return usuarioActualizado;
 }

@@ -7,10 +7,12 @@ import {
   RefreshCw,
   Search,
   ShieldCheck,
+  TriangleAlert,
   UserRound,
 } from "lucide-react";
 
 import {
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -19,132 +21,194 @@ import {
   useNavigate,
 } from "react-router-dom";
 
+import {
+  listarAuditoria,
+} from "../../services/auditoria.service.js";
+
+import {
+  cerrarSesion,
+} from "../../services/auth.service.js";
+
 import "../../styles/auditoria.css";
 
 
 /* ======================================
-   DATOS TEMPORALES
-
-   Más adelante serán reemplazados
-   por datos provenientes de la API.
+   FECHA LOCAL YYYY-MM-DD
 ====================================== */
 
-const registrosIniciales = [
-  {
-    id_auditoria: 1,
-    usuario: "Carlos Romero",
-    rol: "Operador portuario",
-    accion: "Actualización",
-    modulo: "Operaciones",
-    registro: "OP-052",
-    descripcion:
-      "Se asignó el muelle M-03 a la operación OP-052.",
-    fecha: "2026-09-15",
-    hora: "08:17",
-    ip: "192.168.10.25",
-  },
-  {
-    id_auditoria: 2,
-    usuario: "Regina Cadenas",
-    rol: "Administrador",
-    accion: "Creación",
-    modulo: "Usuarios",
-    registro: "USR-024",
-    descripcion:
-      "Se registró una nueva cuenta de usuario.",
-    fecha: "2026-09-15",
-    hora: "07:42",
-    ip: "192.168.10.10",
-  },
-  {
-    id_auditoria: 3,
-    usuario: "María López",
-    rol: "Inspector",
-    accion: "Registro",
-    modulo: "Inspecciones",
-    registro: "INS-001",
-    descripcion:
-      "Se registró una inspección asociada a la operación OP-052.",
-    fecha: "2026-09-14",
-    hora: "16:30",
-    ip: "192.168.10.42",
-  },
-  {
-    id_auditoria: 4,
-    usuario: "Regina Cadenas",
-    rol: "Administrador",
-    accion: "Actualización",
-    modulo: "Empresas",
-    registro: "EMP-003",
-    descripcion:
-      "Se actualizó la información general de la empresa.",
-    fecha: "2026-09-14",
-    hora: "14:06",
-    ip: "192.168.10.10",
-  },
-  {
-    id_auditoria: 5,
-    usuario: "Sofía Torres",
-    rol: "Inspector",
-    accion: "Registro",
-    modulo: "Incidencias",
-    registro: "INC-014",
-    descripcion:
-      "Se registró una incidencia durante una operación portuaria.",
-    fecha: "2026-09-13",
-    hora: "11:18",
-    ip: "192.168.10.51",
-  },
-  {
-    id_auditoria: 6,
-    usuario: "Carlos Romero",
-    rol: "Operador portuario",
-    accion: "Creación",
-    modulo: "Operaciones",
-    registro: "OP-053",
-    descripcion:
-      "Se creó una nueva operación portuaria.",
-    fecha: "2026-09-13",
-    hora: "09:25",
-    ip: "192.168.10.25",
-  },
-  {
-    id_auditoria: 7,
-    usuario: "Regina Cadenas",
-    rol: "Administrador",
-    accion: "Cambio de estado",
-    modulo: "Catálogos",
-    registro: "CAT-018",
-    descripcion:
-      "Se desactivó un registro del catálogo de tipos de carga.",
-    fecha: "2026-09-12",
-    hora: "15:47",
-    ip: "192.168.10.10",
-  },
-  {
-    id_auditoria: 8,
-    usuario: "Carlos Romero",
-    rol: "Operador portuario",
-    accion: "Actualización",
-    modulo: "Buques",
-    registro: "BUQ-008",
-    descripcion:
-      "Se actualizaron las características físicas del buque.",
-    fecha: "2026-09-12",
-    hora: "10:03",
-    ip: "192.168.10.25",
-  },
-];
+function obtenerFechaLocal(
+  fecha
+) {
+  if (!fecha) {
+    return "";
+  }
+
+
+  const valor =
+    new Date(fecha);
+
+
+  if (
+    Number.isNaN(
+      valor.getTime()
+    )
+  ) {
+    return "";
+  }
+
+
+  const anio =
+    valor.getFullYear();
+
+
+  const mes =
+    String(
+      valor.getMonth() + 1
+    ).padStart(
+      2,
+      "0"
+    );
+
+
+  const dia =
+    String(
+      valor.getDate()
+    ).padStart(
+      2,
+      "0"
+    );
+
+
+  return `${anio}-${mes}-${dia}`;
+}
+
+
+/* ======================================
+   FORMATO DE FECHA
+====================================== */
+
+function formatearFecha(
+  fecha
+) {
+  if (!fecha) {
+    return "—";
+  }
+
+
+  const valor =
+    new Date(fecha);
+
+
+  if (
+    Number.isNaN(
+      valor.getTime()
+    )
+  ) {
+    return "—";
+  }
+
+
+  return new Intl.DateTimeFormat(
+    "es-SV",
+    {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }
+  ).format(valor);
+}
+
+
+/* ======================================
+   FORMATO DE HORA
+====================================== */
+
+function formatearHora(
+  fecha
+) {
+  if (!fecha) {
+    return "—";
+  }
+
+
+  const valor =
+    new Date(fecha);
+
+
+  if (
+    Number.isNaN(
+      valor.getTime()
+    )
+  ) {
+    return "—";
+  }
+
+
+  return new Intl.DateTimeFormat(
+    "es-SV",
+    {
+      hour: "2-digit",
+      minute: "2-digit",
+    }
+  ).format(valor);
+}
+
+
+/* ======================================
+   CLASE SEGÚN ACCIÓN
+====================================== */
+
+function claseAccion(
+  accion
+) {
+  const texto =
+    String(
+      accion || ""
+    ).toLowerCase();
+
+
+  if (
+    texto.includes("crea")
+  ) {
+    return "creacion";
+  }
+
+
+  if (
+    texto.includes("login")
+    ||
+    texto.includes("inicio")
+    ||
+    texto.includes("registro")
+  ) {
+    return "registro";
+  }
+
+
+  if (
+    texto.includes("estado")
+    ||
+    texto.includes("activ")
+    ||
+    texto.includes("desactiv")
+  ) {
+    return "estado";
+  }
+
+
+  return "actualizacion";
+}
 
 
 function AuditoriaPage() {
-  const navigate = useNavigate();
+  const navigate =
+    useNavigate();
 
 
   const [
     registros,
     setRegistros,
-  ] = useState(registrosIniciales);
+  ] = useState([]);
 
 
   const [
@@ -180,47 +244,129 @@ function AuditoriaPage() {
   const [
     cargando,
     setCargando,
-  ] = useState(false);
+  ] = useState(true);
+
+
+  const [
+    error,
+    setError,
+  ] = useState("");
 
 
   /* ======================================
-     OPCIONES DE FILTROS
+     CARGAR AUDITORÍA
   ====================================== */
 
-  const usuarios = useMemo(() => {
-    return [
-      ...new Set(
-        registros.map(
-          (registro) =>
-            registro.usuario
-        )
-      ),
-    ].sort();
-  }, [registros]);
+  async function cargarAuditoria() {
+    try {
+      setCargando(true);
+
+      setError("");
 
 
-  const modulos = useMemo(() => {
-    return [
-      ...new Set(
-        registros.map(
-          (registro) =>
-            registro.modulo
-        )
-      ),
-    ].sort();
-  }, [registros]);
+      const respuesta =
+        await listarAuditoria();
 
 
-  const acciones = useMemo(() => {
-    return [
-      ...new Set(
-        registros.map(
-          (registro) =>
-            registro.accion
-        )
-      ),
-    ].sort();
-  }, [registros]);
+      setRegistros(
+        respuesta.data || []
+      );
+
+
+    } catch (error) {
+      console.error(
+        "Error al cargar auditoría:",
+        error
+      );
+
+
+      if (
+        error.response?.status ===
+        401
+      ) {
+        cerrarSesion();
+
+
+        navigate(
+          "/login",
+          {
+            replace: true,
+          }
+        );
+
+
+        return;
+      }
+
+
+      setError(
+        error.response?.data?.message
+        ||
+        "No fue posible cargar la bitácora de auditoría."
+      );
+
+
+    } finally {
+      setCargando(false);
+    }
+  }
+
+
+  useEffect(() => {
+    cargarAuditoria();
+  }, []);
+
+
+  /* ======================================
+     OPCIONES DE FILTRO
+  ====================================== */
+
+  const usuarios =
+    useMemo(() => {
+      return [
+        ...new Set(
+          registros
+            .map(
+              (registro) =>
+                registro.usuario
+            )
+            .filter(Boolean)
+        ),
+      ].sort();
+
+    }, [registros]);
+
+
+  const modulos =
+    useMemo(() => {
+      return [
+        ...new Set(
+          registros
+            .map(
+              (registro) =>
+                registro.modulo
+            )
+            .filter(Boolean)
+        ),
+      ].sort();
+
+    }, [registros]);
+
+
+  const acciones =
+    useMemo(() => {
+      return [
+        ...new Set(
+          registros
+            .map(
+              (registro) =>
+                registro.accion
+            )
+            .filter(Boolean)
+        ),
+      ].sort();
+
+    }, [registros]);
 
 
   /* ======================================
@@ -237,55 +383,104 @@ function AuditoriaPage() {
 
       return registros.filter(
         (registro) => {
+          const usuario =
+            String(
+              registro.usuario || ""
+            ).toLowerCase();
+
+
+          const idRegistro =
+            String(
+              registro.id_registro_afectado || ""
+            ).toLowerCase();
+
+
+          const descripcion =
+            String(
+              registro.descripcion || ""
+            ).toLowerCase();
+
+
+          const entidad =
+            String(
+              registro.entidad || ""
+            ).toLowerCase();
+
+
+          const accion =
+            String(
+              registro.accion || ""
+            ).toLowerCase();
+
+
           const coincideBusqueda =
-            !texto ||
-            registro.usuario
-              .toLowerCase()
-              .includes(texto) ||
-            registro.registro
-              .toLowerCase()
-              .includes(texto) ||
-            registro.descripcion
-              .toLowerCase()
-              .includes(texto) ||
-            registro.ip
-              .toLowerCase()
-              .includes(texto);
+            !texto
+            ||
+            usuario.includes(
+              texto
+            )
+            ||
+            idRegistro.includes(
+              texto
+            )
+            ||
+            descripcion.includes(
+              texto
+            )
+            ||
+            entidad.includes(
+              texto
+            )
+            ||
+            accion.includes(
+              texto
+            );
 
 
           const coincideUsuario =
-            !filtroUsuario ||
+            !filtroUsuario
+            ||
             registro.usuario ===
               filtroUsuario;
 
 
           const coincideModulo =
-            !filtroModulo ||
+            !filtroModulo
+            ||
             registro.modulo ===
               filtroModulo;
 
 
           const coincideAccion =
-            !filtroAccion ||
+            !filtroAccion
+            ||
             registro.accion ===
               filtroAccion;
 
 
           const coincideFecha =
-            !filtroFecha ||
-            registro.fecha ===
+            !filtroFecha
+            ||
+            obtenerFechaLocal(
+              registro.fecha
+            ) ===
               filtroFecha;
 
 
           return (
-            coincideBusqueda &&
-            coincideUsuario &&
-            coincideModulo &&
-            coincideAccion &&
+            coincideBusqueda
+            &&
+            coincideUsuario
+            &&
+            coincideModulo
+            &&
+            coincideAccion
+            &&
             coincideFecha
           );
         }
       );
+
     }, [
       registros,
       busqueda,
@@ -300,103 +495,81 @@ function AuditoriaPage() {
      ESTADÍSTICAS
   ====================================== */
 
+  const hoy =
+    obtenerFechaLocal(
+      new Date()
+    );
+
+
   const registrosHoy =
     registros.filter(
       (registro) =>
-        registro.fecha ===
-        "2026-09-15"
+        obtenerFechaLocal(
+          registro.fecha
+        ) === hoy
     ).length;
 
 
   const usuariosUnicos =
     new Set(
-      registros.map(
-        (registro) =>
-          registro.usuario
-      )
+      registros
+        .map(
+          (registro) =>
+            registro.usuario
+        )
+        .filter(Boolean)
     ).size;
 
 
   const modulosRegistrados =
     new Set(
-      registros.map(
-        (registro) =>
-          registro.modulo
-      )
+      registros
+        .map(
+          (registro) =>
+            registro.modulo
+        )
+        .filter(Boolean)
     ).size;
 
 
   function limpiarFiltros() {
     setBusqueda("");
+
     setFiltroUsuario("");
+
     setFiltroModulo("");
+
     setFiltroAccion("");
+
     setFiltroFecha("");
   }
 
 
-  function actualizarAuditoria() {
-    setCargando(true);
-
-
-    setTimeout(() => {
-      setRegistros([
-        ...registrosIniciales,
-      ]);
-
-      setCargando(false);
-    }, 500);
-  }
-
-
-  function formatearFecha(fecha) {
-    return new Intl.DateTimeFormat(
-      "es-SV",
-      {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      }
-    ).format(
-      new Date(
-        `${fecha}T12:00:00`
-      )
-    );
-  }
-
-
-  function claseAccion(
-    accion
+  function obtenerIniciales(
+    nombre
   ) {
-    switch (accion) {
-      case "Creación":
-        return "creacion";
-
-      case "Registro":
-        return "registro";
-
-      case "Cambio de estado":
-        return "estado";
-
-      default:
-        return "actualizacion";
-    }
+    return String(
+      nombre || "Sistema"
+    )
+      .split(" ")
+      .filter(Boolean)
+      .map(
+        (parte) =>
+          parte.charAt(0)
+      )
+      .slice(0, 2)
+      .join("")
+      .toUpperCase();
   }
 
 
   return (
     <section className="pagina-auditoria">
 
-      {/* ======================================
-          FONDO
-      ====================================== */}
-
       <div className="fondo-auditoria" />
 
 
-      {/* ======================================
-          ENCABEZADO
-      ====================================== */}
+      {/* ENCABEZADO */}
 
       <div className="encabezado-auditoria">
 
@@ -420,9 +593,13 @@ function AuditoriaPage() {
           type="button"
           className="boton-actualizar-auditoria-superior"
           onClick={
-            actualizarAuditoria
+            cargarAuditoria
+          }
+          disabled={
+            cargando
           }
         >
+
           <RefreshCw
             size={18}
             className={
@@ -433,14 +610,32 @@ function AuditoriaPage() {
           />
 
           Actualizar
+
         </button>
 
       </div>
 
 
-      {/* ======================================
-          RESUMEN
-      ====================================== */}
+      {/* ERROR */}
+
+      {error && (
+
+        <div className="mensaje-error-auditoria">
+
+          <TriangleAlert
+            size={17}
+          />
+
+          <span>
+            {error}
+          </span>
+
+        </div>
+
+      )}
+
+
+      {/* RESUMEN */}
 
       <div className="resumen-auditoria">
 
@@ -449,7 +644,6 @@ function AuditoriaPage() {
           <div className="icono-resumen-auditoria">
             <FileClock size={24} />
           </div>
-
 
           <div>
 
@@ -476,7 +670,6 @@ function AuditoriaPage() {
             <Activity size={24} />
           </div>
 
-
           <div>
 
             <span>
@@ -501,7 +694,6 @@ function AuditoriaPage() {
           <div className="icono-resumen-auditoria">
             <UserRound size={24} />
           </div>
-
 
           <div>
 
@@ -528,7 +720,6 @@ function AuditoriaPage() {
             <ShieldCheck size={24} />
           </div>
 
-
           <div>
 
             <span>
@@ -550,9 +741,7 @@ function AuditoriaPage() {
       </div>
 
 
-      {/* ======================================
-          LISTADO
-      ====================================== */}
+      {/* LISTADO */}
 
       <article className="glass-card tarjeta-listado-auditoria">
 
@@ -561,19 +750,28 @@ function AuditoriaPage() {
           <div>
 
             <h2>
-              <FileClock size={21} />
+
+              <FileClock
+                size={21}
+              />
 
               Bitácora del sistema
+
             </h2>
 
 
             <span>
+
               {registrosFiltrados.length}
+
               {" "}
+
               resultado
+
               {registrosFiltrados.length !== 1
                 ? "s"
                 : ""}
+
             </span>
 
           </div>
@@ -581,9 +779,7 @@ function AuditoriaPage() {
         </div>
 
 
-        {/* ======================================
-            FILTROS
-        ====================================== */}
+        {/* FILTROS */}
 
         <div className="filtros-auditoria">
 
@@ -594,13 +790,15 @@ function AuditoriaPage() {
 
             <input
               type="text"
-              value={busqueda}
+              value={
+                busqueda
+              }
               onChange={(evento) =>
                 setBusqueda(
                   evento.target.value
                 )
               }
-              placeholder="Buscar usuario, registro, descripción o IP..."
+              placeholder="Buscar usuario, registro o descripción..."
             />
 
           </div>
@@ -612,13 +810,16 @@ function AuditoriaPage() {
 
 
             <select
-              value={filtroUsuario}
+              value={
+                filtroUsuario
+              }
               onChange={(evento) =>
                 setFiltroUsuario(
                   evento.target.value
                 )
               }
             >
+
               <option value="">
                 Todos los usuarios
               </option>
@@ -626,12 +827,18 @@ function AuditoriaPage() {
 
               {usuarios.map(
                 (usuario) => (
+
                   <option
-                    key={usuario}
-                    value={usuario}
+                    key={
+                      usuario
+                    }
+                    value={
+                      usuario
+                    }
                   >
                     {usuario}
                   </option>
+
                 )
               )}
 
@@ -646,13 +853,16 @@ function AuditoriaPage() {
 
 
             <select
-              value={filtroModulo}
+              value={
+                filtroModulo
+              }
               onChange={(evento) =>
                 setFiltroModulo(
                   evento.target.value
                 )
               }
             >
+
               <option value="">
                 Todos los módulos
               </option>
@@ -660,12 +870,14 @@ function AuditoriaPage() {
 
               {modulos.map(
                 (modulo) => (
+
                   <option
                     key={modulo}
                     value={modulo}
                   >
                     {modulo}
                   </option>
+
                 )
               )}
 
@@ -677,13 +889,16 @@ function AuditoriaPage() {
           <div className="campo-filtro-auditoria">
 
             <select
-              value={filtroAccion}
+              value={
+                filtroAccion
+              }
               onChange={(evento) =>
                 setFiltroAccion(
                   evento.target.value
                 )
               }
             >
+
               <option value="">
                 Todas las acciones
               </option>
@@ -691,12 +906,14 @@ function AuditoriaPage() {
 
               {acciones.map(
                 (accion) => (
+
                   <option
                     key={accion}
                     value={accion}
                   >
                     {accion}
                   </option>
+
                 )
               )}
 
@@ -714,7 +931,9 @@ function AuditoriaPage() {
 
             <input
               type="date"
-              value={filtroFecha}
+              value={
+                filtroFecha
+              }
               onChange={(evento) =>
                 setFiltroFecha(
                   evento.target.value
@@ -728,7 +947,9 @@ function AuditoriaPage() {
           <button
             type="button"
             className="boton-limpiar-auditoria"
-            onClick={limpiarFiltros}
+            onClick={
+              limpiarFiltros
+            }
           >
             Limpiar
           </button>
@@ -736,9 +957,7 @@ function AuditoriaPage() {
         </div>
 
 
-        {/* ======================================
-            CARGANDO
-        ====================================== */}
+        {/* CARGANDO */}
 
         {cargando && (
 
@@ -758,9 +977,7 @@ function AuditoriaPage() {
         )}
 
 
-        {/* ======================================
-            TABLA
-        ====================================== */}
+        {/* TABLA */}
 
         {!cargando && (
 
@@ -771,13 +988,31 @@ function AuditoriaPage() {
               <thead>
 
                 <tr>
-                  <th>Fecha y hora</th>
-                  <th>Usuario</th>
-                  <th>Acción</th>
-                  <th>Módulo</th>
-                  <th>Registro</th>
-                  <th>Dirección IP</th>
-                  <th>Detalle</th>
+
+                  <th>
+                    Fecha y hora
+                  </th>
+
+                  <th>
+                    Usuario
+                  </th>
+
+                  <th>
+                    Acción
+                  </th>
+
+                  <th>
+                    Módulo
+                  </th>
+
+                  <th>
+                    Registro
+                  </th>
+
+                  <th>
+                    Detalle
+                  </th>
+
                 </tr>
 
               </thead>
@@ -790,7 +1025,7 @@ function AuditoriaPage() {
                   <tr>
 
                     <td
-                      colSpan="7"
+                      colSpan="6"
                       className="tabla-sin-auditoria"
                     >
                       No se encontraron eventos
@@ -821,7 +1056,9 @@ function AuditoriaPage() {
                             </strong>
 
                             <small>
-                              {registro.hora}
+                              {formatearHora(
+                                registro.fecha
+                              )}
                             </small>
 
                           </div>
@@ -835,14 +1072,9 @@ function AuditoriaPage() {
 
                             <div className="avatar-auditoria">
 
-                              {registro.usuario
-                                .split(" ")
-                                .map(
-                                  (parte) =>
-                                    parte[0]
-                                )
-                                .slice(0, 2)
-                                .join("")}
+                              {obtenerIniciales(
+                                registro.usuario
+                              )}
 
                             </div>
 
@@ -891,14 +1123,13 @@ function AuditoriaPage() {
                         <td>
 
                           <strong className="codigo-registro-auditoria">
-                            {registro.registro}
+
+                            {registro.id_registro_afectado
+                              ||
+                              "—"}
+
                           </strong>
 
-                        </td>
-
-
-                        <td>
-                          {registro.ip}
                         </td>
 
 
@@ -913,9 +1144,11 @@ function AuditoriaPage() {
                               )
                             }
                           >
+
                             <Eye size={16} />
 
                             Ver detalle
+
                           </button>
 
                         </td>

@@ -5,10 +5,15 @@ import authRoutes from "./routes/auth.routes.js";
 import buquesRoutes from "./routes/buques.routes.js";
 import operacionesRoutes from "./routes/operaciones.routes.js";
 import usuariosRoutes from "./routes/usuarios.routes.js";
+import rolesRoutes from "./routes/roles.routes.js";
+import empresasRoutes from "./routes/empresas.routes.js";
+import catalogosRoutes from "./routes/catalogos.routes.js";
+import auditoriaRoutes from "./routes/auditoria.routes.js";
 import pool from "./config/db.js";
 
 
 const app = express();
+
 
 
 app.use(cors());
@@ -44,6 +49,25 @@ app.use(
   usuariosRoutes
 );
 
+app.use(
+  "/api/roles",
+  rolesRoutes
+);
+
+app.use(
+  "/api/empresas",
+  empresasRoutes
+);
+
+app.use(
+  "/api/catalogos",
+  catalogosRoutes
+);
+
+app.use(
+  "/api/auditoria",
+  auditoriaRoutes
+);
 /* ======================================
    PRUEBA GENERAL DE LA API
 ====================================== */

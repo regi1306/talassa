@@ -10,74 +10,33 @@ import {
   Save,
   Search,
   Ship,
+  TriangleAlert,
   X,
 } from "lucide-react";
 
 import {
+  useEffect,
   useMemo,
   useState,
 } from "react";
 
+import {
+  useNavigate,
+} from "react-router-dom";
+
+import {
+  actualizarEmpresa,
+  cambiarEstadoEmpresa,
+  crearEmpresa,
+  listarEmpresas,
+} from "../../services/empresas.service.js";
+
+import {
+  cerrarSesion,
+  obtenerUsuarioGuardado,
+} from "../../services/auth.service.js";
+
 import "../../styles/empresas.css";
-
-
-/* ======================================
-   DATOS TEMPORALES
-
-   Más adelante serán reemplazados
-   por información proveniente de la API.
-====================================== */
-
-const empresasIniciales = [
-  {
-    id_empresa: 1,
-    nombre: "Pacific Shipping",
-    tipo: "Naviera",
-    pais: "Panamá",
-    activo: true,
-    fecha_creacion: "12 ene. 2024",
-  },
-  {
-    id_empresa: 2,
-    nombre: "Ocean Logistics",
-    tipo: "Operador portuario",
-    pais: "Países Bajos",
-    activo: true,
-    fecha_creacion: "03 mar. 2024",
-  },
-  {
-    id_empresa: 3,
-    nombre: "Blue Harbor Line",
-    tipo: "Naviera",
-    pais: "Estados Unidos",
-    activo: true,
-    fecha_creacion: "18 may. 2024",
-  },
-  {
-    id_empresa: 4,
-    nombre: "Atlantic Marine",
-    tipo: "Armador",
-    pais: "Reino Unido",
-    activo: false,
-    fecha_creacion: "27 jul. 2024",
-  },
-  {
-    id_empresa: 5,
-    nombre: "Global Containers",
-    tipo: "Operador logístico",
-    pais: "Alemania",
-    activo: true,
-    fecha_creacion: "04 sep. 2024",
-  },
-  {
-    id_empresa: 6,
-    nombre: "Maritime Cargo",
-    tipo: "Naviera",
-    pais: "El Salvador",
-    activo: true,
-    fecha_creacion: "21 oct. 2024",
-  },
-];
 
 
 const formularioInicial = {
@@ -88,11 +47,55 @@ const formularioInicial = {
 };
 
 
+function formatearFecha(fecha) {
+  if (!fecha) {
+    return "—";
+  }
+
+
+  const valor =
+    new Date(fecha);
+
+
+  if (
+    Number.isNaN(
+      valor.getTime()
+    )
+  ) {
+    return "—";
+  }
+
+
+  return new Intl.DateTimeFormat(
+    "es-SV",
+    {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }
+  ).format(valor);
+}
+
+
 function EmpresasPage() {
+  const navigate =
+    useNavigate();
+
+
+  const usuario =
+    obtenerUsuarioGuardado();
+
+
+  const puedeGestionar =
+    usuario?.permisos?.includes(
+      "EMP_GESTIONAR"
+    ) ?? false;
+
+
   const [
     empresas,
     setEmpresas,
-  ] = useState(empresasIniciales);
+  ] = useState([]);
 
 
   const [
@@ -116,7 +119,7 @@ function EmpresasPage() {
   const [
     cargando,
     setCargando,
-  ] = useState(false);
+  ] = useState(true);
 
 
   const [
@@ -134,7 +137,9 @@ function EmpresasPage() {
   const [
     formulario,
     setFormulario,
-  ] = useState(formularioInicial);
+  ] = useState(
+    formularioInicial
+  );
 
 
   const [
@@ -155,110 +160,277 @@ function EmpresasPage() {
   ] = useState("");
 
 
-  const tiposEmpresa = useMemo(() => {
-    return [
-      ...new Set(
-        empresas.map(
-          (empresa) => empresa.tipo
-        )
-      ),
-    ].sort();
-  }, [empresas]);
+  const [
+    errorGeneral,
+    setErrorGeneral,
+  ] = useState("");
 
 
-  const empresasFiltradas = useMemo(() => {
-    const texto =
-      busqueda
-        .trim()
-        .toLowerCase();
+  /* ======================================
+     CARGA INICIAL
+  ====================================== */
+
+  useEffect(() => {
+    let componenteActivo =
+      true;
 
 
-    return empresas.filter((empresa) => {
-      const coincideBusqueda =
-        !texto ||
-        empresa.nombre
-          .toLowerCase()
-          .includes(texto) ||
-        empresa.pais
-          .toLowerCase()
-          .includes(texto);
+    async function cargarInicial() {
+      try {
+        const respuesta =
+          await listarEmpresas();
 
 
-      const coincideTipo =
-        !filtroTipo ||
-        empresa.tipo ===
-          filtroTipo;
+        if (!componenteActivo) {
+          return;
+        }
 
 
-      const coincideEstado =
-        !filtroEstado ||
-        String(empresa.activo) ===
-          filtroEstado;
+        setEmpresas(
+          respuesta.data || []
+        );
 
 
-      return (
-        coincideBusqueda &&
-        coincideTipo &&
-        coincideEstado
+      } catch (error) {
+        console.error(
+          "Error al cargar empresas:",
+          error
+        );
+
+
+        if (!componenteActivo) {
+          return;
+        }
+
+
+        if (
+          error.response?.status ===
+          401
+        ) {
+          cerrarSesion();
+
+          navigate(
+            "/login",
+            {
+              replace: true,
+            }
+          );
+
+          return;
+        }
+
+
+        setErrorGeneral(
+          error.response?.data?.message
+          ||
+          "No fue posible cargar las empresas."
+        );
+
+
+      } finally {
+        if (componenteActivo) {
+          setCargando(false);
+        }
+      }
+    }
+
+
+    cargarInicial();
+
+
+    return () => {
+      componenteActivo =
+        false;
+    };
+
+  }, [navigate]);
+
+
+  /* ======================================
+     ACTUALIZAR LISTADO
+  ====================================== */
+
+  async function cargarEmpresas() {
+    try {
+      setCargando(true);
+
+      setErrorGeneral("");
+
+
+      const respuesta =
+        await listarEmpresas();
+
+
+      setEmpresas(
+        respuesta.data || []
       );
-    });
-  }, [
-    empresas,
-    busqueda,
-    filtroTipo,
-    filtroEstado,
-  ]);
+
+
+    } catch (error) {
+      console.error(
+        "Error al actualizar empresas:",
+        error
+      );
+
+
+      if (
+        error.response?.status ===
+        401
+      ) {
+        cerrarSesion();
+
+        navigate(
+          "/login",
+          {
+            replace: true,
+          }
+        );
+
+        return;
+      }
+
+
+      setErrorGeneral(
+        error.response?.data?.message
+        ||
+        "No fue posible actualizar las empresas."
+      );
+
+
+    } finally {
+      setCargando(false);
+    }
+  }
+
+
+  /* ======================================
+     FILTROS
+  ====================================== */
+
+  const tiposEmpresa =
+    useMemo(() => {
+      return [
+        ...new Set(
+          empresas
+            .map(
+              (empresa) =>
+                empresa.tipo
+            )
+            .filter(Boolean)
+        ),
+      ].sort();
+
+    }, [empresas]);
+
+
+  const empresasFiltradas =
+    useMemo(() => {
+      const texto =
+        busqueda
+          .trim()
+          .toLowerCase();
+
+
+      return empresas.filter(
+        (empresa) => {
+          const coincideBusqueda =
+            !texto
+            ||
+            empresa.nombre
+              ?.toLowerCase()
+              .includes(texto)
+            ||
+            (
+              empresa.pais || ""
+            )
+              .toLowerCase()
+              .includes(texto);
+
+
+          const coincideTipo =
+            !filtroTipo
+            ||
+            empresa.tipo ===
+              filtroTipo;
+
+
+          const coincideEstado =
+            !filtroEstado
+            ||
+            String(
+              empresa.activo
+            ) === filtroEstado;
+
+
+          return (
+            coincideBusqueda
+            &&
+            coincideTipo
+            &&
+            coincideEstado
+          );
+        }
+      );
+
+    }, [
+      empresas,
+      busqueda,
+      filtroTipo,
+      filtroEstado,
+    ]);
 
 
   const totalActivas =
     empresas.filter(
-      (empresa) => empresa.activo
+      (empresa) =>
+        empresa.activo
     ).length;
 
 
   const totalInactivas =
-    empresas.length -
+    empresas.length
+    -
     totalActivas;
 
 
   const totalNavieras =
     empresas.filter(
       (empresa) =>
-        empresa.tipo === "Naviera"
+        empresa.tipo ===
+        "Naviera"
     ).length;
 
 
   function limpiarFiltros() {
     setBusqueda("");
+
     setFiltroTipo("");
+
     setFiltroEstado("");
   }
 
 
-  function actualizarEmpresas() {
-    setCargando(true);
-
-
-    setTimeout(() => {
-      setEmpresas([
-        ...empresasIniciales,
-      ]);
-
-      setCargando(false);
-    }, 500);
-  }
-
+  /* ======================================
+     PANEL
+  ====================================== */
 
   function abrirNuevaEmpresa() {
+    if (!puedeGestionar) {
+      return;
+    }
+
+
     setEmpresaEditando(null);
 
-    setFormulario(
-      formularioInicial
-    );
+    setFormulario({
+      ...formularioInicial,
+    });
 
     setErrores({});
 
     setMensajeExito("");
+
+    setErrorGeneral("");
 
     setPanelAbierto(true);
   }
@@ -267,6 +439,11 @@ function EmpresasPage() {
   function abrirEditarEmpresa(
     empresa
   ) {
+    if (!puedeGestionar) {
+      return;
+    }
+
+
     setEmpresaEditando(
       empresa
     );
@@ -274,13 +451,13 @@ function EmpresasPage() {
 
     setFormulario({
       nombre:
-        empresa.nombre,
+        empresa.nombre || "",
 
       tipo:
-        empresa.tipo,
+        empresa.tipo || "",
 
       pais:
-        empresa.pais,
+        empresa.pais || "",
 
       activo:
         empresa.activo,
@@ -290,6 +467,8 @@ function EmpresasPage() {
     setErrores({});
 
     setMensajeExito("");
+
+    setErrorGeneral("");
 
     setPanelAbierto(true);
   }
@@ -305,9 +484,9 @@ function EmpresasPage() {
 
     setEmpresaEditando(null);
 
-    setFormulario(
-      formularioInicial
-    );
+    setFormulario({
+      ...formularioInicial,
+    });
 
     setErrores({});
 
@@ -327,7 +506,9 @@ function EmpresasPage() {
     setFormulario(
       (actual) => ({
         ...actual,
-        [name]: value,
+
+        [name]:
+          value,
       })
     );
 
@@ -336,14 +517,16 @@ function EmpresasPage() {
       setErrores(
         (actuales) => ({
           ...actuales,
-          [name]: "",
+
+          [name]:
+            "",
         })
       );
     }
   }
 
 
-  function cambiarEstado(
+  function cambiarEstadoFormulario(
     activo
   ) {
     setFormulario(
@@ -355,11 +538,17 @@ function EmpresasPage() {
   }
 
 
+  /* ======================================
+     VALIDACIÓN
+  ====================================== */
+
   function validarFormulario() {
     const nuevosErrores = {};
 
 
-    if (!formulario.nombre.trim()) {
+    if (
+      !formulario.nombre.trim()
+    ) {
       nuevosErrores.nombre =
         "Ingrese el nombre de la empresa.";
     }
@@ -371,7 +560,9 @@ function EmpresasPage() {
     }
 
 
-    if (!formulario.pais.trim()) {
+    if (
+      !formulario.pais.trim()
+    ) {
       nuevosErrores.pais =
         "Ingrese el país de la empresa.";
     }
@@ -390,45 +581,63 @@ function EmpresasPage() {
   }
 
 
-  function guardarEmpresa(
+  /* ======================================
+     CREAR / EDITAR
+  ====================================== */
+
+  async function guardarEmpresa(
     evento
   ) {
     evento.preventDefault();
 
 
-    if (!validarFormulario()) {
+    if (
+      !puedeGestionar
+      ||
+      !validarFormulario()
+    ) {
       return;
     }
 
 
-    setGuardando(true);
+    try {
+      setGuardando(true);
 
-    setMensajeExito("");
+      setMensajeExito("");
+
+      setErrorGeneral("");
 
 
-    setTimeout(() => {
+      const datos = {
+        nombre:
+          formulario.nombre.trim(),
+
+        tipo:
+          formulario.tipo,
+
+        pais:
+          formulario.pais.trim(),
+
+        activo:
+          formulario.activo,
+      };
+
+
       if (empresaEditando) {
+        const respuesta =
+          await actualizarEmpresa(
+            empresaEditando.id_empresa,
+            datos
+          );
+
+
         setEmpresas(
           (actuales) =>
             actuales.map(
               (empresa) =>
                 empresa.id_empresa ===
                 empresaEditando.id_empresa
-                  ? {
-                      ...empresa,
-
-                      nombre:
-                        formulario.nombre.trim(),
-
-                      tipo:
-                        formulario.tipo,
-
-                      pais:
-                        formulario.pais.trim(),
-
-                      activo:
-                        formulario.activo,
-                    }
+                  ? respuesta.data
                   : empresa
             )
         );
@@ -437,31 +646,18 @@ function EmpresasPage() {
         setMensajeExito(
           "La empresa fue actualizada correctamente."
         );
+
+
       } else {
-        const nuevaEmpresa = {
-          id_empresa:
-            Date.now(),
-
-          nombre:
-            formulario.nombre.trim(),
-
-          tipo:
-            formulario.tipo,
-
-          pais:
-            formulario.pais.trim(),
-
-          activo:
-            formulario.activo,
-
-          fecha_creacion:
-            "Hoy",
-        };
+        const respuesta =
+          await crearEmpresa(
+            datos
+          );
 
 
         setEmpresas(
           (actuales) => [
-            nuevaEmpresa,
+            respuesta.data,
             ...actuales,
           ]
         );
@@ -473,50 +669,127 @@ function EmpresasPage() {
       }
 
 
-      setGuardando(false);
-
-
       setTimeout(() => {
         cerrarPanel();
       }, 650);
-    }, 600);
+
+
+    } catch (error) {
+      console.error(
+        "Error al guardar empresa:",
+        error
+      );
+
+
+      if (
+        error.response?.status ===
+        401
+      ) {
+        cerrarSesion();
+
+        navigate(
+          "/login",
+          {
+            replace: true,
+          }
+        );
+
+        return;
+      }
+
+
+      setErrorGeneral(
+        error.response?.data?.message
+        ||
+        "No fue posible guardar la empresa."
+      );
+
+
+    } finally {
+      setGuardando(false);
+    }
   }
 
 
-  function cambiarEstadoEmpresa(
-    idEmpresa
-  ) {
-    setEmpresas(
-      (actuales) =>
-        actuales.map(
-          (empresa) =>
-            empresa.id_empresa ===
-            idEmpresa
-              ? {
-                  ...empresa,
+  /* ======================================
+     ACTIVAR / DESACTIVAR
+  ====================================== */
 
-                  activo:
-                    !empresa.activo,
-                }
-              : empresa
-        )
-    );
+  async function cambiarEstadoRegistro(
+    empresa
+  ) {
+    if (!puedeGestionar) {
+      return;
+    }
+
+
+    try {
+      setErrorGeneral("");
+
+
+      const nuevoEstado =
+        !empresa.activo;
+
+
+      const respuesta =
+        await cambiarEstadoEmpresa(
+          empresa.id_empresa,
+          nuevoEstado
+        );
+
+
+      setEmpresas(
+        (actuales) =>
+          actuales.map(
+            (actual) =>
+              actual.id_empresa ===
+              empresa.id_empresa
+                ? respuesta.data
+                : actual
+          )
+      );
+
+
+    } catch (error) {
+      console.error(
+        "Error al cambiar estado:",
+        error
+      );
+
+
+      if (
+        error.response?.status ===
+        401
+      ) {
+        cerrarSesion();
+
+        navigate(
+          "/login",
+          {
+            replace: true,
+          }
+        );
+
+        return;
+      }
+
+
+      setErrorGeneral(
+        error.response?.data?.message
+        ||
+        "No fue posible cambiar el estado de la empresa."
+      );
+    }
   }
 
 
   return (
     <section className="pagina-empresas">
 
-      {/* ======================================
-          FONDO
-      ====================================== */}
-
       <div className="fondo-empresas" />
 
 
-      {/* ======================================
-          ENCABEZADO
-      ====================================== */}
+      {/* ENCABEZADO */}
 
       <div className="encabezado-empresas">
 
@@ -525,7 +798,6 @@ function EmpresasPage() {
           <h1>
             Empresas
           </h1>
-
 
           <p>
             Gestiona las empresas relacionadas
@@ -536,24 +808,43 @@ function EmpresasPage() {
         </div>
 
 
-        <button
-          type="button"
-          className="boton-nueva-empresa"
-          onClick={
-            abrirNuevaEmpresa
-          }
-        >
-          <Plus size={19} />
+        {puedeGestionar && (
 
-          Nueva empresa
-        </button>
+          <button
+            type="button"
+            className="boton-nueva-empresa"
+            onClick={
+              abrirNuevaEmpresa
+            }
+          >
+
+            <Plus size={19} />
+
+            Nueva empresa
+
+          </button>
+
+        )}
 
       </div>
 
 
-      {/* ======================================
-          RESUMEN
-      ====================================== */}
+      {errorGeneral && (
+
+        <div className="mensaje-error-general-empresa">
+
+          <TriangleAlert
+            size={17}
+          />
+
+          {errorGeneral}
+
+        </div>
+
+      )}
+
+
+      {/* RESUMEN */}
 
       <div className="resumen-empresas">
 
@@ -562,7 +853,6 @@ function EmpresasPage() {
           <div className="icono-resumen-empresa">
             <Building2 size={24} />
           </div>
-
 
           <div>
             <span>
@@ -587,7 +877,6 @@ function EmpresasPage() {
             <Building2 size={24} />
           </div>
 
-
           <div>
             <span>
               Empresas activas
@@ -610,7 +899,6 @@ function EmpresasPage() {
           <div className="icono-resumen-empresa">
             <Power size={24} />
           </div>
-
 
           <div>
             <span>
@@ -635,7 +923,6 @@ function EmpresasPage() {
             <Ship size={24} />
           </div>
 
-
           <div>
             <span>
               Navieras
@@ -655,12 +942,9 @@ function EmpresasPage() {
       </div>
 
 
-      {/* ======================================
-          LISTADO
-      ====================================== */}
+      {/* LISTADO */}
 
       <article className="glass-card tarjeta-listado-empresas">
-
 
         <div className="encabezado-listado-empresas">
 
@@ -668,10 +952,8 @@ function EmpresasPage() {
 
             <h2>
               <Building2 size={21} />
-
               Listado de empresas
             </h2>
-
 
             <span>
               {empresasFiltradas.length}
@@ -689,9 +971,11 @@ function EmpresasPage() {
             type="button"
             className="boton-actualizar-empresas"
             onClick={
-              actualizarEmpresas
+              cargarEmpresas
             }
+            disabled={cargando}
           >
+
             <RefreshCw
               size={17}
               className={
@@ -702,21 +986,19 @@ function EmpresasPage() {
             />
 
             Actualizar
+
           </button>
 
         </div>
 
 
-        {/* ======================================
-            FILTROS
-        ====================================== */}
+        {/* FILTROS */}
 
         <div className="filtros-empresas">
 
           <div className="buscador-empresas">
 
             <Search size={18} />
-
 
             <input
               type="text"
@@ -736,7 +1018,6 @@ function EmpresasPage() {
 
             <Filter size={16} />
 
-
             <select
               value={filtroTipo}
               onChange={(evento) =>
@@ -745,10 +1026,10 @@ function EmpresasPage() {
                 )
               }
             >
+
               <option value="">
                 Todos los tipos
               </option>
-
 
               {tiposEmpresa.map(
                 (tipo) => (
@@ -776,6 +1057,7 @@ function EmpresasPage() {
                 )
               }
             >
+
               <option value="">
                 Todos los estados
               </option>
@@ -796,7 +1078,9 @@ function EmpresasPage() {
           <button
             type="button"
             className="boton-limpiar-empresas"
-            onClick={limpiarFiltros}
+            onClick={
+              limpiarFiltros
+            }
           >
             Limpiar
           </button>
@@ -804,11 +1088,8 @@ function EmpresasPage() {
         </div>
 
 
-        {/* ======================================
-            CARGANDO
-        ====================================== */}
-
         {cargando && (
+
           <div className="estado-carga-empresas">
 
             <RefreshCw
@@ -821,14 +1102,12 @@ function EmpresasPage() {
             </span>
 
           </div>
+
         )}
 
 
-        {/* ======================================
-            TABLA
-        ====================================== */}
-
         {!cargando && (
+
           <div className="contenedor-tabla-empresas">
 
             <table className="tabla-empresas">
@@ -885,7 +1164,6 @@ function EmpresasPage() {
                               />
                             </div>
 
-
                             <strong>
                               {empresa.nombre}
                             </strong>
@@ -896,11 +1174,9 @@ function EmpresasPage() {
 
 
                         <td>
-
                           <span className="tipo-empresa">
                             {empresa.tipo}
                           </span>
-
                         </td>
 
 
@@ -910,7 +1186,7 @@ function EmpresasPage() {
 
                             <MapPin size={14} />
 
-                            {empresa.pais}
+                            {empresa.pais || "—"}
 
                           </div>
 
@@ -937,55 +1213,61 @@ function EmpresasPage() {
 
 
                         <td>
-                          {
+                          {formatearFecha(
                             empresa.fecha_creacion
-                          }
+                          )}
                         </td>
 
 
                         <td>
 
-                          <div className="acciones-empresa">
+                          {puedeGestionar ? (
 
-                            <button
-                              type="button"
-                              title="Editar empresa"
-                              onClick={() =>
-                                abrirEditarEmpresa(
-                                  empresa
-                                )
-                              }
-                            >
-                              <Pencil
-                                size={16}
-                              />
-                            </button>
+                            <div className="acciones-empresa">
+
+                              <button
+                                type="button"
+                                title="Editar empresa"
+                                onClick={() =>
+                                  abrirEditarEmpresa(
+                                    empresa
+                                  )
+                                }
+                              >
+                                <Pencil
+                                  size={16}
+                                />
+                              </button>
 
 
-                            <button
-                              type="button"
-                              title={
-                                empresa.activo
-                                  ? "Desactivar empresa"
-                                  : "Reactivar empresa"
-                              }
-                              className={
-                                empresa.activo
-                                  ? "accion-desactivar"
-                                  : "accion-reactivar"
-                              }
-                              onClick={() =>
-                                cambiarEstadoEmpresa(
-                                  empresa.id_empresa
-                                )
-                              }
-                            >
-                              <Power
-                                size={16}
-                              />
-                            </button>
+                              <button
+                                type="button"
+                                title={
+                                  empresa.activo
+                                    ? "Desactivar empresa"
+                                    : "Reactivar empresa"
+                                }
+                                className={
+                                  empresa.activo
+                                    ? "accion-desactivar"
+                                    : "accion-reactivar"
+                                }
+                                onClick={() =>
+                                  cambiarEstadoRegistro(
+                                    empresa
+                                  )
+                                }
+                              >
+                                <Power
+                                  size={16}
+                                />
+                              </button>
 
-                          </div>
+                            </div>
+
+                          ) : (
+                            <span>—</span>
+                          )}
 
                         </td>
 
@@ -1001,16 +1283,16 @@ function EmpresasPage() {
             </table>
 
           </div>
+
         )}
 
       </article>
 
 
-      {/* ======================================
-          FONDO DEL PANEL
-      ====================================== */}
+      {/* PANEL */}
 
       {panelAbierto && (
+
         <div
           className="fondo-panel-empresa"
           onMouseDown={(evento) => {
@@ -1023,17 +1305,17 @@ function EmpresasPage() {
           }}
         >
 
-          {/* ======================================
-              PANEL LATERAL
-          ====================================== */}
-
           <aside className="panel-formulario-empresa">
 
             <button
               type="button"
               className="cerrar-panel-empresa"
-              onClick={cerrarPanel}
-              disabled={guardando}
+              onClick={
+                cerrarPanel
+              }
+              disabled={
+                guardando
+              }
               aria-label="Cerrar"
             >
               <X size={19} />
@@ -1054,7 +1336,6 @@ function EmpresasPage() {
                     ? "Editar empresa"
                     : "Nueva empresa"}
                 </h2>
-
 
                 <p>
                   {empresaEditando
@@ -1092,6 +1373,7 @@ function EmpresasPage() {
                       : "entrada-empresa"
                   }
                 >
+
                   <Building2 size={17} />
 
                   <input
@@ -1137,6 +1419,7 @@ function EmpresasPage() {
                       : "entrada-empresa"
                   }
                 >
+
                   <Ship size={17} />
 
                   <select
@@ -1149,6 +1432,7 @@ function EmpresasPage() {
                       manejarCambio
                     }
                   >
+
                     <option value="">
                       Seleccionar tipo
                     </option>
@@ -1200,6 +1484,7 @@ function EmpresasPage() {
                       : "entrada-empresa"
                   }
                 >
+
                   <MapPin size={17} />
 
                   <input
@@ -1213,7 +1498,7 @@ function EmpresasPage() {
                       manejarCambio
                     }
                     placeholder="Ej. Panamá"
-                    maxLength={100}
+                    maxLength={80}
                   />
 
                 </div>
@@ -1248,11 +1533,12 @@ function EmpresasPage() {
                         : "opcion-estado-empresa activa"
                     }
                     onClick={() =>
-                      cambiarEstado(true)
+                      cambiarEstadoFormulario(
+                        true
+                      )
                     }
                   >
                     <i />
-
                     Activa
                   </button>
 
@@ -1265,11 +1551,12 @@ function EmpresasPage() {
                         : "opcion-estado-empresa inactiva"
                     }
                     onClick={() =>
-                      cambiarEstado(false)
+                      cambiarEstadoFormulario(
+                        false
+                      )
                     }
                   >
                     <i />
-
                     Inactiva
                   </button>
 
@@ -1278,16 +1565,12 @@ function EmpresasPage() {
               </div>
 
 
-              {/* MENSAJE */}
-
               {mensajeExito && (
                 <div className="mensaje-exito-empresa">
                   {mensajeExito}
                 </div>
               )}
 
-
-              {/* BOTONES */}
 
               <div className="acciones-formulario-empresa">
 
@@ -1324,9 +1607,7 @@ function EmpresasPage() {
                     </>
                   ) : (
                     <>
-                      <Save
-                        size={17}
-                      />
+                      <Save size={17} />
 
                       {empresaEditando
                         ? "Guardar cambios"
@@ -1343,6 +1624,7 @@ function EmpresasPage() {
           </aside>
 
         </div>
+
       )}
 
     </section>
