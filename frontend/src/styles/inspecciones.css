@@ -1,0 +1,610 @@
+/* ======================================
+   TALASSA - MÓDULO INSPECCIONES
+   S5 LISTADO
+====================================== */
+
+
+/* ======================================
+   FONDO
+====================================== */
+
+.inspections-page {
+  position: relative;
+
+  min-height: calc(100vh - 150px);
+
+  padding: 25px 20px 28px;
+
+  overflow: hidden;
+
+  border-radius: 24px;
+
+  isolation: isolate;
+}
+
+
+.inspections-page::before {
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  z-index: -2;
+
+  background-image:
+    url("/dashboard-buque.jpg");
+
+  background-position:
+    center center;
+
+  background-size:
+    cover;
+
+  background-repeat:
+    no-repeat;
+}
+
+
+.inspections-page::after {
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  z-index: -1;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(203, 228, 246, 0.82),
+      rgba(193, 222, 241, 0.72)
+    );
+
+  backdrop-filter: blur(1px);
+}
+
+
+/* ======================================
+   ENCABEZADO
+====================================== */
+
+.inspections-page .page-heading {
+  position: relative;
+
+  z-index: 1;
+
+  margin-bottom: 25px;
+}
+
+
+.inspections-page .page-heading h1 {
+  margin-bottom: 6px;
+
+  color: var(--navy-dark);
+
+  font-size:
+    clamp(37px, 4vw, 50px);
+}
+
+
+.inspections-page .page-heading p {
+  color: #577da9;
+
+  font-size: 17px;
+}
+
+
+.inspections-page
+.page-heading
+.button-primary {
+  min-width: 200px;
+
+  box-shadow:
+    0 9px 22px
+    rgba(7, 83, 179, 0.2);
+}
+
+
+/* ======================================
+   KPI
+====================================== */
+
+.inspection-stats-grid {
+  position: relative;
+
+  z-index: 1;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 14px;
+
+  margin-bottom: 18px;
+}
+
+
+.inspections-page .stat-card {
+  min-height: 125px;
+
+  background:
+    rgba(245, 251, 255, 0.86);
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.92);
+
+  backdrop-filter:
+    blur(18px);
+
+  box-shadow:
+    0 12px 30px
+    rgba(22, 67, 105, 0.1);
+}
+
+
+.inspection-stat-pending {
+  color: #df2834;
+
+  background: #ffdadd;
+}
+
+
+.inspection-stat-process {
+  color: #d98500;
+
+  background: #ffedc5;
+}
+
+
+.inspection-stat-finished {
+  color: #078466;
+
+  background: #c8f7e6;
+}
+
+
+/* ======================================
+   CONTENEDOR TABLA
+====================================== */
+
+.inspections-table-card {
+  position: relative;
+
+  z-index: 1;
+
+  padding: 18px;
+
+  background:
+    rgba(242, 249, 254, 0.9);
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.94);
+
+  backdrop-filter:
+    blur(20px);
+
+  box-shadow:
+    0 14px 35px
+    rgba(27, 70, 106, 0.11);
+}
+
+
+/* ======================================
+   TOOLBAR
+====================================== */
+
+.inspection-toolbar {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 14px;
+
+  margin-bottom: 14px;
+}
+
+
+/* ======================================
+   TABS
+====================================== */
+
+.inspection-tabs {
+  display: flex;
+
+  overflow: hidden;
+
+  border-radius: 12px;
+
+  background:
+    rgba(226, 239, 249, 0.84);
+}
+
+
+.inspection-tabs button {
+  min-height: 43px;
+
+  padding: 0 15px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 7px;
+
+  border: none;
+
+  color: #53749d;
+
+  background: transparent;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+
+.inspection-tabs button:hover {
+  background:
+    rgba(211, 230, 246, 0.75);
+}
+
+
+.inspection-tabs button.active {
+  color: #0757b5;
+
+  background: #cfe6fc;
+
+  font-weight: 700;
+}
+
+
+/* ======================================
+   FILTROS
+====================================== */
+
+.inspection-filters {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+
+.inspections-page
+.search-control {
+  min-width: 220px;
+
+  background:
+    rgba(255, 255, 255, 0.78);
+
+  border:
+    1px solid
+    rgba(188, 214, 234, 0.78);
+}
+
+
+.inspection-filters select {
+  min-height: 43px;
+
+  min-width: 170px;
+
+  padding: 0 13px;
+
+  border-radius: 11px;
+
+  border:
+    1px solid
+    rgba(188, 214, 234, 0.78);
+
+  color: var(--text);
+
+  background:
+    rgba(255, 255, 255, 0.78);
+
+  outline: none;
+}
+
+
+/* ======================================
+   TÍTULO DE TABLA
+====================================== */
+
+.inspection-table-title {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin:
+    8px 0 13px;
+
+  color: var(--navy-dark);
+}
+
+
+.inspection-table-title h2 {
+  margin: 0;
+
+  color: var(--navy-dark);
+
+  font-size: 20px;
+}
+
+
+/* ======================================
+   TABLA
+====================================== */
+
+.inspections-table-card
+.talassa-table {
+  overflow: hidden;
+
+  border-radius: 14px;
+}
+
+
+.inspections-table-card
+.talassa-table thead {
+  background:
+    rgba(218, 235, 248, 0.92);
+}
+
+
+.inspections-table-card
+.talassa-table th {
+  color: #0a3472;
+}
+
+
+.inspections-table-card
+.talassa-table td {
+  background:
+    rgba(250, 253, 255, 0.79);
+
+  border-bottom:
+    1px solid
+    rgba(173, 204, 227, 0.52);
+}
+
+
+.inspections-table-card
+.talassa-table tr:hover td {
+  background:
+    rgba(240, 248, 254, 0.96);
+}
+
+
+.inspection-code {
+  color: var(--navy-dark);
+
+  font-weight: 700;
+}
+
+
+.inspection-date {
+  display: flex;
+
+  flex-direction: column;
+}
+
+
+.inspection-date small {
+  color: #6685ad;
+
+  font-size: 11px;
+}
+
+
+/* ======================================
+   ESTADOS
+====================================== */
+
+.inspection-status-pending {
+  color: #d62631;
+
+  background: #ffdade;
+}
+
+
+.inspection-status-pending span {
+  background: #e42635;
+}
+
+
+.inspection-status-process {
+  color: #ce7800;
+
+  background: #ffedc9;
+}
+
+
+.inspection-status-process span {
+  background: #f3a20c;
+}
+
+
+.inspection-status-finished {
+  color: #08745d;
+
+  background: #c9f8e7;
+}
+
+
+.inspection-status-finished span {
+  background: #17af7b;
+}
+
+
+/* ======================================
+   ACCIONES
+====================================== */
+
+.inspections-page
+.action-buttons {
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+}
+
+
+.inspections-page
+.action-buttons button {
+  width: 35px;
+
+  height: 35px;
+
+  display: grid;
+
+  place-items: center;
+
+  border: none;
+
+  border-radius: 10px;
+
+  color: var(--navy);
+
+  background:
+    rgba(235, 245, 252, 0.92);
+
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+
+.inspections-page
+.action-buttons button:hover {
+  transform:
+    translateY(-1px);
+
+  background: #dbeaf7;
+}
+
+
+.inspections-page
+.action-buttons
+.action-delete {
+  color: #d52c36;
+
+  background:
+    rgba(255, 228, 231, 0.9);
+}
+
+
+.inspections-page
+.action-buttons
+.action-delete:hover {
+  color: #b91f29;
+
+  background: #ffd3d8;
+}
+
+
+/* ======================================
+   VACÍO
+====================================== */
+
+.inspection-empty {
+  padding: 35px !important;
+
+  text-align: center !important;
+
+  color: var(--text-soft);
+}
+
+
+/* ======================================
+   FOOTER
+====================================== */
+
+.inspections-table-card
+.table-footer {
+  min-height: 58px;
+
+  padding-top: 8px;
+}
+
+
+/* ======================================
+   RESPONSIVE
+====================================== */
+
+@media (max-width: 1180px) {
+
+  .inspection-toolbar {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+
+  .inspection-filters {
+    flex-wrap: wrap;
+  }
+
+}
+
+
+@media (max-width: 900px) {
+
+  .inspection-stats-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+
+@media (max-width: 720px) {
+
+  .inspections-page {
+    min-height: auto;
+
+    padding: 18px 14px;
+
+    border-radius: 0;
+  }
+
+
+  .inspection-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+
+  .inspection-tabs {
+    flex-direction: column;
+  }
+
+
+  .inspection-filters {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+
+  .inspections-page
+  .search-control,
+  .inspection-filters select {
+    width: 100%;
+
+    min-width: 0;
+  }
+
+}

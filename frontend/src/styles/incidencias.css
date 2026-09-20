@@ -1,0 +1,2382 @@
+/* ======================================
+   TALASSA - MÓDULO INCIDENCIAS
+   S7 LISTADO
+====================================== */
+
+
+/* ======================================
+   FONDO
+====================================== */
+
+.incidents-page {
+  position: relative;
+
+  min-height: calc(100vh - 150px);
+
+  padding: 25px 20px 28px;
+
+  overflow: hidden;
+
+  border-radius: 24px;
+
+  isolation: isolate;
+}
+
+
+.incidents-page::before {
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  z-index: -2;
+
+  background-image:
+    url("/dashboard-buque.jpg");
+
+  background-position:
+    center center;
+
+  background-size:
+    cover;
+
+  background-repeat:
+    no-repeat;
+}
+
+
+.incidents-page::after {
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  z-index: -1;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(203, 228, 246, 0.82),
+      rgba(193, 222, 241, 0.72)
+    );
+
+  backdrop-filter:
+    blur(1px);
+}
+
+
+/* ======================================
+   ENCABEZADO
+====================================== */
+
+.incidents-page .page-heading {
+  position: relative;
+
+  z-index: 1;
+
+  margin-bottom: 25px;
+}
+
+
+.incidents-page .page-heading h1 {
+  margin-bottom: 6px;
+
+  color: var(--navy-dark);
+
+  font-size:
+    clamp(37px, 4vw, 50px);
+}
+
+
+.incidents-page .page-heading p {
+  color: #577da9;
+
+  font-size: 17px;
+}
+
+
+.incidents-page
+.page-heading
+.button-primary {
+  min-width: 190px;
+
+  box-shadow:
+    0 9px 22px
+    rgba(7, 83, 179, 0.2);
+}
+
+
+/* ======================================
+   KPI
+====================================== */
+
+.incident-stats-grid {
+  position: relative;
+
+  z-index: 1;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 14px;
+
+  margin-bottom: 18px;
+}
+
+
+.incidents-page .stat-card {
+  min-height: 125px;
+
+  background:
+    rgba(245, 251, 255, 0.86);
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.92);
+
+  backdrop-filter:
+    blur(18px);
+
+  box-shadow:
+    0 12px 30px
+    rgba(22, 67, 105, 0.1);
+}
+
+
+.incident-total-icon {
+  color: #df2834;
+
+  background: #ffdadd;
+}
+
+
+.incident-open-icon {
+  color: #dc2531;
+
+  background: #ffe0e2;
+}
+
+
+.incident-review-icon {
+  color: #1769bd;
+
+  background: #dcecff;
+}
+
+
+.incident-resolved-icon {
+  color: #08745d;
+
+  background: #c9f8e7;
+}
+
+
+/* ======================================
+   CONTENEDOR TABLA
+====================================== */
+
+.incidents-table-card {
+  position: relative;
+
+  z-index: 1;
+
+  padding: 18px;
+
+  background:
+    rgba(242, 249, 254, 0.9);
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.94);
+
+  backdrop-filter:
+    blur(20px);
+
+  box-shadow:
+    0 14px 35px
+    rgba(27, 70, 106, 0.11);
+}
+
+
+/* ======================================
+   FILTROS
+====================================== */
+
+.incident-filters {
+  display: grid;
+
+  grid-template-columns:
+    1.3fr 1fr 1fr 1fr;
+
+  gap: 10px;
+
+  margin-bottom: 14px;
+}
+
+
+.incidents-page
+.search-control {
+  width: 100%;
+
+  background:
+    rgba(255, 255, 255, 0.78);
+
+  border:
+    1px solid
+    rgba(188, 214, 234, 0.78);
+}
+
+
+.incident-filters select {
+  min-height: 43px;
+
+  width: 100%;
+
+  padding: 0 13px;
+
+  border-radius: 11px;
+
+  border:
+    1px solid
+    rgba(188, 214, 234, 0.78);
+
+  color: var(--text);
+
+  background:
+    rgba(255, 255, 255, 0.78);
+
+  outline: none;
+}
+
+
+/* ======================================
+   TABLA
+====================================== */
+
+.incidents-table-card
+.talassa-table {
+  overflow: hidden;
+
+  border-radius: 14px;
+}
+
+
+.incidents-table-card
+.talassa-table thead {
+  background:
+    rgba(218, 235, 248, 0.92);
+}
+
+
+.incidents-table-card
+.talassa-table th {
+  color: #0a3472;
+}
+
+
+.incidents-table-card
+.talassa-table td {
+  background:
+    rgba(250, 253, 255, 0.79);
+
+  border-bottom:
+    1px solid
+    rgba(173, 204, 227, 0.52);
+}
+
+
+.incidents-table-card
+.talassa-table tr:hover td {
+  background:
+    rgba(240, 248, 254, 0.96);
+}
+
+
+.incident-code {
+  color: var(--navy-dark);
+
+  font-weight: 700;
+}
+
+
+.incident-date {
+  display: flex;
+
+  flex-direction: column;
+}
+
+
+.incident-date small {
+  color: #6685ad;
+
+  font-size: 11px;
+}
+
+
+/* ======================================
+   PRIORIDAD
+====================================== */
+
+.incident-priority {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  min-width: 76px;
+
+  justify-content: center;
+
+  padding: 7px 14px;
+
+  border-radius: 15px;
+}
+
+
+.incident-priority > span {
+  width: 9px;
+
+  height: 9px;
+
+  border-radius: 50%;
+}
+
+
+.priority-high {
+  color: #d32631;
+
+  background: #fedddd;
+}
+
+
+.priority-high > span {
+  background: #e32634;
+}
+
+
+.priority-medium {
+  color: #cc7800;
+
+  background: #ffedc9;
+}
+
+
+.priority-medium > span {
+  background: #f0a20b;
+}
+
+
+.priority-low {
+  color: #08745d;
+
+  background: #c9f8e7;
+}
+
+
+.priority-low > span {
+  background: #17af7b;
+}
+
+
+/* ======================================
+   ESTADOS
+====================================== */
+
+.incident-status-open {
+  color: #d32631;
+
+  background: #fedddd;
+}
+
+
+.incident-status-open span {
+  background: #e32634;
+}
+
+
+.incident-status-review {
+  color: #075db8;
+
+  background: #d7ebff;
+}
+
+
+.incident-status-review span {
+  background: #1681ea;
+}
+
+
+.incident-status-resolved {
+  color: #08745d;
+
+  background: #c9f8e7;
+}
+
+
+.incident-status-resolved span {
+  background: #17af7b;
+}
+
+
+.incident-status-closed {
+  color: #647991;
+
+  background: #e3ebf1;
+}
+
+
+.incident-status-closed span {
+  background: #8da0b3;
+}
+
+
+/* ======================================
+   ACCIONES
+====================================== */
+
+.incidents-page
+.action-buttons {
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+}
+
+
+.incidents-page
+.action-buttons button {
+  width: 35px;
+
+  height: 35px;
+
+  display: grid;
+
+  place-items: center;
+
+  border: none;
+
+  border-radius: 10px;
+
+  color: var(--navy);
+
+  background:
+    rgba(235, 245, 252, 0.92);
+
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+
+.incidents-page
+.action-buttons button:hover {
+  transform:
+    translateY(-1px);
+
+  background: #dbeaf7;
+}
+
+
+.incidents-page
+.action-buttons
+.action-delete {
+  color: #d52c36;
+
+  background:
+    rgba(255, 228, 231, 0.9);
+}
+
+
+.incidents-page
+.action-buttons
+.action-delete:hover {
+  color: #b91f29;
+
+  background: #ffd3d8;
+}
+
+
+/* ======================================
+   VACÍO
+====================================== */
+
+.incident-empty {
+  padding: 35px !important;
+
+  text-align: center !important;
+
+  color: var(--text-soft);
+}
+
+
+/* ======================================
+   FOOTER
+====================================== */
+
+.incidents-table-card
+.table-footer {
+  min-height: 58px;
+
+  padding-top: 8px;
+}
+
+
+/* ======================================
+   RESPONSIVE
+====================================== */
+
+@media (max-width: 1100px) {
+
+  .incident-stats-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+
+  .incident-filters {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+
+@media (max-width: 720px) {
+
+  .incidents-page {
+    min-height: auto;
+
+    padding: 18px 14px;
+
+    border-radius: 0;
+  }
+
+
+  .incident-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+
+  .incident-filters {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+/* ======================================
+   EVIDENCIAS DE INCIDENCIAS
+====================================== */
+
+.incident-evidence-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 22px;
+  margin-bottom: 14px;
+}
+
+
+.incident-evidence-header h3 {
+  margin: 0;
+}
+
+
+.incident-add-image {
+  cursor: pointer;
+}
+
+
+.incident-evidence-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+  gap: 14px;
+  margin-top: 14px;
+}
+
+
+.incident-evidence-card {
+  position: relative;
+  overflow: hidden;
+
+  min-height: 180px;
+
+  padding: 10px;
+
+  border-radius: 15px;
+
+  border:
+    1px solid
+    rgba(
+      141,
+      187,
+      220,
+      0.55
+    );
+
+  background:
+    rgba(
+      224,
+      241,
+      252,
+      0.8
+    );
+}
+
+
+.incident-evidence-card img {
+  width: 100%;
+  height: 145px;
+
+  display: block;
+
+  object-fit: cover;
+
+  border-radius: 11px;
+
+  margin-bottom: 10px;
+}
+
+
+.incident-evidence-card select {
+  width: 100%;
+}
+
+
+.incident-evidence-card strong {
+  display: block;
+
+  color: #0d3b72;
+
+  font-size: 13px;
+
+  padding: 4px 2px;
+}
+
+
+.incident-remove-image {
+  position: absolute;
+
+  top: 17px;
+  right: 17px;
+
+  width: 34px;
+  height: 34px;
+
+  display: grid;
+  place-items: center;
+
+  border: none;
+
+  border-radius: 9px;
+
+  background:
+    rgba(
+      255,
+      232,
+      234,
+      0.96
+    );
+
+  color: #e83b4c;
+
+  cursor: pointer;
+}
+
+
+.incident-empty-evidence {
+  min-height: 180px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  border:
+    1.5px dashed
+    #78aede;
+
+  border-radius: 15px;
+
+  color: #3273b3;
+
+  cursor: pointer;
+
+  background:
+    rgba(
+      240,
+      249,
+      255,
+      0.72
+    );
+}
+
+
+.incident-description-card {
+  margin-top: 16px;
+  padding: 20px;
+}
+
+
+.incident-description-card textarea {
+  width: 100%;
+
+  resize: vertical;
+
+  box-sizing: border-box;
+}
+
+
+.incident-history-card {
+  margin-top: 16px;
+  padding: 20px;
+}
+
+
+.incident-history-row {
+  display: flex;
+
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 13px 0;
+
+  border-bottom:
+    1px solid
+    rgba(
+      120,
+      160,
+      195,
+      0.25
+    );
+}
+
+
+.incident-history-row p {
+  margin:
+    5px 0 0;
+}
+
+
+.incident-history-row small {
+  text-align: right;
+
+  white-space: nowrap;
+}
+
+
+.incident-form-card {
+  padding: 20px;
+}
+
+
+.incident-form-actions {
+  display: flex;
+
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin-top: 18px;
+}
+
+
+.incident-error {
+  padding: 13px 16px;
+
+  margin-bottom: 15px;
+
+  border-radius: 12px;
+
+  background:
+    rgba(
+      255,
+      226,
+      229,
+      0.95
+    );
+
+  color: #b4232c;
+}
+
+
+@media (
+  max-width: 900px
+) {
+  .incident-evidence-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+}
+
+
+@media (
+  max-width: 600px
+) {
+  .incident-evidence-grid {
+    grid-template-columns:
+      1fr;
+  }
+}
+
+
+/* =========================================================
+   FORMULARIO DE INCIDENCIAS - ESTILO TALASSA
+========================================================= */
+
+.incident-detail-page {
+  position: relative;
+  width: 100%;
+  min-height: 100%;
+}
+
+
+/* =========================================================
+   TARJETA INFORMACIÓN GENERAL
+========================================================= */
+
+.incident-form-card {
+  margin-top: 18px;
+  padding: 28px 30px;
+
+  border: 1px solid
+    rgba(255, 255, 255, 0.85);
+
+  border-radius: 20px;
+
+  background:
+    rgba(242, 249, 255, 0.88);
+
+  box-shadow:
+    0 16px 40px
+    rgba(44, 91, 130, 0.08);
+
+  backdrop-filter: blur(12px);
+}
+
+
+.incident-form-card h2 {
+  margin:
+    0 0 24px;
+
+  color: #0b376d;
+
+  font-size: 22px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   GRID
+========================================================= */
+
+.incident-form-card .form-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap:
+    22px 28px;
+}
+
+
+/* =========================================================
+   LABELS
+========================================================= */
+
+.incident-form-card .form-grid > label {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+
+  margin: 0;
+
+  color: #163f73;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   SELECTS
+========================================================= */
+
+.incident-form-card select {
+  width: 100%;
+  height: 46px;
+
+  padding:
+    0 42px 0 14px;
+
+  border:
+    1px solid
+    #b8d3e8;
+
+  border-radius: 11px;
+
+  outline: none;
+
+  background-color:
+    rgba(
+      248,
+      252,
+      255,
+      0.96
+    );
+
+  color: #173e70;
+
+  font-family: inherit;
+
+  font-size: 13px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+
+.incident-form-card select:hover {
+  border-color: #83b3da;
+
+  background:
+    #ffffff;
+}
+
+
+.incident-form-card select:focus {
+  border-color: #2c7ec4;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(
+      44,
+      126,
+      196,
+      0.12
+    );
+
+  background:
+    #ffffff;
+}
+
+
+/* =========================================================
+   MODO SOLO LECTURA
+========================================================= */
+
+.incident-form-card select:disabled {
+  opacity: 1;
+
+  cursor: default;
+
+  color: #526f90;
+
+  border-color:
+    #c8dce9;
+
+  background:
+    rgba(
+      230,
+      241,
+      249,
+      0.78
+    );
+}
+
+
+/* =========================================================
+   DESCRIPCIÓN
+========================================================= */
+
+.incident-description-card {
+  margin-top: 18px;
+
+  padding: 26px 30px;
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.85
+    );
+
+  border-radius: 20px;
+
+  background:
+    rgba(
+      242,
+      249,
+      255,
+      0.9
+    );
+
+  box-shadow:
+    0 16px 40px
+    rgba(
+      44,
+      91,
+      130,
+      0.08
+    );
+
+  backdrop-filter:
+    blur(12px);
+}
+
+
+.incident-description-card h2 {
+  margin:
+    0 0 18px;
+
+  color: #0b376d;
+
+  font-size: 20px;
+  font-weight: 700;
+}
+
+
+.incident-description-card h3 {
+  margin:
+    22px 0 10px;
+
+  color: #163f73;
+
+  font-size: 15px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   TEXTAREA
+========================================================= */
+
+.incident-description-card textarea {
+  display: block;
+
+  width: 100%;
+  min-height: 125px;
+
+  box-sizing: border-box;
+
+  padding:
+    14px 16px;
+
+  border:
+    1px solid
+    #b8d3e8;
+
+  border-radius: 12px;
+
+  outline: none;
+
+  resize: vertical;
+
+  background:
+    rgba(
+      248,
+      252,
+      255,
+      0.96
+    );
+
+  color: #173e70;
+
+  font-family: inherit;
+
+  font-size: 13px;
+  line-height: 1.6;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.incident-description-card textarea::placeholder {
+  color: #839bb4;
+}
+
+
+.incident-description-card textarea:focus {
+  border-color: #2c7ec4;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(
+      44,
+      126,
+      196,
+      0.12
+    );
+
+  background:
+    #ffffff;
+}
+
+
+.incident-description-card textarea[readonly] {
+  cursor: default;
+
+  color: #526f90;
+
+  background:
+    rgba(
+      230,
+      241,
+      249,
+      0.78
+    );
+}
+
+
+/* =========================================================
+   EVIDENCIAS
+========================================================= */
+
+.incident-evidence-header {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  margin:
+    24px 0 14px;
+}
+
+
+.incident-evidence-header h3 {
+  margin: 0;
+}
+
+
+.incident-evidence-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap: 16px;
+}
+
+
+.incident-evidence-card {
+  position: relative;
+
+  overflow: hidden;
+
+  padding: 10px;
+
+  border:
+    1px solid
+    #c3dbea;
+
+  border-radius: 15px;
+
+  background:
+    rgba(
+      235,
+      247,
+      255,
+      0.84
+    );
+}
+
+
+.incident-evidence-card img {
+  display: block;
+
+  width: 100%;
+  height: 150px;
+
+  object-fit: cover;
+
+  border-radius: 11px;
+}
+
+
+.incident-evidence-card select {
+  width: 100%;
+
+  margin-top: 10px;
+
+  padding: 9px 10px;
+
+  border:
+    1px solid
+    #b8d3e8;
+
+  border-radius: 9px;
+
+  color: #173e70;
+
+  background:
+    #ffffff;
+
+  font-family: inherit;
+}
+
+
+.incident-evidence-card strong {
+  display: block;
+
+  margin-top: 10px;
+
+  color: #174474;
+
+  font-size: 13px;
+}
+
+
+.incident-empty-evidence {
+  min-height: 170px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  border:
+    2px dashed
+    #9ac3e2;
+
+  border-radius: 15px;
+
+  background:
+    rgba(
+      239,
+      249,
+      255,
+      0.72
+    );
+
+  color: #3678b4;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+
+.incident-empty-evidence:hover {
+  border-color: #307fbd;
+
+  background:
+    rgba(
+      224,
+      242,
+      254,
+      0.9
+    );
+}
+
+
+.incident-remove-image {
+  position: absolute;
+
+  top: 17px;
+  right: 17px;
+
+  width: 34px;
+  height: 34px;
+
+  display: grid;
+
+  place-items: center;
+
+  padding: 0;
+
+  border: none;
+
+  border-radius: 9px;
+
+  background:
+    rgba(
+      255,
+      235,
+      237,
+      0.96
+    );
+
+  color: #e63946;
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   HISTORIAL
+========================================================= */
+
+.incident-history-card {
+  margin-top: 18px;
+
+  padding: 26px 30px;
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.85
+    );
+
+  border-radius: 20px;
+
+  background:
+    rgba(
+      242,
+      249,
+      255,
+      0.9
+    );
+
+  box-shadow:
+    0 16px 40px
+    rgba(
+      44,
+      91,
+      130,
+      0.08
+    );
+}
+
+
+.incident-history-card h2 {
+  margin:
+    0 0 16px;
+
+  color: #0b376d;
+
+  font-size: 19px;
+}
+
+
+.incident-history-row {
+  display: flex;
+
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 24px;
+
+  padding:
+    14px 4px;
+
+  border-bottom:
+    1px solid
+    rgba(
+      126,
+      162,
+      192,
+      0.25
+    );
+}
+
+
+.incident-history-row:last-child {
+  border-bottom: none;
+}
+
+
+.incident-history-row strong {
+  color: #144577;
+}
+
+
+.incident-history-row p {
+  margin:
+    4px 0 0;
+
+  color: #617f9f;
+
+  font-size: 12px;
+}
+
+
+.incident-history-row small {
+  flex-shrink: 0;
+
+  color: #718dab;
+
+  font-size: 11px;
+
+  text-align: right;
+}
+
+
+/* =========================================================
+   BOTONES INFERIORES
+========================================================= */
+
+.incident-form-actions {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 14px;
+
+  margin-top: 18px;
+
+  padding-bottom: 18px;
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.incident-error,
+.form-error {
+  margin-bottom: 16px;
+
+  padding:
+    12px 16px;
+
+  border:
+    1px solid
+    rgba(
+      223,
+      66,
+      78,
+      0.2
+    );
+
+  border-radius: 11px;
+
+  background:
+    rgba(
+      255,
+      231,
+      233,
+      0.92
+    );
+
+  color: #b4232c;
+
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (
+  max-width: 900px
+) {
+
+  .incident-form-card .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+
+  .incident-evidence-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+}
+
+
+@media (
+  max-width: 600px
+) {
+
+  .incident-form-card,
+  .incident-description-card,
+  .incident-history-card {
+    padding: 20px;
+  }
+
+
+  .incident-evidence-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .incident-form-actions {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+
+  .incident-history-row {
+    flex-direction: column;
+  }
+
+
+  .incident-history-row small {
+    text-align: left;
+  }
+
+}
+
+/* =========================================================
+   DETALLE DE INCIDENCIA - VISTA DEL OJITO
+========================================================= */
+
+.incident-readonly-page {
+  width: 100%;
+  box-sizing: border-box;
+  padding-bottom: 28px;
+}
+
+
+/* =========================================================
+   ENCABEZADO
+========================================================= */
+
+.incident-readonly-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 18px;
+}
+
+.incident-readonly-heading h1 {
+  margin: 0;
+  color: #0b376d;
+  font-size: 34px;
+  font-weight: 800;
+}
+
+.incident-readonly-heading p {
+  margin: 5px 0 0;
+  color: #6081a5;
+}
+
+
+/* =========================================================
+   TARJETAS GENERALES
+========================================================= */
+
+.incident-readonly-page .glass-card {
+  box-sizing: border-box;
+
+  border: 1px solid
+    rgba(255, 255, 255, 0.9);
+
+  background:
+    rgba(244, 250, 255, 0.9);
+
+  box-shadow:
+    0 12px 34px
+    rgba(36, 84, 123, 0.08);
+
+  backdrop-filter: blur(12px);
+}
+
+
+/* =========================================================
+   TÍTULOS DE SECCIÓN
+========================================================= */
+
+.incident-readonly-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-bottom: 18px;
+
+  color: #0c3c75;
+}
+
+.incident-readonly-title svg {
+  flex-shrink: 0;
+  color: #0d60ad;
+}
+
+.incident-readonly-title h2 {
+  margin: 0;
+
+  color: #0c3c75;
+
+  font-size: 18px;
+  font-weight: 750;
+}
+
+
+/* =========================================================
+   INFORMACIÓN GENERAL
+========================================================= */
+
+.incident-readonly-general {
+  width: 100%;
+
+  padding: 22px 24px;
+
+  border-radius: 18px;
+}
+
+
+/* La cuadrícula principal */
+
+.incident-info-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 0;
+
+  width: 100%;
+}
+
+
+/* Cada dato */
+
+.incident-info-item {
+  min-width: 0;
+  min-height: 78px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+
+  padding: 10px 18px;
+
+  box-sizing: border-box;
+
+  border-right:
+    1px solid
+    rgba(110, 152, 187, 0.22);
+
+  border-bottom:
+    1px solid
+    rgba(110, 152, 187, 0.15);
+}
+
+
+/* quitar borde cada cuatro */
+
+.incident-info-item:nth-child(4n) {
+  border-right: none;
+}
+
+
+/* círculo del icono */
+
+.incident-info-icon {
+  width: 44px;
+  height: 44px;
+
+  min-width: 44px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+
+  background: #e0effb;
+
+  color: #0b62b1;
+}
+
+.incident-info-icon svg {
+  width: 21px;
+  height: 21px;
+}
+
+
+/* texto interno */
+
+.incident-info-item > div:last-child {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.incident-info-item span {
+  color: #6a88a7;
+
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.incident-info-item strong {
+  overflow: hidden;
+
+  color: #0a346a;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   PRIORIDAD Y ESTADO
+========================================================= */
+
+.incident-info-statuses {
+  min-height: 78px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 24px;
+
+  padding: 10px 18px;
+
+  box-sizing: border-box;
+}
+
+.incident-info-statuses > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 7px;
+}
+
+.incident-info-statuses > div > span {
+  color: #6a88a7;
+
+  font-size: 11px;
+}
+
+
+/* píldora */
+
+.incident-detail-pill {
+  width: fit-content;
+
+  display: inline-flex;
+  align-items: center;
+
+  gap: 7px;
+
+  padding: 7px 13px;
+
+  border-radius: 999px;
+
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.incident-detail-pill i {
+  width: 7px;
+  height: 7px;
+
+  display: block;
+
+  border-radius: 50%;
+
+  background: currentColor;
+}
+
+
+/* prioridad */
+
+.incident-detail-priority-alta {
+  color: #e13d4b;
+  background: #ffe1e4;
+}
+
+.incident-detail-priority-media {
+  color: #d88900;
+  background: #ffedc7;
+}
+
+.incident-detail-priority-baja {
+  color: #159b76;
+  background: #d1f7e9;
+}
+
+
+/* estado */
+
+.incident-detail-state {
+  color: #d88b00;
+  background: #ffedc8;
+}
+
+
+/* =========================================================
+   FILA CENTRAL
+   SEGUIMIENTO + ESTADO ACTUAL
+========================================================= */
+
+.incident-readonly-middle {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 2fr)
+    minmax(280px, 0.9fr);
+
+  gap: 16px;
+
+  margin-top: 16px;
+}
+
+.incident-timeline-card,
+.incident-current-state-card {
+  padding: 22px 24px;
+
+  border-radius: 18px;
+}
+
+
+/* =========================================================
+   TIMELINE
+========================================================= */
+
+.incident-timeline {
+  position: relative;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  align-items: start;
+
+  margin-top: 26px;
+  padding: 0 18px;
+}
+
+
+/* línea horizontal */
+
+.incident-timeline::before {
+  content: "";
+
+  position: absolute;
+
+  top: 17px;
+  left: 12%;
+  right: 12%;
+
+  height: 3px;
+
+  z-index: 0;
+
+  border-radius: 999px;
+
+  background: #c9d9e7;
+}
+
+
+/* paso */
+
+.incident-timeline-step {
+  position: relative;
+
+  z-index: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 6px;
+
+  text-align: center;
+}
+
+
+/* círculo */
+
+.incident-timeline-dot {
+  width: 34px;
+  height: 34px;
+
+  display: grid;
+  place-items: center;
+
+  box-sizing: border-box;
+
+  border: 5px solid #edf6fc;
+
+  border-radius: 50%;
+
+  background: #a9bdcd;
+
+  color: white;
+
+  box-shadow:
+    0 0 0 2px
+    #c0d3e1;
+}
+
+.incident-timeline-dot.completed {
+  background: #20b98c;
+
+  box-shadow:
+    0 0 0 2px
+    #9ce5ce;
+}
+
+.incident-timeline-dot.current {
+  background: #075bb9;
+
+  box-shadow:
+    0 0 0 4px
+    rgba(111, 186, 240, 0.42);
+}
+
+.incident-timeline-step strong {
+  margin-top: 2px;
+
+  color: #113d72;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.incident-timeline-step small {
+  color: #7690aa;
+
+  font-size: 10px;
+}
+
+
+/* =========================================================
+   ESTADO ACTUAL
+========================================================= */
+
+.incident-current-state-content {
+  min-height: 115px;
+
+  display: flex;
+  flex-direction: column;
+
+  justify-content: center;
+
+  gap: 7px;
+
+  box-sizing: border-box;
+
+  padding: 18px;
+
+  border-radius: 13px;
+
+  background:
+    rgba(222, 240, 252, 0.75);
+}
+
+.incident-current-state-content span {
+  color: #6685a5;
+
+  font-size: 11px;
+}
+
+.incident-current-state-content strong {
+  color: #0756a7;
+
+  font-size: 23px;
+  font-weight: 800;
+}
+
+.incident-current-state-content small {
+  color: #708ba5;
+
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   FILA INFERIOR
+   DESCRIPCIÓN + HISTORIAL
+========================================================= */
+
+.incident-readonly-bottom {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(0, 1.15fr);
+
+  gap: 16px;
+
+  margin-top: 16px;
+}
+
+.incident-readonly-description,
+.incident-readonly-history {
+  min-width: 0;
+
+  padding: 22px 24px;
+
+  border-radius: 18px;
+}
+
+
+/* =========================================================
+   DESCRIPCIÓN
+========================================================= */
+
+.incident-description-text {
+  margin: 0 0 18px;
+
+  color: #577696;
+
+  font-size: 13px;
+  line-height: 1.65;
+
+  white-space: pre-wrap;
+}
+
+
+/* =========================================================
+   EVIDENCIAS
+========================================================= */
+
+.incident-readonly-evidence-grid {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 12px;
+}
+
+
+/* TARJETA */
+
+.incident-readonly-evidence {
+  min-width: 0;
+
+  overflow: hidden;
+
+  box-sizing: border-box;
+
+  padding: 7px;
+
+  border:
+    1px solid
+    #c4dbea;
+
+  border-radius: 13px;
+
+  background:
+    rgba(231, 245, 253, 0.88);
+}
+
+
+/* ESTA ES LA CORRECCIÓN
+   DE LA IMAGEN GIGANTE */
+
+.incident-readonly-evidence img {
+  display: block;
+
+  width: 100%;
+  height: 160px;
+
+  max-width: 100%;
+
+  object-fit: cover;
+
+  border-radius: 9px;
+}
+
+
+/* categoría */
+
+.incident-readonly-evidence strong {
+  display: block;
+
+  padding:
+    8px 4px 3px;
+
+  color: #315f8c;
+
+  font-size: 11px;
+  font-weight: 650;
+}
+
+
+/* sin imágenes */
+
+.incident-no-evidence {
+  min-height: 145px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  box-sizing: border-box;
+
+  border:
+    1px dashed
+    #a8c8df;
+
+  border-radius: 12px;
+
+  color: #7895af;
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   HISTORIAL
+========================================================= */
+
+.incident-readonly-history {
+  overflow: hidden;
+}
+
+.incident-history-detail-row {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    9px
+    minmax(0, 1fr)
+    auto;
+
+  gap: 12px;
+
+  box-sizing: border-box;
+
+  padding: 12px 0;
+
+  border-bottom:
+    1px solid
+    rgba(108, 148, 180, 0.2);
+}
+
+.incident-history-detail-row:last-child {
+  border-bottom: none;
+}
+
+
+/* punto */
+
+.incident-history-dot {
+  width: 8px;
+  height: 8px;
+
+  margin-top: 5px;
+
+  border-radius: 50%;
+
+  background: #168ce0;
+}
+
+
+/* contenido */
+
+.incident-history-main {
+  min-width: 0;
+}
+
+.incident-history-main strong {
+  color: #184a7d;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.incident-history-main p {
+  margin: 4px 0 0;
+
+  color: #6885a1;
+
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+
+/* fecha / usuario */
+
+.incident-history-meta {
+  min-width: 110px;
+
+  color: #7390aa;
+
+  font-size: 9px;
+
+  text-align: right;
+}
+
+.incident-history-meta span,
+.incident-history-meta small {
+  display: block;
+}
+
+.incident-history-empty {
+  color: #708da8;
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   BOTÓN FINAL
+========================================================= */
+
+.incident-readonly-actions {
+  display: flex;
+
+  align-items: center;
+  justify-content: flex-start;
+
+  margin-top: 16px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1200px) {
+
+  .incident-info-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+
+  .incident-info-item:nth-child(4n) {
+    border-right:
+      1px solid
+      rgba(110, 152, 187, 0.22);
+  }
+
+
+  .incident-info-item:nth-child(2n) {
+    border-right: none;
+  }
+
+
+  .incident-readonly-bottom {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+
+@media (max-width: 900px) {
+
+  .incident-readonly-middle {
+    grid-template-columns: 1fr;
+  }
+
+
+  .incident-readonly-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+}
+
+
+@media (max-width: 650px) {
+
+  .incident-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+
+  .incident-info-item {
+    border-right: none;
+  }
+
+
+  .incident-info-item:nth-child(2n),
+  .incident-info-item:nth-child(4n) {
+    border-right: none;
+  }
+
+
+  .incident-info-statuses {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+
+  .incident-timeline {
+    grid-template-columns:
+      repeat(2, 1fr);
+
+    gap: 25px;
+  }
+
+
+  .incident-timeline::before {
+    display: none;
+  }
+
+
+  .incident-readonly-evidence-grid {
+    grid-template-columns: 1fr;
+  }
+
+
+  .incident-readonly-heading h1 {
+    font-size: 27px;
+  }
+
+}

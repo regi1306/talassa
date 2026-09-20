@@ -1,21 +1,48 @@
 import express from "express";
 import cors from "cors";
 
-import authRoutes from "./routes/auth.routes.js";
-import buquesRoutes from "./routes/buques.routes.js";
-import operacionesRoutes from "./routes/operaciones.routes.js";
+import authRoutes
+  from "./routes/auth.routes.js";
+
+import buquesRoutes
+  from "./routes/buques.routes.js";
+
+import operacionesRoutes
+  from "./routes/operaciones.routes.js";
+
 import contenedoresRoutes
   from "./routes/contenedores.routes.js";
 
-import pool from "./config/db.js";
+import muellesRoutes
+  from "./routes/muelles.routes.js";
+
+import inspeccionesRoutes
+  from "./routes/inspecciones.routes.js";
+
+import incidenciasRoutes
+  from "./routes/incidencias.routes.js";
+
+import pool
+  from "./config/db.js";
 
 
-const app = express();
+const app =
+  express();
 
 
-app.use(cors());
+/* ======================================
+   MIDDLEWARES GENERALES
+====================================== */
 
-app.use(express.json());
+app.use(
+  cors()
+);
+
+app.use(
+  express.json({
+    limit: "15mb",
+  })
+);
 
 
 /* ======================================
@@ -37,6 +64,27 @@ app.use(
   contenedoresRoutes
 );
 
+
+/* ======================================
+   RUTAS DE STEPHANIEE
+====================================== */
+
+app.use(
+  "/api/muelles",
+  muellesRoutes
+);
+
+app.use(
+  "/api/inspecciones",
+  inspeccionesRoutes
+);
+
+app.use(
+  "/api/incidencias",
+  incidenciasRoutes
+);
+
+
 /* ======================================
    RUTAS DE REGINA
 ====================================== */
@@ -46,13 +94,16 @@ app.use(
   authRoutes
 );
 
+
 /* ======================================
    PRUEBA GENERAL DE LA API
 ====================================== */
 
 app.get(
   "/api/health",
+
   (req, res) => {
+
     res
       .status(200)
       .json({
@@ -61,6 +112,7 @@ app.get(
         message:
           "API de TALASSA funcionando correctamente",
       });
+
   }
 );
 
@@ -71,7 +123,9 @@ app.get(
 
 app.get(
   "/api/health/database",
+
   async (req, res) => {
+
     try {
 
       const resultado =
@@ -111,7 +165,9 @@ app.get(
           message:
             "No fue posible conectar con PostgreSQL",
         });
+
     }
+
   }
 );
 
