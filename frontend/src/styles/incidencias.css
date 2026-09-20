@@ -2380,3 +2380,87 @@
   }
 
 }
+
+/* =========================================================
+   COLORES DE LAS CARDS - INCIDENCIAS
+========================================================= */
+
+.incidencias-page .incident-stats-grid .stat-card > svg {
+  width: 50px;
+  height: 50px;
+
+  padding: 12px;
+  box-sizing: border-box;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+}
+
+
+/* TOTAL DE INCIDENCIAS */
+
+.incidencias-page
+.incident-stats-grid
+.stat-card:nth-child(1)
+> svg {
+  color: #ef3340;
+  background: #ffd9dd;
+}
+
+
+/* ABIERTAS */
+
+.incidencias-page
+.incident-stats-grid
+.stat-card:nth-child(2)
+> svg {
+  color: #ef3340;
+  background: #ffd9dd;
+}
+
+
+/* EN REVISIÓN */
+
+.incidencias-page
+.incident-stats-grid
+.stat-card:nth-child(3)
+> svg {
+  color: #1674d1;
+  background: #d9ebff;
+}
+
+
+/* RESUELTAS */
+
+.incidencias-page
+.incident-stats-grid
+.stat-card:nth-child(4)
+> svg {
+  color: #159a76;
+  background: #c8f5e5;
+}
+
+
+/* =========================================================
+   BOTÓN ELIMINAR - INCIDENCIAS
+========================================================= */
+
+.incidencias-page
+.action-buttons
+.action-delete {
+  color: #ef3340;
+
+  background: #ffe3e6;
+
+  border: none;
+}
+
+
+.incidencias-page
+.action-buttons
+.action-delete:hover {
+  color: #d92334;
+
+  background: #ffd2d7;
+}
