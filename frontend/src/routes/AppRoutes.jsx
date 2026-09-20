@@ -4,80 +4,129 @@ import {
   Routes,
 } from "react-router-dom";
 
-import MainLayout from "../layouts/MainLayout.jsx";
-import AuthLayout from "../layouts/AuthLayout.jsx";
+import MainLayout
+  from "../layouts/MainLayout.jsx";
 
-import LoginPage from "../pages/auth/LoginPage.jsx";
+import AuthLayout
+  from "../layouts/AuthLayout.jsx";
+
+import LoginPage
+  from "../pages/auth/LoginPage.jsx";
 
 
 /* ======================================
    REGINA - ADMINISTRACIÓN
 ====================================== */
 
-import UsuariosPage from "../pages/usuarios/UsuariosPage.jsx";
-import UsuarioFormPage from "../pages/usuarios/UsuarioFormPage.jsx";
-import RolesPermisosPage from "../pages/roles/RolesPermisosPage.jsx";
-import EmpresasPage from "../pages/empresas/EmpresasPage.jsx";
-import CatalogosPage from "../pages/catalogos/CatalogosPage.jsx";
-import AuditoriaPage from "../pages/auditoria/AuditoriaPage.jsx";
-import AuditoriaDetallePage from "../pages/auditoria/AuditoriaDetallePage.jsx";
+import UsuariosPage
+  from "../pages/usuarios/UsuariosPage.jsx";
+
+import UsuarioFormPage
+  from "../pages/usuarios/UsuarioFormPage.jsx";
+
+import RolesPermisosPage
+  from "../pages/roles/RolesPermisosPage.jsx";
+
+import EmpresasPage
+  from "../pages/empresas/EmpresasPage.jsx";
+
+import CatalogosPage
+  from "../pages/catalogos/CatalogosPage.jsx";
+
+import AuditoriaPage
+  from "../pages/auditoria/AuditoriaPage.jsx";
+
+import AuditoriaDetallePage
+  from "../pages/auditoria/AuditoriaDetallePage.jsx";
 
 
 /* ======================================
-   ALEXANDRA - OPERACIONES
+   ALEXANDRA - DASHBOARD / BUQUES
+   / OPERACIONES / CONTENEDORES
 ====================================== */
 
-import DashboardPage from "../pages/dashboard/DashboardPage.jsx";
+import DashboardPage
+  from "../pages/dashboard/DashboardPage.jsx";
 
-import BuquesPage from "../pages/buques/BuquesPage.jsx";
-import FormularioBuquePage from "../pages/buques/FormularioBuquePage.jsx";
-import DetalleBuquePage from "../pages/buques/DetalleBuquePage.jsx";
+import BuquesPage
+  from "../pages/buques/BuquesPage.jsx";
 
-import OperacionesPage from "../pages/operaciones/OperacionesPage.jsx";
-import FormularioOperacionPage from "../pages/operaciones/FormularioOperacionPage.jsx";
-import DetalleOperacionPage from "../pages/operaciones/DetalleOperacionPage.jsx";
+import FormularioBuquePage
+  from "../pages/buques/FormularioBuquePage.jsx";
 
-<<<<<<< HEAD
-import ContenedoresPage from "../pages/contenedores/ContenedoresPage.jsx";
-import FormularioContenedorPage from "../pages/contenedores/FormularioContenedorPage.jsx";
-import DetalleContenedorPage from "../pages/contenedores/DetalleContenedorPage.jsx";
+import DetalleBuquePage
+  from "../pages/buques/DetalleBuquePage.jsx";
 
-import PerfilPage from "../pages/perfil/PerfilPage";
-=======
-import PerfilPage from "../pages/perfil/PerfilPage.jsx";
+import OperacionesPage
+  from "../pages/operaciones/OperacionesPage.jsx";
+
+import FormularioOperacionPage
+  from "../pages/operaciones/FormularioOperacionPage.jsx";
+
+import DetalleOperacionPage
+  from "../pages/operaciones/DetalleOperacionPage.jsx";
+
+import ContenedoresPage
+  from "../pages/contenedores/ContenedoresPage.jsx";
+
+import FormularioContenedorPage
+  from "../pages/contenedores/FormularioContenedorPage.jsx";
+
+import DetalleContenedorPage
+  from "../pages/contenedores/DetalleContenedorPage.jsx";
+
+
+/* ======================================
+   PERFIL
+====================================== */
+
+import PerfilPage
+  from "../pages/perfil/PerfilPage.jsx";
 
 
 /* ======================================
    STEPHANIEE - MUELLES
 ====================================== */
 
-import MuellesPage from "../pages/muelles/MuellesPage.jsx";
-import MuelleFormPage from "../pages/muelles/MuelleFormPage.jsx";
+import MuellesPage
+  from "../pages/muelles/MuellesPage.jsx";
+
+import MuelleFormPage
+  from "../pages/muelles/MuelleFormPage.jsx";
 
 
 /* ======================================
    STEPHANIEE - ASIGNACIÓN DE MUELLES
 ====================================== */
 
-//import EvaluacionMuellesPage from "../pages/asignaciones/EvaluacionMuellesPage.jsx";
+// Se activará después de comprobar que
+// el archivo existe y está integrado.
+
+// import EvaluacionMuellesPage
+//   from "../pages/asignaciones/EvaluacionMuellesPage.jsx";
 
 
 /* ======================================
    STEPHANIEE - INSPECCIONES
 ====================================== */
 
-import InspeccionesPage from "../pages/inspecciones/InspeccionesPage.jsx";
-import InspeccionFormPage from "../pages/inspecciones/InspeccionFormPage.jsx";
+import InspeccionesPage
+  from "../pages/inspecciones/InspeccionesPage.jsx";
+
+import InspeccionFormPage
+  from "../pages/inspecciones/InspeccionFormPage.jsx";
 
 
 /* ======================================
    STEPHANIEE - INCIDENCIAS
 ====================================== */
 
-import IncidenciasPage from "../pages/incidencias/IncidenciasPage.jsx";
-import IncidenciaDetallePage from "../pages/incidencias/IncidenciaDetallePage.jsx";
+import IncidenciasPage
+  from "../pages/incidencias/IncidenciasPage.jsx";
 
->>>>>>> develop
+import IncidenciaDetallePage
+  from "../pages/incidencias/IncidenciaDetallePage.jsx";
+
 
 function AppRoutes() {
   return (
@@ -103,27 +152,6 @@ function AppRoutes() {
 
       <Route element={<MainLayout />}>
 
-<<<<<<< HEAD
-      <Route path="/dashboard" element={<DashboardPage />} />
-      <Route path="/buques" element={<BuquesPage />} />
-      <Route path="/buques/nuevo" element={<FormularioBuquePage />} />
-      <Route path="/buques/:id" element={<DetalleBuquePage />} />
-      <Route path="/buques/:id/editar" element={<FormularioBuquePage />} />
-      <Route path="/operaciones" element={<OperacionesPage />} />
-      <Route path="/operaciones/nueva" element={<FormularioOperacionPage />} />
-      <Route path="/operaciones/:id/editar" element={<FormularioOperacionPage />} />
-      <Route path="/operaciones/:id" element={<DetalleOperacionPage />} />
-      <Route path="/contenedores" element={<ContenedoresPage />} />
-      <Route path="/contenedores/nuevo" element={<FormularioContenedorPage />} />
-      <Route path="/contenedores/:id/editar" element={<FormularioContenedorPage />} />
-      <Route path="/contenedores/:id" element={<DetalleContenedorPage />} />
-      
-        <Route path="/usuarios" element={<UsuariosPage />} />
-        <Route path="/usuarios/nuevo" element={<UsuarioFormPage />} />
-        <Route path="/usuarios/:id/editar" element={<UsuarioFormPage />} />
-        <Route path="/perfil" element={<PerfilPage />}/>
-=======
->>>>>>> develop
 
         {/* =====================================
             DASHBOARD
@@ -179,9 +207,50 @@ function AppRoutes() {
           element={<FormularioOperacionPage />}
         />
 
+
+        {/* =====================================
+            STEPHANIEE - ASIGNACIÓN DE MUELLES
+
+            Pendiente de comprobar su archivo
+            antes de habilitarla.
+        ===================================== */}
+
+        {/*
+        <Route
+          path="/operaciones/:id/asignar-muelle"
+          element={<EvaluacionMuellesPage />}
+        />
+        */}
+
+
         <Route
           path="/operaciones/:id"
           element={<DetalleOperacionPage />}
+        />
+
+
+        {/* =====================================
+            ALEXANDRA - CONTENEDORES
+        ===================================== */}
+
+        <Route
+          path="/contenedores"
+          element={<ContenedoresPage />}
+        />
+
+        <Route
+          path="/contenedores/nuevo"
+          element={<FormularioContenedorPage />}
+        />
+
+        <Route
+          path="/contenedores/:id/editar"
+          element={<FormularioContenedorPage />}
+        />
+
+        <Route
+          path="/contenedores/:id"
+          element={<DetalleContenedorPage />}
         />
 
 
@@ -264,14 +333,6 @@ function AppRoutes() {
           element={<MuelleFormPage />}
         />
 
-        {/* =====================================
-            STEPHANIEE - ASIGNACIÓN DE MUELLES
-        ===================================== */}
-
-        {/* <Route
-          path="/operaciones/:id/asignar-muelle"
-          element={<EvaluacionMuellesPage />}
-        /> */}
 
         {/* =====================================
             STEPHANIEE - INSPECCIONES
@@ -297,30 +358,27 @@ function AppRoutes() {
             STEPHANIEE - INCIDENCIAS
         ===================================== */}
 
-        
-<Route
-  path="/incidencias"
-  element={<IncidenciasPage />}
-/>
+        <Route
+          path="/incidencias"
+          element={<IncidenciasPage />}
+        />
 
-<Route
-  path="/incidencias/nueva"
-  element={<IncidenciaDetallePage />}
-/>
+        <Route
+          path="/incidencias/nueva"
+          element={<IncidenciaDetallePage />}
+        />
 
-<Route
-  path="/incidencias/:id/editar"
-  element={<IncidenciaDetallePage />}
-/>
+        <Route
+          path="/incidencias/:id/editar"
+          element={<IncidenciaDetallePage />}
+        />
 
-<Route
-  path="/incidencias/:id"
-  element={<IncidenciaDetallePage />}
-/>
+        <Route
+          path="/incidencias/:id"
+          element={<IncidenciaDetallePage />}
+        />
 
-</Route>
-
-
+      </Route>
 
 
       {/* =====================================
