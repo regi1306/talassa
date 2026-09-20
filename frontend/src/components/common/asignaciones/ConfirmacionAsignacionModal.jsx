@@ -1,53 +1,87 @@
 import {
-  Anchor,
   Building2,
   CalendarDays,
   Check,
   CheckCircle2,
-  FileText,
-  Info,
+  ClipboardCheck,
   Ship,
   X,
+  Anchor,
 } from "lucide-react";
 
+import "../../../styles/confirmacionAsignacionModal.css";
 
 function ConfirmacionAsignacionModal({
+  abierto,
+  operacion,
   muelle,
-  onClose,
-  onConfirm,
+  validaciones = [],
+  confirmando = false,
+  error = "",
+  onCerrar,
+  onConfirmar,
 }) {
-  if (!muelle) {
+  if (
+    !abierto ||
+    !muelle ||
+    !operacion
+  ) {
     return null;
   }
 
 
   return (
-    <div className="assignment-modal-backdrop">
+    <div
+      className="assignment-modal-overlay"
+      onMouseDown={(event) => {
+        if (
+          event.target ===
+          event.currentTarget &&
+          !confirmando
+        ) {
+          onCerrar();
+        }
+      }}
+    >
 
-      <div className="assignment-modal">
+      <div
+        className="assignment-modal"
+        role="dialog"
+        aria-modal="true"
+      >
 
-        {/* CERRAR */}
+
+        {/* ==================================
+            CERRAR
+        ================================== */}
 
         <button
           type="button"
           className="assignment-modal-close"
-          onClick={onClose}
+          onClick={onCerrar}
+          disabled={confirmando}
+          aria-label="Cerrar"
         >
-          <X size={23} />
+          <X size={24} />
         </button>
 
 
-        {/* ENCABEZADO */}
+        {/* ==================================
+            ENCABEZADO
+        ================================== */}
 
-        <div className="assignment-modal-heading">
+        <div className="assignment-modal-header">
 
-          <div className="assignment-modal-success-icon">
-            <CheckCircle2 size={30} />
+          <div className="assignment-modal-check">
+
+            <CheckCircle2 size={34} />
+
           </div>
 
 
-          <div>
-            <span className="assignment-modal-brand">
+          <div className="assignment-modal-header-text">
+
+            <span className="assignment-brand">
               T A L A S S A
             </span>
 
@@ -56,66 +90,100 @@ function ConfirmacionAsignacionModal({
             </h2>
 
             <p>
-              Revisa la información de la
-              asignación antes de continuar.
+              Revisa la información de la asignación antes de continuar.
             </p>
+
           </div>
 
         </div>
 
 
-        {/* DETALLES */}
+        {/* ==================================
+            DETALLES
+        ================================== */}
 
-        <div className="assignment-modal-section">
+        <section className="assignment-detail-card">
 
           <h3>
             Detalles de la asignación
           </h3>
 
 
-          <div className="assignment-details-grid">
+          <div className="assignment-detail-grid">
+
+
+            {/* IZQUIERDA */}
 
             <div className="assignment-detail-column">
 
-              <div className="assignment-detail-item">
-
-                <div className="assignment-detail-icon">
-                  <FileText size={21} />
-                </div>
-
-                <div>
-                  <span>Operación</span>
-                  <strong>OP-052</strong>
-                </div>
-
-              </div>
-
 
               <div className="assignment-detail-item">
 
                 <div className="assignment-detail-icon">
-                  <Ship size={21} />
+                  <ClipboardCheck size={23} />
                 </div>
 
                 <div>
-                  <span>Buque</span>
-                  <strong>Ocean Star</strong>
-                </div>
 
-              </div>
+                  <span>
+                    Operación
+                  </span>
 
-
-              <div className="assignment-detail-item">
-
-                <div className="assignment-detail-icon">
-                  <Building2 size={21} />
-                </div>
-
-                <div>
-                  <span>Empresa</span>
                   <strong>
-                    Pacific Shipping
+                    {
+                      operacion.codigo ||
+                      "-"
+                    }
                   </strong>
+
+                </div>
+
+              </div>
+
+
+              <div className="assignment-detail-item">
+
+                <div className="assignment-detail-icon">
+                  <Ship size={24} />
+                </div>
+
+                <div>
+
+                  <span>
+                    Buque
+                  </span>
+
+                  <strong>
+                    {
+                      operacion.buque ||
+                      "Sin información"
+                    }
+                  </strong>
+
+                </div>
+
+              </div>
+
+
+              <div className="assignment-detail-item">
+
+                <div className="assignment-detail-icon">
+                  <Building2 size={23} />
+                </div>
+
+                <div>
+
+                  <span>
+                    Empresa
+                  </span>
+
+                  <strong>
+                    {
+                      operacion.empresa ||
+                      "Sin información"
+                    }
+                  </strong>
+
                 </div>
 
               </div>
@@ -123,29 +191,37 @@ function ConfirmacionAsignacionModal({
             </div>
 
 
-            <div className="assignment-detail-divider" />
+            {/* DERECHA */}
 
+            <div className="assignment-detail-column assignment-detail-column-right">
 
-            <div className="assignment-detail-column">
 
               <div className="assignment-detail-item">
 
                 <div className="assignment-detail-icon">
-                  <Anchor size={21} />
+                  <Anchor size={24} />
                 </div>
 
                 <div>
+
                   <span>
                     Muelle seleccionado
                   </span>
 
                   <strong>
-                    {muelle.codigo}
+                    {
+                      muelle.codigo ||
+                      "-"
+                    }
                   </strong>
 
                   <small>
-                    {muelle.nombre}
+                    {
+                      muelle.nombre ||
+                      ""
+                    }
                   </small>
+
                 </div>
 
               </div>
@@ -154,21 +230,36 @@ function ConfirmacionAsignacionModal({
               <div className="assignment-detail-item">
 
                 <div className="assignment-detail-icon">
-                  <CalendarDays size={21} />
+                  <CalendarDays size={23} />
                 </div>
 
                 <div>
+
                   <span>
                     Período de asignación
                   </span>
 
                   <strong>
-                    10/09/2026
+                    {
+                      operacion.fecha ||
+                      "-"
+                    }
                   </strong>
 
                   <small>
-                    08:00 – 17:00
+                    {
+                      operacion.horaInicio ||
+                      "--:--"
+                    }
+
+                    {" — "}
+
+                    {
+                      operacion.horaFin ||
+                      "--:--"
+                    }
                   </small>
+
                 </div>
 
               </div>
@@ -177,75 +268,120 @@ function ConfirmacionAsignacionModal({
 
           </div>
 
-        </div>
+        </section>
 
 
-        {/* VALIDACIONES */}
+        {/* ==================================
+            VALIDACIONES
+        ================================== */}
 
-        <div className="assignment-validations">
+        <section className="assignment-validation-card">
 
-          <h3>
-            Validaciones superadas
-          </h3>
+          <div className="assignment-validation-title">
 
+            <span />
 
-          <div className="assignment-validations-grid">
-
-            <ValidationItem
-              titulo="Disponibilidad confirmada"
-              texto="El muelle se encuentra disponible en el período solicitado."
-            />
-
-
-            <ValidationItem
-              titulo="Sin conflicto horario"
-              texto="No se encontraron operaciones solapadas en el muelle."
-            />
-
-
-            <ValidationItem
-              titulo="Compatibilidad física verificada"
-              texto="El buque cumple con las restricciones de eslora, calado y tipo de carga."
-            />
-
-
-            <ValidationItem
-              titulo="Estado operativo activo"
-              texto="El muelle se encuentra operativo y sin incidencias."
-            />
+            <h3>
+              Validaciones superadas
+            </h3>
 
           </div>
 
-        </div>
+
+          <div className="assignment-validation-grid">
+
+            {validaciones.map(
+              (
+                validacion,
+                indice
+              ) => (
+
+                <div
+                  className="assignment-validation-item"
+                  key={`${validacion.titulo}-${indice}`}
+                >
+
+                  <div className="assignment-validation-check">
+
+                    <Check size={20} />
+
+                  </div>
 
 
-        {/* MENSAJE */}
+                  <div>
 
-        <div className="assignment-info-message">
+                    <strong>
+                      {
+                        validacion.titulo
+                      }
+                    </strong>
 
-          <div>
-            <Info size={20} />
+                    <p>
+                      {
+                        validacion.descripcion
+                      }
+                    </p>
+
+                  </div>
+
+                </div>
+
+              )
+            )}
+
           </div>
+
+        </section>
+
+
+        {/* ==================================
+            INFORMACIÓN
+        ================================== */}
+
+        <div className="assignment-info-box">
+
+          <div className="assignment-info-icon">
+            i
+          </div>
+
 
           <p>
-            Al confirmar, la operación
-            actualizará su estado a{" "}
-            <strong>Muelle asignado</strong>{" "}
-            y la acción quedará registrada
-            en auditoría.
+            Al confirmar, la operación actualizará su estado a{" "}
+            <strong>
+              Muelle asignado
+            </strong>{" "}
+            y la acción quedará registrada en auditoría.
           </p>
 
         </div>
 
 
-        {/* BOTONES */}
+        {/* ==================================
+            ERROR DEL BACKEND
+        ================================== */}
+
+        {error && (
+
+          <div className="assignment-modal-error">
+
+            {error}
+
+          </div>
+
+        )}
+
+
+        {/* ==================================
+            ACCIONES
+        ================================== */}
 
         <div className="assignment-modal-actions">
 
           <button
             type="button"
-            className="button button-secondary"
-            onClick={onClose}
+            className="assignment-button-cancel"
+            onClick={onCerrar}
+            disabled={confirmando}
           >
             Cancelar
           </button>
@@ -253,42 +389,23 @@ function ConfirmacionAsignacionModal({
 
           <button
             type="button"
-            className="button button-primary"
-            onClick={onConfirm}
+            className="assignment-button-confirm"
+            onClick={onConfirmar}
+            disabled={confirmando}
           >
-            <Check size={19} />
-            Confirmar asignación
+
+            <Check size={22} />
+
+            {
+              confirmando
+                ? "Confirmando..."
+                : "Confirmar asignación"
+            }
+
           </button>
 
         </div>
 
-      </div>
-
-    </div>
-  );
-}
-
-
-function ValidationItem({
-  titulo,
-  texto,
-}) {
-  return (
-    <div className="assignment-validation-item">
-
-      <div className="assignment-validation-check">
-        <Check size={18} />
-      </div>
-
-
-      <div>
-        <strong>
-          {titulo}
-        </strong>
-
-        <p>
-          {texto}
-        </p>
       </div>
 
     </div>

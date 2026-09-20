@@ -24,6 +24,9 @@ import {
   obtenerIncidencias,
 } from "../../services/incidenciasService.js";
 
+import ConfirmDeleteModal
+  from "../../components/common/ConfirmDeleteModal.jsx";
+
 import "../../styles/incidencias.css";
 
 
@@ -146,6 +149,10 @@ function IncidenciasPage() {
     setError,
   ] = useState("");
 
+  const [
+    incidenciaAEliminar,
+    setIncidenciaAEliminar,
+  ] = useState(null);
 
   async function cargarIncidencias() {
     try {
@@ -239,23 +246,23 @@ function IncidenciasPage() {
 
             (
               filtroOperacion ===
-                "Todas" ||
+              "Todas" ||
               item.operacion ===
-                filtroOperacion
+              filtroOperacion
             ) &&
 
             (
               filtroPrioridad ===
-                "Todas" ||
+              "Todas" ||
               item.prioridad ===
-                filtroPrioridad
+              filtroPrioridad
             ) &&
 
             (
               filtroEstado ===
-                "Todos" ||
+              "Todos" ||
               item.estado ===
-                filtroEstado
+              filtroEstado
             )
           );
         }
@@ -294,32 +301,52 @@ function IncidenciasPage() {
     ).length;
 
 
-  async function eliminar(
-    incidencia
-  ) {
-    const confirmado =
-      window.confirm(
-        `¿Deseas eliminar ${incidencia.codigo}?`
-      );
-
-
-    if (!confirmado) {
+  async function confirmarEliminarIncidencia() {
+    if (!incidenciaAEliminar) {
       return;
     }
 
 
     try {
-      await eliminarIncidenciaApi(
-        incidencia.id_incidencia
+      const respuesta =
+        await eliminarIncidenciaApi(
+          incidenciaAEliminar.id_incidencia
+        );
+
+
+      if (!respuesta.ok) {
+        throw new Error(
+          respuesta.mensaje ||
+          "No fue posible eliminar la incidencia."
+        );
+      }
+
+
+      setIncidencias(
+        (anteriores) =>
+          anteriores.filter(
+            (incidencia) =>
+              incidencia.id_incidencia !==
+              incidenciaAEliminar.id_incidencia
+          )
       );
 
-      await cargarIncidencias();
+
+      setIncidenciaAEliminar(
+        null
+      );
+
+
+      setError("");
 
     } catch (error) {
-      window.alert(
+
+      throw new Error(
         error.response?.data?.mensaje ||
+        error.message ||
         "No fue posible eliminar la incidencia."
       );
+
     }
   }
 
@@ -688,9 +715,7 @@ function IncidenciasPage() {
                               title="Eliminar incidencia"
                               className="action-delete"
                               onClick={() =>
-                                eliminar(
-                                  item
-                                )
+                                setIncidenciaAEliminar(item)
                               }
                             >
                               <Trash2 size={17} />
@@ -719,6 +744,28 @@ function IncidenciasPage() {
 
       </div>
 
+      <ConfirmDeleteModal
+        abierto={
+          Boolean(
+            incidenciaAEliminar
+          )
+        }
+        titulo="Eliminar incidencia"
+        mensaje="¿Confirmas que deseas eliminar esta incidencia?"
+        nombre={
+          incidenciaAEliminar
+            ? incidenciaAEliminar.codigo
+            : ""
+        }
+        onCancelar={() =>
+          setIncidenciaAEliminar(
+            null
+          )
+        }
+        onConfirmar={
+          confirmarEliminarIncidencia
+        }
+      />
     </section>
   );
 }

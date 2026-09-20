@@ -22,6 +22,9 @@ import inspeccionesRoutes
 import incidenciasRoutes
   from "./routes/incidencias.routes.js";
 
+  import asignacionesRoutes
+  from "./routes/asignaciones.routes.js";
+
 import pool
   from "./config/db.js";
 
@@ -84,6 +87,10 @@ app.use(
   incidenciasRoutes
 );
 
+app.use(
+  "/api/asignaciones",
+  asignacionesRoutes
+);
 
 /* ======================================
    RUTAS DE REGINA
