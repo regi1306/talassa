@@ -10,6 +10,7 @@ import {
   ClipboardCheck,
   ClipboardList,
   Home,
+  Package,
   RefreshCw,
   ShieldCheck,
   Ship,
@@ -17,37 +18,72 @@ import {
   Users,
 } from "lucide-react";
 
-function Sidebar() {
-  const location = useLocation();
 
-  const linkClass = ({ isActive }) =>
-    `sidebar-link ${isActive ? "active" : ""}`;
+function Sidebar() {
+  const location =
+    useLocation();
+
+
+  const linkClass = ({
+    isActive,
+  }) =>
+    `sidebar-link ${
+      isActive
+        ? "active"
+        : ""
+    }`;
+
 
   /* ======================================
      ROL ACTUAL
   ====================================== */
 
   const esAdministrador =
-    location.pathname.startsWith("/usuarios") ||
-    location.pathname.startsWith("/roles") ||
-    location.pathname.startsWith("/empresas") ||
-    location.pathname.startsWith("/catalogos") ||
-    location.pathname.startsWith("/auditoria");
+    location.pathname.startsWith(
+      "/usuarios"
+    ) ||
+    location.pathname.startsWith(
+      "/roles"
+    ) ||
+    location.pathname.startsWith(
+      "/empresas"
+    ) ||
+    location.pathname.startsWith(
+      "/catalogos"
+    ) ||
+    location.pathname.startsWith(
+      "/auditoria"
+    );
+
 
   const esInspector =
-    location.pathname.startsWith("/inspecciones") ||
-    location.pathname.startsWith("/incidencias");
+    location.pathname.startsWith(
+      "/inspecciones"
+    ) ||
+    location.pathname.startsWith(
+      "/incidencias"
+    );
+
 
   const esOperador =
-    location.pathname.startsWith("/muelles") ||
-    location.pathname.startsWith("/asignaciones");
+    location.pathname.startsWith(
+      "/muelles"
+    ) ||
+    location.pathname.startsWith(
+      "/asignaciones"
+    );
+
 
   let rolActual =
-    sessionStorage.getItem("talassaRole") ||
+    sessionStorage.getItem(
+      "talassaRole"
+    ) ||
     "Operador portuario";
 
+
   if (esAdministrador) {
-    rolActual = "Administrador";
+    rolActual =
+      "Administrador";
 
     sessionStorage.setItem(
       "talassaRole",
@@ -55,8 +91,10 @@ function Sidebar() {
     );
   }
 
+
   if (esOperador) {
-    rolActual = "Operador portuario";
+    rolActual =
+      "Operador portuario";
 
     sessionStorage.setItem(
       "talassaRole",
@@ -64,8 +102,10 @@ function Sidebar() {
     );
   }
 
+
   if (esInspector) {
-    rolActual = "Inspector";
+    rolActual =
+      "Inspector";
 
     sessionStorage.setItem(
       "talassaRole",
@@ -73,81 +113,142 @@ function Sidebar() {
     );
   }
 
-  const guardarRol = (rol) => {
+
+  const guardarRol = (
+    rol
+  ) => {
     sessionStorage.setItem(
       "talassaRole",
       rol
     );
   };
 
+
   return (
     <aside className="sidebar">
+
       {/* LOGO */}
+
       <div className="sidebar-brand">
+
         <img
           src="/logo-talassa.png"
           alt="Logo de TALASSA"
           className="logo-sidebar"
         />
+
       </div>
+
 
       {/* ==================================
           ADMINISTRADOR
       ================================== */}
-      {rolActual === "Administrador" && (
+
+      {rolActual ===
+        "Administrador" && (
+
         <nav className="sidebar-nav">
+
           <div className="sidebar-link sidebar-disabled">
+
             <Home size={22} />
-            <span>Dashboard</span>
+
+            <span>
+              Dashboard
+            </span>
+
           </div>
+
 
           <NavLink
             to="/usuarios"
             className={linkClass}
           >
+
             <Users size={22} />
-            <span>Usuarios</span>
+
+            <span>
+              Usuarios
+            </span>
+
           </NavLink>
+
 
           <NavLink
             to="/roles"
             className={linkClass}
           >
-            <ShieldCheck size={22} />
-            <span>Roles y permisos</span>
+
+            <ShieldCheck
+              size={22}
+            />
+
+            <span>
+              Roles y permisos
+            </span>
+
           </NavLink>
+
 
           <NavLink
             to="/empresas"
             className={linkClass}
           >
-            <Building2 size={22} />
-            <span>Empresas</span>
+
+            <Building2
+              size={22}
+            />
+
+            <span>
+              Empresas
+            </span>
+
           </NavLink>
+
 
           <NavLink
             to="/catalogos"
             className={linkClass}
           >
+
             <Boxes size={22} />
-            <span>Catálogos</span>
+
+            <span>
+              Catálogos
+            </span>
+
           </NavLink>
+
 
           <NavLink
             to="/auditoria"
             className={linkClass}
           >
-            <ClipboardList size={22} />
-            <span>Auditoría</span>
+
+            <ClipboardList
+              size={22}
+            />
+
+            <span>
+              Auditoría
+            </span>
+
           </NavLink>
+
         </nav>
+
       )}
+
 
       {/* ==================================
           OPERADOR PORTUARIO
       ================================== */}
-      {rolActual === "Operador portuario" && (
+
+      {rolActual ===
+        "Operador portuario" && (
+
         <nav className="sidebar-nav">
+
           <NavLink
             to="/dashboard"
             className={linkClass}
@@ -157,9 +258,15 @@ function Sidebar() {
               )
             }
           >
+
             <Home size={22} />
-            <span>Dashboard</span>
+
+            <span>
+              Dashboard
+            </span>
+
           </NavLink>
+
 
           <NavLink
             to="/buques"
@@ -170,9 +277,15 @@ function Sidebar() {
               )
             }
           >
+
             <Ship size={22} />
-            <span>Buques</span>
+
+            <span>
+              Buques
+            </span>
+
           </NavLink>
+
 
           <NavLink
             to="/muelles"
@@ -183,9 +296,15 @@ function Sidebar() {
               )
             }
           >
+
             <Anchor size={22} />
-            <span>Muelles</span>
+
+            <span>
+              Muelles
+            </span>
+
           </NavLink>
+
 
           <NavLink
             to="/operaciones"
@@ -196,9 +315,17 @@ function Sidebar() {
               )
             }
           >
-            <RefreshCw size={22} />
-            <span>Operaciones</span>
+
+            <RefreshCw
+              size={22}
+            />
+
+            <span>
+              Operaciones
+            </span>
+
           </NavLink>
+
 
           <NavLink
             to="/contenedores"
@@ -209,77 +336,140 @@ function Sidebar() {
               )
             }
           >
-            <Boxes size={22} />
-            <span>Contenedores</span>
+
+            <Package size={22} />
+
+            <span>
+              Contenedores
+            </span>
+
           </NavLink>
+
         </nav>
+
       )}
+
 
       {/* ==================================
           INSPECTOR
       ================================== */}
-      {rolActual === "Inspector" && (
+
+      {rolActual ===
+        "Inspector" && (
+
         <nav className="sidebar-nav">
+
           <NavLink
             to="/dashboard"
             className={linkClass}
             onClick={() =>
-              guardarRol("Inspector")
+              guardarRol(
+                "Inspector"
+              )
             }
           >
+
             <Home size={22} />
-            <span>Resumen</span>
+
+            <span>
+              Resumen
+            </span>
+
           </NavLink>
+
 
           <NavLink
             to="/operaciones"
             className={linkClass}
             onClick={() =>
-              guardarRol("Inspector")
+              guardarRol(
+                "Inspector"
+              )
             }
           >
-            <RefreshCw size={22} />
-            <span>Operaciones</span>
+
+            <RefreshCw
+              size={22}
+            />
+
+            <span>
+              Operaciones
+            </span>
+
           </NavLink>
+
 
           <NavLink
             to="/contenedores"
             className={linkClass}
             onClick={() =>
-              guardarRol("Inspector")
+              guardarRol(
+                "Inspector"
+              )
             }
           >
-            <Boxes size={22} />
-            <span>Contenedores</span>
+
+            <Package size={22} />
+
+            <span>
+              Contenedores
+            </span>
+
           </NavLink>
+
 
           <NavLink
             to="/inspecciones"
             className={linkClass}
             onClick={() =>
-              guardarRol("Inspector")
+              guardarRol(
+                "Inspector"
+              )
             }
           >
-            <ClipboardCheck size={22} />
-            <span>Inspecciones</span>
+
+            <ClipboardCheck
+              size={22}
+            />
+
+            <span>
+              Inspecciones
+            </span>
+
           </NavLink>
+
 
           <NavLink
             to="/incidencias"
             className={linkClass}
             onClick={() =>
-              guardarRol("Inspector")
+              guardarRol(
+                "Inspector"
+              )
             }
           >
-            <TriangleAlert size={22} />
-            <span>Incidencias</span>
+
+            <TriangleAlert
+              size={22}
+            />
+
+            <span>
+              Incidencias
+            </span>
+
           </NavLink>
+
         </nav>
+
       )}
 
+
       {/* FOOTER */}
+
       <div className="sidebar-footer">
+
         <Anchor size={26} />
+
         <div className="sidebar-footer-line" />
 
         <p>
@@ -287,9 +477,12 @@ function Sidebar() {
           <br />
           Moviendo el mundo.
         </p>
+
       </div>
+
     </aside>
   );
 }
+
 
 export default Sidebar;

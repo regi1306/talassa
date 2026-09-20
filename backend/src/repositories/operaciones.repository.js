@@ -350,3 +350,64 @@ export async function actualizarOperacionPorId(
 
   return resultado.rowCount > 0;
 }
+
+export async function registrarLlegadaRealPorId(
+  idOperacion,
+  llegadaReal
+) {
+  const consulta = `
+    UPDATE operaciones_portuarias
+    SET
+      llegada_real = $1,
+      estado = 'En puerto',
+      fecha_actualizacion = NOW()
+    WHERE id_operacion = $2
+      AND estado = 'Muelle asignado'
+      AND llegada_real IS NULL
+    RETURNING id_operacion;
+  `;
+
+  const resultado =
+    await pool.query(
+      consulta,
+      [
+        llegadaReal,
+        idOperacion,
+      ]
+    );
+
+  return resultado.rowCount > 0;
+}
+
+
+export async function registrarSalidaRealPorId(
+  idOperacion,
+  salidaReal
+) {
+  const consulta = `
+    UPDATE operaciones_portuarias
+    SET
+      salida_real = $1,
+      estado = 'Finalizada',
+      fecha_actualizacion = NOW()
+    WHERE id_operacion = $2
+      AND llegada_real IS NOT NULL
+      AND salida_real IS NULL
+      AND estado IN (
+        'En puerto',
+        'En operación'
+      )
+    RETURNING id_operacion;
+  `;
+
+  const resultado =
+    await pool.query(
+      consulta,
+      [
+        salidaReal,
+        idOperacion,
+      ]
+    );
+
+  return resultado.rowCount > 0;
+}

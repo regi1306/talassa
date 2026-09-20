@@ -10,16 +10,21 @@ import buquesRoutes
 import operacionesRoutes
   from "./routes/operaciones.routes.js";
 
+import contenedoresRoutes
+  from "./routes/contenedores.routes.js";
+
 import muellesRoutes
   from "./routes/muelles.routes.js";
 
-  import inspeccionesRoutes from "./routes/inspecciones.routes.js";
+import inspeccionesRoutes
+  from "./routes/inspecciones.routes.js";
 
-  import incidenciasRoutes from "./routes/incidencias.routes.js";
+import incidenciasRoutes
+  from "./routes/incidencias.routes.js";
+
 import pool
   from "./config/db.js";
 
-  
 
 const app =
   express();
@@ -49,10 +54,14 @@ app.use(
   buquesRoutes
 );
 
-
 app.use(
   "/api/operaciones",
   operacionesRoutes
+);
+
+app.use(
+  "/api/contenedores",
+  contenedoresRoutes
 );
 
 
@@ -74,6 +83,7 @@ app.use(
   "/api/incidencias",
   incidenciasRoutes
 );
+
 
 /* ======================================
    RUTAS DE REGINA

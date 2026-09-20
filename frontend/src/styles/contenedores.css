@@ -1,0 +1,653 @@
+.pagina-contenedores {
+  position: relative;
+  width: 100%;
+  min-height: calc(100vh - 130px);
+
+  padding: 22px;
+
+  overflow: hidden;
+
+  border-radius: 28px;
+
+  isolation: isolate;
+}
+
+
+.fondo-contenedores {
+  position: absolute;
+  inset: 0;
+
+  z-index: 0;
+
+  border-radius: 28px;
+
+  background:
+    linear-gradient(
+      rgba(228, 241, 250, 0.65),
+      rgba(213, 231, 242, 0.70)
+    ),
+    url("/dashboard-buque.jpg")
+    center center / cover no-repeat;
+
+  filter: blur(1px);
+
+  transform: scale(1.015);
+}
+
+
+.pagina-contenedores
+> *:not(.fondo-contenedores) {
+  position: relative;
+  z-index: 1;
+}
+
+
+/* ENCABEZADO */
+
+.encabezado-contenedores {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 24px;
+}
+
+
+.encabezado-contenedores h1 {
+  margin: 0;
+
+  color: var(--navy-dark);
+
+  font-size:
+    clamp(34px, 4vw, 50px);
+
+  line-height: 1;
+
+  letter-spacing: -1.7px;
+}
+
+
+.encabezado-contenedores p {
+  margin: 8px 0 0;
+
+  color: var(--text-soft);
+
+  font-size: 14px;
+}
+
+
+.boton-nuevo-contenedor {
+  min-height: 45px;
+
+  padding: 0 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  border: none;
+  border-radius: 14px;
+
+  color: white;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--navy),
+      #185baa
+    );
+
+  box-shadow:
+    0 9px 22px
+    rgba(13, 59, 142, 0.20);
+
+  font-family: inherit;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+
+/* RESUMEN */
+
+.resumen-contenedores {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 14px;
+
+  margin-bottom: 16px;
+}
+
+
+.tarjeta-resumen-contenedor {
+  min-height: 105px;
+
+  padding: 16px;
+
+  display: grid;
+
+  grid-template-columns:
+    auto 1fr;
+
+  align-items: center;
+
+  gap:
+    4px 13px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.72);
+
+  border-radius: 18px;
+
+  background:
+    rgba(255, 255, 255, 0.76);
+
+  box-shadow: var(--shadow);
+
+  backdrop-filter:
+    blur(18px);
+}
+
+
+.tarjeta-resumen-contenedor
+> div {
+  grid-row:
+    1 / 3;
+
+  width: 46px;
+  height: 46px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 14px;
+
+  color: var(--navy);
+
+  background:
+    rgba(143, 197, 255, 0.25);
+}
+
+
+.tarjeta-resumen-contenedor
+> span {
+  align-self: end;
+
+  color: #63809d;
+
+  font-size: 10px;
+}
+
+
+.tarjeta-resumen-contenedor
+> strong {
+  align-self: start;
+
+  color: var(--navy-dark);
+
+  font-size: 25px;
+}
+
+
+.tarjeta-resumen-contenedor
+small {
+  font-size: 10px;
+}
+
+
+/* LISTADO */
+
+.tarjeta-listado-contenedores {
+  padding: 19px;
+
+  min-width: 0;
+}
+
+
+.encabezado-listado-contenedores {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  margin-bottom: 16px;
+}
+
+
+.encabezado-listado-contenedores
+> div:first-child {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+}
+
+
+.encabezado-listado-contenedores h2 {
+  margin: 0;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  color: var(--navy-dark);
+
+  font-size: 19px;
+}
+
+
+.encabezado-listado-contenedores
+> div:first-child
+> span {
+  padding: 5px 10px;
+
+  border-radius: 12px;
+
+  color: #507399;
+
+  background:
+    rgba(143, 197, 255, 0.22);
+
+  font-size: 10px;
+}
+
+
+.boton-actualizar-contenedores {
+  padding: 8px 12px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  border:
+    1px solid
+    rgba(81, 122, 166, 0.15);
+
+  border-radius: 11px;
+
+  color: #31679e;
+
+  background:
+    rgba(255, 255, 255, 0.50);
+
+  cursor: pointer;
+}
+
+
+/* FILTROS */
+
+.filtros-contenedores {
+  display: grid;
+
+  grid-template-columns:
+    minmax(250px, 1.5fr)
+    minmax(160px, 0.7fr)
+    minmax(160px, 0.7fr)
+    auto;
+
+  gap: 10px;
+
+  margin-bottom: 17px;
+}
+
+
+.buscador-contenedores,
+.campo-filtro-contenedores {
+  min-height: 42px;
+
+  padding: 0 12px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  border:
+    1px solid
+    rgba(129, 164, 196, 0.25);
+
+  border-radius: 12px;
+
+  color: #5b7fa3;
+
+  background:
+    rgba(255, 255, 255, 0.58);
+}
+
+
+.buscador-contenedores input,
+.campo-filtro-contenedores select {
+  width: 100%;
+
+  border: none;
+  outline: none;
+
+  color: #385f88;
+
+  background: transparent;
+
+  font-family: inherit;
+
+  font-size: 11px;
+}
+
+
+.boton-limpiar-contenedores {
+  padding: 0 14px;
+
+  border:
+    1px solid
+    rgba(126, 157, 186, 0.20);
+
+  border-radius: 12px;
+
+  color: #5d7c9d;
+
+  background:
+    rgba(255, 255, 255, 0.48);
+
+  cursor: pointer;
+}
+
+
+/* TABLA */
+
+.contenedor-tabla-contenedores {
+  width: 100%;
+
+  overflow-x: auto;
+
+  border-radius: 14px;
+
+  background:
+    rgba(255, 255, 255, 0.30);
+}
+
+
+.tabla-contenedores {
+  width: 100%;
+
+  min-width: 1100px;
+
+  border-collapse: collapse;
+
+  color: #46698d;
+
+  font-size: 10px;
+}
+
+
+.tabla-contenedores th {
+  padding: 12px 10px;
+
+  text-align: left;
+
+  color: #3c6086;
+
+  background:
+    rgba(226, 240, 250, 0.60);
+
+  font-weight: 600;
+}
+
+
+.tabla-contenedores td {
+  padding: 12px 10px;
+
+  border-top:
+    1px solid
+    rgba(170, 198, 220, 0.34);
+
+  vertical-align: middle;
+}
+
+
+.tabla-contenedores
+tbody tr:hover {
+  background:
+    rgba(227, 241, 250, 0.45);
+}
+
+
+.codigo-contenedor {
+  color: var(--navy);
+
+  font-weight: 700;
+}
+
+
+.operacion-contenedor {
+  padding: 5px 8px;
+
+  border-radius: 9px;
+
+  color: #386d9c;
+
+  background:
+    rgba(143, 197, 255, 0.20);
+
+  font-weight: 600;
+}
+
+
+.buque-contenedor {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  color: var(--navy);
+}
+
+
+.buque-contenedor
+> div {
+  display: flex;
+  flex-direction: column;
+}
+
+
+.buque-contenedor strong {
+  color: var(--navy-dark);
+
+  font-size: 10px;
+}
+
+
+.buque-contenedor small {
+  color: #869aae;
+
+  font-size: 8px;
+}
+
+
+.peso-contenedor {
+  color: #31597e;
+}
+
+
+.estado-contenedor {
+  width: fit-content;
+
+  padding: 5px 9px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 6px;
+
+  border-radius: 12px;
+
+  color: #08745d;
+
+  background:
+    rgba(172, 252, 204, 0.50);
+
+  font-size: 9px;
+}
+
+
+.estado-contenedor i {
+  width: 7px;
+  height: 7px;
+
+  border-radius: 50%;
+
+  background: #20b878;
+}
+
+
+/* ACCIONES */
+
+.acciones-contenedor {
+  display: flex;
+
+  gap: 6px;
+}
+
+
+.acciones-contenedor button {
+  width: 31px;
+  height: 31px;
+
+  display: grid;
+  place-items: center;
+
+  border:
+    1px solid
+    rgba(110, 148, 184, 0.18);
+
+  border-radius: 9px;
+
+  color: var(--navy);
+
+  background:
+    rgba(255, 255, 255, 0.55);
+
+  cursor: pointer;
+}
+
+
+/* ESTADOS */
+
+.estado-carga-contenedores {
+  min-height: 220px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+
+  color: #6886a5;
+}
+
+
+.icono-cargando-contenedores {
+  animation:
+    girar-contenedores
+    1s linear infinite;
+}
+
+
+@keyframes girar-contenedores {
+  to {
+    transform:
+      rotate(360deg);
+  }
+}
+
+
+.mensaje-error-contenedores {
+  margin: 12px 0;
+
+  padding: 13px 15px;
+
+  border-radius: 12px;
+
+  color: #a6373d;
+
+  background:
+    rgba(255, 231, 233, 0.83);
+}
+
+
+.tabla-sin-contenedores {
+  height: 170px;
+
+  text-align: center;
+
+  color: #7590ac;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 1150px) {
+
+  .resumen-contenedores {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+
+  .filtros-contenedores {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+
+  .buscador-contenedores {
+    grid-column:
+      1 / -1;
+  }
+
+}
+
+
+@media (max-width: 700px) {
+
+  .pagina-contenedores {
+    padding: 16px;
+  }
+
+
+  .encabezado-contenedores {
+    align-items:
+      flex-start;
+
+    flex-direction:
+      column;
+  }
+
+
+  .boton-nuevo-contenedor {
+    width: 100%;
+  }
+
+
+  .resumen-contenedores,
+  .filtros-contenedores {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .buscador-contenedores {
+    grid-column: auto;
+  }
+
+}

@@ -37,6 +37,13 @@ import OperacionesPage from "../pages/operaciones/OperacionesPage.jsx";
 import FormularioOperacionPage from "../pages/operaciones/FormularioOperacionPage.jsx";
 import DetalleOperacionPage from "../pages/operaciones/DetalleOperacionPage.jsx";
 
+<<<<<<< HEAD
+import ContenedoresPage from "../pages/contenedores/ContenedoresPage.jsx";
+import FormularioContenedorPage from "../pages/contenedores/FormularioContenedorPage.jsx";
+import DetalleContenedorPage from "../pages/contenedores/DetalleContenedorPage.jsx";
+
+import PerfilPage from "../pages/perfil/PerfilPage";
+=======
 import PerfilPage from "../pages/perfil/PerfilPage.jsx";
 
 
@@ -70,6 +77,7 @@ import InspeccionFormPage from "../pages/inspecciones/InspeccionFormPage.jsx";
 import IncidenciasPage from "../pages/incidencias/IncidenciasPage.jsx";
 import IncidenciaDetallePage from "../pages/incidencias/IncidenciaDetallePage.jsx";
 
+>>>>>>> develop
 
 function AppRoutes() {
   return (
@@ -95,6 +103,27 @@ function AppRoutes() {
 
       <Route element={<MainLayout />}>
 
+<<<<<<< HEAD
+      <Route path="/dashboard" element={<DashboardPage />} />
+      <Route path="/buques" element={<BuquesPage />} />
+      <Route path="/buques/nuevo" element={<FormularioBuquePage />} />
+      <Route path="/buques/:id" element={<DetalleBuquePage />} />
+      <Route path="/buques/:id/editar" element={<FormularioBuquePage />} />
+      <Route path="/operaciones" element={<OperacionesPage />} />
+      <Route path="/operaciones/nueva" element={<FormularioOperacionPage />} />
+      <Route path="/operaciones/:id/editar" element={<FormularioOperacionPage />} />
+      <Route path="/operaciones/:id" element={<DetalleOperacionPage />} />
+      <Route path="/contenedores" element={<ContenedoresPage />} />
+      <Route path="/contenedores/nuevo" element={<FormularioContenedorPage />} />
+      <Route path="/contenedores/:id/editar" element={<FormularioContenedorPage />} />
+      <Route path="/contenedores/:id" element={<DetalleContenedorPage />} />
+      
+        <Route path="/usuarios" element={<UsuariosPage />} />
+        <Route path="/usuarios/nuevo" element={<UsuarioFormPage />} />
+        <Route path="/usuarios/:id/editar" element={<UsuarioFormPage />} />
+        <Route path="/perfil" element={<PerfilPage />}/>
+=======
+>>>>>>> develop
 
         {/* =====================================
             DASHBOARD
