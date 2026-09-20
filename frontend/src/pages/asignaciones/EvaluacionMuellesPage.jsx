@@ -437,7 +437,6 @@ function obtenerIdUsuarioSesion() {
           return id;
         }
 
-
         const token =
           buscarTokenJwt(
             datos
@@ -1181,8 +1180,6 @@ function EvaluacionMuellesPage() {
 
   return (
     <section className="evaluacion-muelles-page">
-
-
       {/* ===================================================
           SUPERIOR
       =================================================== */}
@@ -1641,8 +1638,6 @@ function EvaluacionMuellesPage() {
                     </strong>
 
                   </div>
-
-
                   {/* CALADO */}
 
                   <div className="candidate-spec">
@@ -1658,8 +1653,6 @@ function EvaluacionMuellesPage() {
                     </strong>
 
                   </div>
-
-
                   {/* ESTADO */}
 
                   <div className="candidate-spec">
