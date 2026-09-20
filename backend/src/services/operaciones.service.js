@@ -6,6 +6,8 @@ import {
   insertarOperacion,
   obtenerOperacionPorId,
   obtenerTodasLasOperaciones,
+  registrarLlegadaRealPorId,
+  registrarSalidaRealPorId,
 } from "../repositories/operaciones.repository.js";
 
 
@@ -355,5 +357,239 @@ export async function actualizarOperacion(
 
   return await procesarRespuesta(
     respuesta
+  );
+}
+
+export async function registrarLlegadaOperacion(
+  idOperacion,
+  datos = {}
+) {
+  const id =
+    validarIdOperacion(
+      idOperacion
+    );
+
+  const operacion =
+    await obtenerOperacionPorId(
+      id
+    );
+
+
+  if (!operacion) {
+    throw crearError(
+      "La operación solicitada no existe.",
+      404
+    );
+  }
+
+
+  if (
+    operacion.llegada_real
+  ) {
+    throw crearError(
+      "La llegada de esta operación ya fue registrada.",
+      400
+    );
+  }
+
+
+  if (
+    operacion.estado !==
+    "Muelle asignado"
+  ) {
+    throw crearError(
+      "La operación debe tener un muelle asignado antes de registrar su llegada.",
+      400
+    );
+  }
+
+
+  if (!datos.llegada_real) {
+    throw crearError(
+      "Debe indicar la fecha y hora real de llegada.",
+      400
+    );
+  }
+
+
+  const llegadaReal =
+    new Date(
+      datos.llegada_real
+    );
+
+
+  if (
+    Number.isNaN(
+      llegadaReal.getTime()
+    )
+  ) {
+    throw crearError(
+      "La fecha de llegada real no es válida.",
+      400
+    );
+  }
+
+
+  if (
+    llegadaReal >
+    new Date()
+  ) {
+    throw crearError(
+      "La llegada real no puede registrarse con una fecha futura.",
+      400
+    );
+  }
+
+
+  const actualizado =
+    await registrarLlegadaRealPorId(
+      id,
+      llegadaReal.toISOString()
+    );
+
+
+  if (!actualizado) {
+    throw crearError(
+      "La operación cambió de estado y ya no permite registrar la llegada.",
+      409
+    );
+  }
+
+
+  return await obtenerOperacionPorId(
+    id
+  );
+}
+
+
+export async function registrarSalidaOperacion(
+  idOperacion,
+  datos = {}
+) {
+  const id =
+    validarIdOperacion(
+      idOperacion
+    );
+
+  const operacion =
+    await obtenerOperacionPorId(
+      id
+    );
+
+
+  if (!operacion) {
+    throw crearError(
+      "La operación solicitada no existe.",
+      404
+    );
+  }
+
+
+  if (
+    !operacion.llegada_real
+  ) {
+    throw crearError(
+      "Debe registrar la llegada antes de registrar la salida.",
+      400
+    );
+  }
+
+
+  if (
+    operacion.salida_real
+  ) {
+    throw crearError(
+      "La salida de esta operación ya fue registrada.",
+      400
+    );
+  }
+
+
+  if (
+    ![
+      "En puerto",
+      "En operación",
+    ].includes(
+      operacion.estado
+    )
+  ) {
+    throw crearError(
+      "El estado actual de la operación no permite registrar la salida.",
+      400
+    );
+  }
+
+
+  if (!datos.salida_real) {
+    throw crearError(
+      "Debe indicar la fecha y hora real de salida.",
+      400
+    );
+  }
+
+
+  const salidaReal =
+    new Date(
+      datos.salida_real
+    );
+
+
+  if (
+    Number.isNaN(
+      salidaReal.getTime()
+    )
+  ) {
+    throw crearError(
+      "La fecha de salida real no es válida.",
+      400
+    );
+  }
+
+
+  const llegadaReal =
+    new Date(
+      operacion.llegada_real
+    );
+
+
+  if (
+    salidaReal <=
+    llegadaReal
+  ) {
+    throw crearError(
+      "La salida real debe ser posterior a la llegada real.",
+      400
+    );
+  }
+
+
+  if (
+    salidaReal >
+    new Date()
+  ) {
+    throw crearError(
+      "La salida real no puede registrarse con una fecha futura.",
+      400
+    );
+  }
+
+
+  const actualizado =
+    await registrarSalidaRealPorId(
+      id,
+      salidaReal.toISOString()
+    );
+
+
+  if (!actualizado) {
+    throw crearError(
+      "La operación cambió de estado y ya no permite registrar la salida.",
+      409
+    );
+  }
+
+
+  return await obtenerOperacionPorId(
+    id
   );
 }

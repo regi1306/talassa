@@ -4,6 +4,8 @@ import cors from "cors";
 import authRoutes from "./routes/auth.routes.js";
 import buquesRoutes from "./routes/buques.routes.js";
 import operacionesRoutes from "./routes/operaciones.routes.js";
+import contenedoresRoutes
+  from "./routes/contenedores.routes.js";
 
 import pool from "./config/db.js";
 
@@ -28,6 +30,11 @@ app.use(
 app.use(
   "/api/operaciones",
   operacionesRoutes
+);
+
+app.use(
+  "/api/contenedores",
+  contenedoresRoutes
 );
 
 /* ======================================

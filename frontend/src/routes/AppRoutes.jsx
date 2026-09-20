@@ -21,6 +21,10 @@ import OperacionesPage from "../pages/operaciones/OperacionesPage.jsx";
 import FormularioOperacionPage from "../pages/operaciones/FormularioOperacionPage.jsx";
 import DetalleOperacionPage from "../pages/operaciones/DetalleOperacionPage.jsx";
 
+import ContenedoresPage from "../pages/contenedores/ContenedoresPage.jsx";
+import FormularioContenedorPage from "../pages/contenedores/FormularioContenedorPage.jsx";
+import DetalleContenedorPage from "../pages/contenedores/DetalleContenedorPage.jsx";
+
 import PerfilPage from "../pages/perfil/PerfilPage";
 
 function AppRoutes() {
@@ -43,6 +47,10 @@ function AppRoutes() {
       <Route path="/operaciones/nueva" element={<FormularioOperacionPage />} />
       <Route path="/operaciones/:id/editar" element={<FormularioOperacionPage />} />
       <Route path="/operaciones/:id" element={<DetalleOperacionPage />} />
+      <Route path="/contenedores" element={<ContenedoresPage />} />
+      <Route path="/contenedores/nuevo" element={<FormularioContenedorPage />} />
+      <Route path="/contenedores/:id/editar" element={<FormularioContenedorPage />} />
+      <Route path="/contenedores/:id" element={<DetalleContenedorPage />} />
       
         <Route path="/usuarios" element={<UsuariosPage />} />
         <Route path="/usuarios/nuevo" element={<UsuarioFormPage />} />

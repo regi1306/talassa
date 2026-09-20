@@ -8,6 +8,8 @@ import {
   Users,
   Boxes,
   Ship,
+  Package,
+  LucideBoxes,
 } from "lucide-react";
 
 function Sidebar() {
@@ -35,6 +37,11 @@ function Sidebar() {
         <NavLink to="/operaciones" className={linkClass}>
         <ClipboardList size={22} />
         <span>Operaciones</span>
+        </NavLink>
+
+        <NavLink to="/contenedores" className={linkClass}>
+        <Package size={22} />
+        <span>Contenedores</span>
         </NavLink>
 
         <NavLink to="/usuarios" className={linkClass}>

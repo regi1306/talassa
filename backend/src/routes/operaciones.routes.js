@@ -1,11 +1,13 @@
 import { Router } from "express";
 
 import {
+  actualizarLlegadaOperacion,
+  actualizarOperacion,
+  actualizarSalidaOperacion,
   crearOperacion,
   obtenerOperacion,
   obtenerOperaciones,
   obtenerOpcionesOperacion,
-  actualizarOperacion,
   
 } from "../controllers/operaciones.controller.js";
 
@@ -40,5 +42,15 @@ router.put(
   actualizarOperacion
 );
 
+router.patch(
+  "/:id/llegada",
+  actualizarLlegadaOperacion
+);
+
+
+router.patch(
+  "/:id/salida",
+  actualizarSalidaOperacion
+);
 
 export default router;
