@@ -93,10 +93,285 @@ function formatearHora(
 
 
 /* =========================================================
-   OBTENER ID DE USUARIO DE LA SESIÓN
+   OBTENER ID DEL USUARIO AUTENTICADO
+========================================================= */
 
-   Busca en localStorage y sessionStorage
-   para poder enviar el responsable al backend.
+function obtenerIdDesdeObjeto(
+  valor
+) {
+  if (
+    !valor ||
+    typeof valor !== "object"
+  ) {
+    return null;
+  }
+
+
+  /* IDs con nombres comunes */
+
+  const posiblesIds = [
+    valor.id_usuario,
+    valor.idUsuario,
+    valor.user_id,
+    valor.userId,
+  ];
+
+
+  for (
+    const posibleId
+    of posiblesIds
+  ) {
+    const numero =
+      Number(posibleId);
+
+
+    if (
+      Number.isInteger(numero) &&
+      numero > 0
+    ) {
+      return numero;
+    }
+  }
+
+
+  /* Casos como:
+     usuario: { id: 2 }
+     user: { id: 2 }
+  */
+
+  if (
+    valor.usuario &&
+    typeof valor.usuario === "object"
+  ) {
+    const numero =
+      Number(
+        valor.usuario.id_usuario ??
+        valor.usuario.idUsuario ??
+        valor.usuario.id
+      );
+
+
+    if (
+      Number.isInteger(numero) &&
+      numero > 0
+    ) {
+      return numero;
+    }
+  }
+
+
+  if (
+    valor.user &&
+    typeof valor.user === "object"
+  ) {
+    const numero =
+      Number(
+        valor.user.id_usuario ??
+        valor.user.idUsuario ??
+        valor.user.id
+      );
+
+
+    if (
+      Number.isInteger(numero) &&
+      numero > 0
+    ) {
+      return numero;
+    }
+  }
+
+
+  /* Buscar recursivamente */
+
+  for (
+    const dato
+    of Object.values(valor)
+  ) {
+    if (
+      dato &&
+      typeof dato === "object"
+    ) {
+      const encontrado =
+        obtenerIdDesdeObjeto(
+          dato
+        );
+
+
+      if (encontrado) {
+        return encontrado;
+      }
+    }
+  }
+
+
+  return null;
+}
+
+
+/* =========================================================
+   BUSCAR TOKEN JWT
+========================================================= */
+
+function buscarTokenJwt(
+  valor
+) {
+  if (!valor) {
+    return null;
+  }
+
+
+  if (
+    typeof valor === "string"
+  ) {
+    const partes =
+      valor.split(".");
+
+
+    if (
+      partes.length === 3
+    ) {
+      return valor;
+    }
+
+
+    return null;
+  }
+
+
+  if (
+    typeof valor !== "object"
+  ) {
+    return null;
+  }
+
+
+  const clavesToken = [
+    "token",
+    "accessToken",
+    "access_token",
+    "jwt",
+  ];
+
+
+  for (
+    const clave
+    of clavesToken
+  ) {
+    const token =
+      valor[clave];
+
+
+    if (
+      typeof token === "string" &&
+      token.split(".").length === 3
+    ) {
+      return token;
+    }
+  }
+
+
+  for (
+    const dato
+    of Object.values(valor)
+  ) {
+    const encontrado =
+      buscarTokenJwt(
+        dato
+      );
+
+
+    if (encontrado) {
+      return encontrado;
+    }
+  }
+
+
+  return null;
+}
+
+
+/* =========================================================
+   DECODIFICAR TOKEN
+========================================================= */
+
+function obtenerIdDesdeToken(
+  token
+) {
+  try {
+    const partePayload =
+      token.split(".")[1];
+
+
+    if (!partePayload) {
+      return null;
+    }
+
+
+    let base64 =
+      partePayload
+        .replace(/-/g, "+")
+        .replace(/_/g, "/");
+
+
+    while (
+      base64.length % 4
+    ) {
+      base64 += "=";
+    }
+
+
+    const payload =
+      JSON.parse(
+        atob(base64)
+      );
+
+
+    const idDirecto =
+      obtenerIdDesdeObjeto(
+        payload
+      );
+
+
+    if (idDirecto) {
+      return idDirecto;
+    }
+
+
+    /*
+     * Algunos JWT utilizan "sub"
+     * como identificador del usuario.
+     */
+
+    const sub =
+      Number(
+        payload.sub
+      );
+
+
+    if (
+      Number.isInteger(sub) &&
+      sub > 0
+    ) {
+      return sub;
+    }
+
+
+    return null;
+
+  } catch (error) {
+    console.warn(
+      "No se pudo leer el JWT:",
+      error
+    );
+
+
+    return null;
+  }
+}
+
+
+/* =========================================================
+   USUARIO DE LA SESIÓN
 ========================================================= */
 
 function obtenerIdUsuarioSesion() {
@@ -106,63 +381,124 @@ function obtenerIdUsuarioSesion() {
   ];
 
 
-  const claves = [
-    "usuario",
-    "user",
-    "authUser",
-    "auth",
-    "sesion",
-    "session",
-  ];
-
-
   for (
     const almacenamiento
     of almacenamientos
   ) {
+
     for (
-      const clave
-      of claves
+      let indice = 0;
+      indice <
+      almacenamiento.length;
+      indice++
     ) {
+
+      const clave =
+        almacenamiento.key(
+          indice
+        );
+
+
+      const valor =
+        almacenamiento.getItem(
+          clave
+        );
+
+
+      if (!valor) {
+        continue;
+      }
+
+
+      /* ===============================
+         PRIMERO PROBAR COMO JSON
+      =============================== */
+
       try {
-        const valor =
-          almacenamiento.getItem(
-            clave
-          );
-
-
-        if (!valor) {
-          continue;
-        }
-
-
         const datos =
           JSON.parse(valor);
 
 
         const id =
-          datos?.id_usuario ??
-          datos?.usuario?.id_usuario ??
-          datos?.user?.id_usuario ??
-          datos?.datos?.id_usuario ??
-          datos?.datos?.usuario?.id_usuario;
+          obtenerIdDesdeObjeto(
+            datos
+          );
 
 
-        if (
-          id &&
-          Number(id) > 0
-        ) {
-          return Number(id);
+        if (id) {
+          console.log(
+            "Usuario detectado en:",
+            clave,
+            "ID:",
+            id
+          );
+
+
+          return id;
+        }
+
+
+        const token =
+          buscarTokenJwt(
+            datos
+          );
+
+
+        if (token) {
+          const idToken =
+            obtenerIdDesdeToken(
+              token
+            );
+
+
+          if (idToken) {
+            console.log(
+              "Usuario detectado desde JWT:",
+              clave,
+              "ID:",
+              idToken
+            );
+
+
+            return idToken;
+          }
         }
 
       } catch {
         /*
-         * Puede existir alguna clave
-         * que no sea JSON.
+         * Si no era JSON,
+         * puede ser directamente un token.
          */
+
+        if (
+          valor.split(".").length === 3
+        ) {
+          const idToken =
+            obtenerIdDesdeToken(
+              valor
+            );
+
+
+          if (idToken) {
+            console.log(
+              "Usuario detectado desde JWT:",
+              clave,
+              "ID:",
+              idToken
+            );
+
+
+            return idToken;
+          }
+        }
       }
     }
   }
+
+
+  console.warn(
+    "No se encontró id_usuario en localStorage, sessionStorage ni JWT."
+  );
 
 
   return null;

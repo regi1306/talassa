@@ -1137,7 +1137,7 @@ function MuelleFormPage() {
                 {
                   soloLectura
                     ? "Esta vista es únicamente de consulta. Los campos no pueden modificarse."
-                    : "Los datos se guardarán directamente en PostgreSQL y estarán disponibles inmediatamente en el listado de muelles."
+                    : "Revisa los datos técnicos del muelle antes de registrar. Una vez guardado, se actualizará en el listado general."
                 }
               </p>
 
