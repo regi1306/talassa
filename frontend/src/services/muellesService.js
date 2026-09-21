@@ -82,3 +82,16 @@ export async function eliminarMuelle(
 
   return respuesta.data;
 }
+
+/* ======================================
+   OPCIONES DEL FORMULARIO
+====================================== */
+
+export async function obtenerOpcionesFormularioMuelle() {
+  const respuesta =
+    await axios.get(
+      `${API_URL}/opciones-formulario`
+    );
+
+  return respuesta.data;
+}
