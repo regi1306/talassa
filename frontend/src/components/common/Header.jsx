@@ -1,8 +1,11 @@
-import { useState } from "react";
 import {
-  useLocation,
+  useState,
+} from "react";
+
+import {
   useNavigate,
 } from "react-router-dom";
+
 import {
   Bell,
   CalendarDays,
@@ -12,194 +15,321 @@ import {
   UserRound,
 } from "lucide-react";
 
+import {
+  cerrarSesion,
+} from "../../services/auth.service.js";
+
+import {
+  obtenerDatosSesion,
+} from "../../utils/usuarioSesion.js";
+
+
 function Header() {
-  const fechaActual = new Intl.DateTimeFormat("es-SV", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(new Date());
+  const navigate =
+    useNavigate();
 
-  const navigate = useNavigate();
-  const location = useLocation();
 
-  const [profileOpen, setProfileOpen] =
-    useState(false);
+  const [
+    profileOpen,
+    setProfileOpen,
+  ] = useState(false);
 
-  // =========================================
-  // IDENTIFICAR ROL SEGÚN RUTA
-  // =========================================
 
-  const esAdministrador =
-    location.pathname.startsWith("/usuarios") ||
-    location.pathname.startsWith("/roles") ||
-    location.pathname.startsWith("/empresas") ||
-    location.pathname.startsWith("/catalogos") ||
-    location.pathname.startsWith("/auditoria");
+  /* ======================================
+     USUARIO REAL DE LA SESIÓN
+  ====================================== */
 
-  const esRutaOperador =
-    location.pathname.startsWith("/muelles") ||
-    location.pathname.startsWith("/asignaciones");
+  const usuarioActual =
+    obtenerDatosSesion();
 
-  const esRutaInspector =
-    location.pathname.startsWith("/inspecciones") ||
-    location.pathname.startsWith("/incidencias");
 
-  let rolActual =
-    sessionStorage.getItem("talassaRole") ||
-    "Operador portuario";
+  /* ======================================
+     FECHA
+  ====================================== */
 
-  if (esAdministrador) {
-    rolActual = "Administrador";
-  }
+  const fechaActual =
+    new Intl.DateTimeFormat(
+      "es-SV",
+      {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }
+    ).format(
+      new Date()
+    );
 
-  if (esRutaOperador) {
-    rolActual = "Operador portuario";
-  }
 
-  if (esRutaInspector) {
-    rolActual = "Inspector";
-  }
+  /* ======================================
+     CERRAR SESIÓN REAL
+  ====================================== */
 
-  let usuarioActual = {
-    iniciales: "RC",
-    nombre: "Regina Cadenas",
-    rol: "Administrador",
-    correo: "regina.cadenas@talassa.com",
-  };
-
-  if (rolActual === "Operador portuario") {
-    usuarioActual = {
-      iniciales: "MO",
-      nombre: "Martín Oxford",
-      rol: "Operador portuario",
-      correo: "martin.oxford@talassa.com",
-    };
-  }
-
-  if (rolActual === "Inspector") {
-    usuarioActual = {
-      iniciales: "I1",
-      nombre: "Inspector 01",
-      rol: "Inspector",
-      correo: "inspector01@talassa.com",
-    };
-  }
-
-  const handleLogout = () => {
+  function handleLogout() {
     setProfileOpen(false);
-    navigate("/login");
+
+
+    cerrarSesion();
+
+
+    navigate(
+      "/login",
+      {
+        replace: true,
+      }
+    );
+  }
+
+
+  /*
+   * MainLayout normalmente evita llegar
+   * aquí sin sesión, pero dejamos un
+   * respaldo visual.
+   */
+
+  const usuario = {
+    iniciales:
+      usuarioActual?.iniciales ??
+      "US",
+
+    nombre:
+      usuarioActual
+        ?.nombreMostrar ??
+      "Usuario",
+
+    rol:
+      usuarioActual
+        ?.rolMostrar ??
+      "",
+
+    correo:
+      usuarioActual
+        ?.correoMostrar ??
+      "",
   };
+
 
   return (
     <header className="header">
-      {/* BUSCADOR */}
+
+
+      {/* ==================================
+          BUSCADOR
+      ================================== */}
+
       <div className="header-search">
+
         <Search size={20} />
+
         <input
           placeholder="Buscar buques, contenedores, operaciones..."
         />
+
       </div>
 
+
       <div className="header-actions">
-        {/* FECHA */}
+
+
+        {/* ==================================
+            FECHA
+        ================================== */}
+
         <div className="header-date">
-          <CalendarDays size={19} />
-          <span>Hoy, {fechaActual}</span>
+
+          <CalendarDays
+            size={19}
+          />
+
+          <span>
+            Hoy, {fechaActual}
+          </span>
+
         </div>
 
-        {/* NOTIFICACIONES */}
+
+        {/* ==================================
+            NOTIFICACIONES
+        ================================== */}
+
         <button
           className="notification-button"
           type="button"
         >
+
           <Bell size={21} />
+
           <span className="notification-number">
             3
           </span>
+
         </button>
 
-        {/* PERFIL */}
+
+        {/* ==================================
+            PERFIL
+        ================================== */}
+
         <div className="profile-container">
+
           <button
             className="profile-trigger"
             type="button"
             onClick={() =>
               setProfileOpen(
-                (value) => !value
+                (value) =>
+                  !value
               )
             }
           >
+
             <div className="profile-photo">
-              {usuarioActual.iniciales}
+
+              {
+                usuario.iniciales
+              }
+
             </div>
+
 
             <div className="profile-text">
+
               <strong>
-                {usuarioActual.nombre}
+                {
+                  usuario.nombre
+                }
               </strong>
+
               <span>
-                {usuarioActual.rol}
+                {
+                  usuario.rol
+                }
               </span>
+
             </div>
 
-            <ChevronDown size={17} />
+
+            <ChevronDown
+              size={17}
+            />
+
           </button>
 
-          {/* MENÚ DEL PERFIL */}
+
+          {/* ==================================
+              MENÚ DEL PERFIL
+          ================================== */}
+
           {profileOpen && (
+
             <div className="profile-dropdown">
+
+
               <div className="profile-dropdown-user">
+
                 <div
                   className="
                     profile-photo
                     profile-photo-large
                   "
                 >
-                  {usuarioActual.iniciales}
+                  {
+                    usuario.iniciales
+                  }
                 </div>
+
 
                 <div>
+
                   <strong>
-                    {usuarioActual.nombre}
+                    {
+                      usuario.nombre
+                    }
                   </strong>
+
                   <span>
-                    {usuarioActual.rol}
+                    {
+                      usuario.rol
+                    }
                   </span>
-                  <small>
-                    {usuarioActual.correo}
-                  </small>
+
+
+                  {usuario.correo && (
+
+                    <small>
+                      {
+                        usuario.correo
+                      }
+                    </small>
+
+                  )}
+
                 </div>
+
               </div>
 
+
               <div className="profile-divider" />
+
+
+              {/* PERFIL */}
 
               <button
                 type="button"
                 onClick={() => {
-                  setProfileOpen(false);
-                  navigate("/perfil");
+
+                  setProfileOpen(
+                    false
+                  );
+
+
+                  navigate(
+                    "/perfil"
+                  );
+
                 }}
               >
-                <UserRound size={19} />
+
+                <UserRound
+                  size={19}
+                />
+
                 Mi perfil
+
               </button>
 
+
               <div className="profile-divider" />
+
+
+              {/* CERRAR SESIÓN */}
 
               <button
                 type="button"
                 className="logout-option"
-                onClick={handleLogout}
+                onClick={
+                  handleLogout
+                }
               >
-                <LogOut size={19} />
+
+                <LogOut
+                  size={19}
+                />
+
                 Cerrar sesión
+
               </button>
+
             </div>
+
           )}
+
         </div>
+
       </div>
+
     </header>
   );
 }
+
 
 export default Header;

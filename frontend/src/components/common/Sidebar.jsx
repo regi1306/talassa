@@ -1,6 +1,5 @@
 import {
   NavLink,
-  useLocation,
 } from "react-router-dom";
 
 import {
@@ -18,11 +17,17 @@ import {
   Users,
 } from "lucide-react";
 
+import {
+  obtenerDatosSesion,
+} from "../../utils/usuarioSesion.js";
+
 
 function Sidebar() {
-  const location =
-    useLocation();
 
+
+  /* ======================================
+     CLASE DEL LINK
+  ====================================== */
 
   const linkClass = ({
     isActive,
@@ -35,99 +40,25 @@ function Sidebar() {
 
 
   /* ======================================
-     ROL ACTUAL
+     ROL REAL DEL USUARIO AUTENTICADO
   ====================================== */
 
-  const esAdministrador =
-    location.pathname.startsWith(
-      "/usuarios"
-    ) ||
-    location.pathname.startsWith(
-      "/roles"
-    ) ||
-    location.pathname.startsWith(
-      "/empresas"
-    ) ||
-    location.pathname.startsWith(
-      "/catalogos"
-    ) ||
-    location.pathname.startsWith(
-      "/auditoria"
-    );
+  const usuario =
+    obtenerDatosSesion();
 
 
-  const esInspector =
-    location.pathname.startsWith(
-      "/inspecciones"
-    ) ||
-    location.pathname.startsWith(
-      "/incidencias"
-    );
-
-
-  const esOperador =
-    location.pathname.startsWith(
-      "/muelles"
-    ) ||
-    location.pathname.startsWith(
-      "/asignaciones"
-    );
-
-
-  let rolActual =
-    sessionStorage.getItem(
-      "talassaRole"
-    ) ||
-    "Operador portuario";
-
-
-  if (esAdministrador) {
-    rolActual =
-      "Administrador";
-
-    sessionStorage.setItem(
-      "talassaRole",
-      "Administrador"
-    );
-  }
-
-
-  if (esOperador) {
-    rolActual =
-      "Operador portuario";
-
-    sessionStorage.setItem(
-      "talassaRole",
-      "Operador portuario"
-    );
-  }
-
-
-  if (esInspector) {
-    rolActual =
-      "Inspector";
-
-    sessionStorage.setItem(
-      "talassaRole",
-      "Inspector"
-    );
-  }
-
-
-  const guardarRol = (
-    rol
-  ) => {
-    sessionStorage.setItem(
-      "talassaRole",
-      rol
-    );
-  };
+  const rolActual =
+    usuario?.rolMostrar ??
+    "";
 
 
   return (
     <aside className="sidebar">
 
-      {/* LOGO */}
+
+      {/* ==================================
+          LOGO
+      ================================== */}
 
       <div className="sidebar-brand">
 
@@ -149,6 +80,7 @@ function Sidebar() {
 
         <nav className="sidebar-nav">
 
+
           <div className="sidebar-link sidebar-disabled">
 
             <Home size={22} />
@@ -162,7 +94,9 @@ function Sidebar() {
 
           <NavLink
             to="/usuarios"
-            className={linkClass}
+            className={
+              linkClass
+            }
           >
 
             <Users size={22} />
@@ -176,7 +110,9 @@ function Sidebar() {
 
           <NavLink
             to="/roles"
-            className={linkClass}
+            className={
+              linkClass
+            }
           >
 
             <ShieldCheck
@@ -192,7 +128,9 @@ function Sidebar() {
 
           <NavLink
             to="/empresas"
-            className={linkClass}
+            className={
+              linkClass
+            }
           >
 
             <Building2
@@ -208,7 +146,9 @@ function Sidebar() {
 
           <NavLink
             to="/catalogos"
-            className={linkClass}
+            className={
+              linkClass
+            }
           >
 
             <Boxes size={22} />
@@ -222,7 +162,9 @@ function Sidebar() {
 
           <NavLink
             to="/auditoria"
-            className={linkClass}
+            className={
+              linkClass
+            }
           >
 
             <ClipboardList
@@ -249,13 +191,11 @@ function Sidebar() {
 
         <nav className="sidebar-nav">
 
+
           <NavLink
             to="/dashboard"
-            className={linkClass}
-            onClick={() =>
-              guardarRol(
-                "Operador portuario"
-              )
+            className={
+              linkClass
             }
           >
 
@@ -270,11 +210,8 @@ function Sidebar() {
 
           <NavLink
             to="/buques"
-            className={linkClass}
-            onClick={() =>
-              guardarRol(
-                "Operador portuario"
-              )
+            className={
+              linkClass
             }
           >
 
@@ -289,11 +226,8 @@ function Sidebar() {
 
           <NavLink
             to="/muelles"
-            className={linkClass}
-            onClick={() =>
-              guardarRol(
-                "Operador portuario"
-              )
+            className={
+              linkClass
             }
           >
 
@@ -308,11 +242,8 @@ function Sidebar() {
 
           <NavLink
             to="/operaciones"
-            className={linkClass}
-            onClick={() =>
-              guardarRol(
-                "Operador portuario"
-              )
+            className={
+              linkClass
             }
           >
 
@@ -329,11 +260,8 @@ function Sidebar() {
 
           <NavLink
             to="/contenedores"
-            className={linkClass}
-            onClick={() =>
-              guardarRol(
-                "Operador portuario"
-              )
+            className={
+              linkClass
             }
           >
 
@@ -359,13 +287,11 @@ function Sidebar() {
 
         <nav className="sidebar-nav">
 
+
           <NavLink
             to="/dashboard"
-            className={linkClass}
-            onClick={() =>
-              guardarRol(
-                "Inspector"
-              )
+            className={
+              linkClass
             }
           >
 
@@ -380,11 +306,8 @@ function Sidebar() {
 
           <NavLink
             to="/operaciones"
-            className={linkClass}
-            onClick={() =>
-              guardarRol(
-                "Inspector"
-              )
+            className={
+              linkClass
             }
           >
 
@@ -401,11 +324,8 @@ function Sidebar() {
 
           <NavLink
             to="/contenedores"
-            className={linkClass}
-            onClick={() =>
-              guardarRol(
-                "Inspector"
-              )
+            className={
+              linkClass
             }
           >
 
@@ -420,11 +340,8 @@ function Sidebar() {
 
           <NavLink
             to="/inspecciones"
-            className={linkClass}
-            onClick={() =>
-              guardarRol(
-                "Inspector"
-              )
+            className={
+              linkClass
             }
           >
 
@@ -441,11 +358,8 @@ function Sidebar() {
 
           <NavLink
             to="/incidencias"
-            className={linkClass}
-            onClick={() =>
-              guardarRol(
-                "Inspector"
-              )
+            className={
+              linkClass
             }
           >
 
@@ -464,7 +378,38 @@ function Sidebar() {
       )}
 
 
-      {/* FOOTER */}
+      {/* ==================================
+          ROL NO RECONOCIDO
+      ================================== */}
+
+      {![
+        "Administrador",
+        "Operador portuario",
+        "Inspector",
+      ].includes(
+        rolActual
+      ) && (
+
+        <nav className="sidebar-nav">
+
+          <div className="sidebar-link sidebar-disabled">
+
+            <Users size={22} />
+
+            <span>
+              Sesión sin rol válido
+            </span>
+
+          </div>
+
+        </nav>
+
+      )}
+
+
+      {/* ==================================
+          FOOTER
+      ================================== */}
 
       <div className="sidebar-footer">
 
