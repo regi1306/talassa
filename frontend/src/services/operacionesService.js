@@ -117,3 +117,58 @@ export async function actualizarOperacion(
     respuesta
   );
 }
+
+export async function registrarLlegadaOperacion(
+  idOperacion,
+  llegadaReal
+) {
+  const respuesta =
+    await fetch(
+      `${URL_API}/operaciones/${idOperacion}/llegada`,
+      {
+        method: "PATCH",
+
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+
+        body: JSON.stringify({
+          llegada_real:
+            llegadaReal,
+        }),
+      }
+    );
+
+  return await procesarRespuesta(
+    respuesta
+  );
+}
+
+
+export async function registrarSalidaOperacion(
+  idOperacion,
+  salidaReal
+) {
+  const respuesta =
+    await fetch(
+      `${URL_API}/operaciones/${idOperacion}/salida`,
+      {
+        method: "PATCH",
+
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+
+        body: JSON.stringify({
+          salida_real:
+            salidaReal,
+        }),
+      }
+    );
+
+  return await procesarRespuesta(
+    respuesta
+  );
+}

@@ -4,6 +4,8 @@ import {
   obtenerOpcionesFormularioOperacion,
   registrarOperacion,
   editarOperacion,
+  registrarLlegadaOperacion,
+  registrarSalidaOperacion,
 } from "../services/operaciones.service.js";
 
 
@@ -178,6 +180,65 @@ export async function actualizarOperacion(
       error,
       res,
       "No fue posible actualizar la operación."
+    );
+  }
+}
+
+export async function actualizarLlegadaOperacion(
+  req,
+  res
+) {
+  try {
+    const operacion =
+      await registrarLlegadaOperacion(
+        req.params.id,
+        req.body
+      );
+
+    return res.status(200).json({
+      ok: true,
+
+      mensaje:
+        "Llegada registrada correctamente.",
+
+      datos:
+        operacion,
+    });
+  } catch (error) {
+    return responderErrorOperacion(
+      error,
+      res,
+      "No fue posible registrar la llegada."
+    );
+  }
+}
+
+
+export async function actualizarSalidaOperacion(
+  req,
+  res
+) {
+  try {
+    const operacion =
+      await registrarSalidaOperacion(
+        req.params.id,
+        req.body
+      );
+
+    return res.status(200).json({
+      ok: true,
+
+      mensaje:
+        "Salida registrada y operación finalizada correctamente.",
+
+      datos:
+        operacion,
+    });
+  } catch (error) {
+    return responderErrorOperacion(
+      error,
+      res,
+      "No fue posible registrar la salida."
     );
   }
 }

@@ -674,7 +674,7 @@ function FormularioOperacionPage() {
             <div className="campo-formulario-operacion">
 
               <label htmlFor="id_tipo_carga">
-                Tipo de carga
+                Tipo de carga de la operación
                 <span>*</span>
               </label>
 

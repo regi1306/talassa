@@ -1,0 +1,491 @@
+.pagina-formulario-contenedor {
+  width: 100%;
+  min-height: calc(100vh - 130px);
+
+  padding: 24px;
+
+  border-radius: 28px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f5fafe 0%,
+      #eaf4fa 52%,
+      #e3f0f8 100%
+    );
+}
+
+
+.encabezado-formulario-contenedor {
+  margin-bottom: 22px;
+}
+
+
+.boton-volver-contenedores {
+  margin-bottom: 17px;
+
+  padding: 8px 0;
+
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  border: none;
+
+  color: #426f9c;
+
+  background: transparent;
+
+  font-family: inherit;
+  font-size: 12px;
+
+  cursor: pointer;
+}
+
+
+.encabezado-formulario-contenedor h1 {
+  margin: 0;
+
+  color: var(--navy-dark);
+
+  font-size:
+    clamp(32px, 3.5vw, 45px);
+
+  letter-spacing: -1.3px;
+}
+
+
+.encabezado-formulario-contenedor p {
+  margin: 6px 0 0;
+
+  color: var(--text-soft);
+
+  font-size: 13px;
+}
+
+
+.formulario-contenedor {
+  max-width: 1000px;
+
+  margin: 0 auto;
+
+  padding: 28px;
+
+  background:
+    rgba(255, 255, 255, 0.78);
+}
+
+
+.encabezado-tarjeta-contenedor {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  margin-bottom: 26px;
+}
+
+
+.icono-formulario-contenedor {
+  width: 48px;
+  height: 48px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 14px;
+
+  color: var(--navy);
+
+  background:
+    rgba(143, 197, 255, 0.27);
+}
+
+
+.encabezado-tarjeta-contenedor h2 {
+  margin: 0;
+
+  color: var(--navy-dark);
+
+  font-size: 18px;
+}
+
+
+.encabezado-tarjeta-contenedor p {
+  margin: 3px 0 0;
+
+  color: #8298ad;
+
+  font-size: 10px;
+}
+
+
+.rejilla-formulario-contenedor {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 20px;
+}
+
+
+.campo-formulario-contenedor {
+  display: flex;
+  flex-direction: column;
+
+  gap: 7px;
+}
+
+
+.campo-formulario-contenedor label {
+  display: flex;
+  align-items: center;
+
+  gap: 6px;
+
+  color: #395f85;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+
+.campo-formulario-contenedor
+label > span {
+  color: var(--red);
+}
+
+
+.campo-formulario-contenedor
+label > small {
+  color: #90a3b6;
+
+  font-size: 9px;
+  font-weight: 400;
+}
+
+
+.entrada-contenedor {
+  min-height: 46px;
+
+  padding: 0 13px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  border:
+    1px solid
+    rgba(128, 162, 191, 0.26);
+
+  border-radius: 13px;
+
+  color: #6483a3;
+
+  background:
+    rgba(247, 251, 254, 0.92);
+}
+
+
+.entrada-contenedor:focus-within {
+  border-color:
+    rgba(13, 59, 142, 0.40);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(143, 197, 255, 0.16);
+}
+
+
+.entrada-contenedor.con-error {
+  border-color:
+    rgba(225, 45, 51, 0.50);
+}
+
+
+.entrada-contenedor input,
+.entrada-contenedor select {
+  width: 100%;
+
+  min-width: 0;
+
+  border: none;
+  outline: none;
+
+  color: #31597e;
+
+  background: transparent;
+
+  font-family: inherit;
+  font-size: 12px;
+}
+
+
+.unidad-contenedor {
+  color: #849aae;
+
+  font-size: 10px;
+}
+
+
+.error-campo-contenedor {
+  color: #bd444a;
+
+  font-size: 10px;
+}
+
+
+.separador-formulario-contenedor {
+  width: 100%;
+  height: 1px;
+
+  margin: 27px 0;
+
+  background:
+    rgba(151, 182, 206, 0.30);
+}
+
+
+.contenedor-textarea {
+  padding: 13px;
+
+  display: flex;
+  align-items: flex-start;
+
+  gap: 9px;
+
+  border:
+    1px solid
+    rgba(128, 162, 191, 0.26);
+
+  border-radius: 13px;
+
+  color: #6483a3;
+
+  background:
+    rgba(247, 251, 254, 0.92);
+}
+
+
+.contenedor-textarea textarea {
+  width: 100%;
+  min-height: 100px;
+
+  resize: vertical;
+
+  border: none;
+  outline: none;
+
+  color: #31597e;
+
+  background: transparent;
+
+  font-family: inherit;
+  font-size: 12px;
+}
+
+
+.mensaje-info-contenedor,
+.mensaje-error-formulario-contenedor,
+.mensaje-exito-formulario-contenedor {
+  margin-top: 19px;
+
+  padding: 12px 14px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  border-radius: 12px;
+
+  font-size: 11px;
+}
+
+
+.mensaje-info-contenedor {
+  color: #3f6b94;
+
+  background:
+    rgba(226, 241, 254, 0.72);
+}
+
+
+.mensaje-error-formulario-contenedor {
+  color: #a63c42;
+
+  background:
+    rgba(255, 232, 234, 0.80);
+}
+
+
+.mensaje-exito-formulario-contenedor {
+  color: #08745d;
+
+  background:
+    rgba(220, 255, 239, 0.86);
+}
+
+
+.acciones-formulario-contenedor {
+  margin-top: 28px;
+
+  padding-top: 21px;
+
+  display: flex;
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  border-top:
+    1px solid
+    rgba(151, 182, 206, 0.28);
+}
+
+
+.boton-cancelar-contenedor,
+.boton-guardar-contenedor {
+  min-height: 43px;
+
+  padding: 0 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  border-radius: 12px;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+
+.boton-cancelar-contenedor {
+  border:
+    1px solid
+    rgba(90, 129, 165, 0.24);
+
+  color: #537493;
+
+  background:
+    rgba(255, 255, 255, 0.70);
+}
+
+
+.boton-guardar-contenedor {
+  border: none;
+
+  color: white;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--navy),
+      #185baa
+    );
+}
+
+
+.boton-cancelar-contenedor:disabled,
+.boton-guardar-contenedor:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+
+.icono-cargando-formulario-contenedor {
+  animation:
+    girar-formulario-contenedor
+    0.9s linear infinite;
+}
+
+
+@keyframes girar-formulario-contenedor {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+@media (max-width: 800px) {
+
+  .rejilla-formulario-contenedor {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+
+@media (max-width: 600px) {
+
+  .pagina-formulario-contenedor {
+    padding: 16px;
+  }
+
+
+  .formulario-contenedor {
+    padding: 20px;
+  }
+
+
+  .acciones-formulario-contenedor {
+    flex-direction:
+      column-reverse;
+  }
+
+
+  .acciones-formulario-contenedor
+  button {
+    width: 100%;
+  }
+
+}
+
+.entrada-bloqueada-contenedor {
+  background:
+    rgba(
+      231,
+      240,
+      247,
+      0.72
+    );
+
+  cursor: not-allowed;
+}
+
+
+.operacion-bloqueada-contenedor {
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+}
+
+
+.operacion-bloqueada-contenedor strong {
+  color: #31597e;
+
+  font-size: 11px;
+}
+
+
+.operacion-bloqueada-contenedor small {
+  color: #879bae;
+
+  font-size: 9px;
+}
+
+
+.ayuda-campo-contenedor {
+  color: #8498aa;
+
+  font-size: 9px;
+}

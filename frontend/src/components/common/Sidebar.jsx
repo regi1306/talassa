@@ -1,14 +1,20 @@
-import { NavLink } from "react-router-dom";
+import {
+  NavLink,
+} from "react-router-dom";
 
 import {
   Anchor,
+  Boxes,
   Building2,
+  ClipboardCheck,
   ClipboardList,
   Home,
+  Package,
+  RefreshCw,
   ShieldCheck,
-  Users,
-  Boxes,
   Ship,
+  TriangleAlert,
+  Users,
 } from "lucide-react";
 
 import {
@@ -17,6 +23,11 @@ import {
 
 
 function Sidebar() {
+
+  /* ======================================
+     USUARIO Y PERMISOS
+  ====================================== */
+
   const usuario =
     obtenerUsuarioGuardado();
 
@@ -77,7 +88,9 @@ function Sidebar() {
       <nav className="sidebar-nav">
 
 
-        {/* DASHBOARD */}
+        {/* ==================================
+            DASHBOARD
+        ================================== */}
 
         {tienePermiso(
           "DASH_VER"
@@ -124,6 +137,30 @@ function Sidebar() {
 
 
         {/* ==================================
+            MUELLES
+        ================================== */}
+
+        {tienePermiso(
+          "MUE_VER"
+        ) && (
+
+          <NavLink
+            to="/muelles"
+            className={linkClass}
+          >
+
+            <Anchor size={22} />
+
+            <span>
+              Muelles
+            </span>
+
+          </NavLink>
+
+        )}
+
+
+        {/* ==================================
             OPERACIONES
         ================================== */}
 
@@ -136,10 +173,86 @@ function Sidebar() {
             className={linkClass}
           >
 
-            <ClipboardList size={22} />
+            <RefreshCw size={22} />
 
             <span>
               Operaciones
+            </span>
+
+          </NavLink>
+
+        )}
+
+
+        {/* ==================================
+            CONTENEDORES
+        ================================== */}
+
+        {tienePermiso(
+          "CONT_VER"
+        ) && (
+
+          <NavLink
+            to="/contenedores"
+            className={linkClass}
+          >
+
+            <Package size={22} />
+
+            <span>
+              Contenedores
+            </span>
+
+          </NavLink>
+
+        )}
+
+
+        {/* ==================================
+            INSPECCIONES
+        ================================== */}
+
+        {tienePermiso(
+          "INS_VER"
+        ) && (
+
+          <NavLink
+            to="/inspecciones"
+            className={linkClass}
+          >
+
+            <ClipboardCheck
+              size={22}
+            />
+
+            <span>
+              Inspecciones
+            </span>
+
+          </NavLink>
+
+        )}
+
+
+        {/* ==================================
+            INCIDENCIAS
+        ================================== */}
+
+        {tienePermiso(
+          "INC_VER"
+        ) && (
+
+          <NavLink
+            to="/incidencias"
+            className={linkClass}
+          >
+
+            <TriangleAlert
+              size={22}
+            />
+
+            <span>
+              Incidencias
             </span>
 
           </NavLink>
@@ -184,7 +297,9 @@ function Sidebar() {
             className={linkClass}
           >
 
-            <ShieldCheck size={22} />
+            <ShieldCheck
+              size={22}
+            />
 
             <span>
               Roles y permisos
@@ -208,7 +323,9 @@ function Sidebar() {
             className={linkClass}
           >
 
-            <Building2 size={22} />
+            <Building2
+              size={22}
+            />
 
             <span>
               Empresas
@@ -256,7 +373,9 @@ function Sidebar() {
             className={linkClass}
           >
 
-            <ClipboardList size={22} />
+            <ClipboardList
+              size={22}
+            />
 
             <span>
               Auditoría
@@ -278,7 +397,6 @@ function Sidebar() {
         <Anchor size={26} />
 
         <div className="sidebar-footer-line" />
-
 
         <p>
           Conectando puertos.

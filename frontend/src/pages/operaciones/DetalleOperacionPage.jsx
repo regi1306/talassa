@@ -1,18 +1,19 @@
 import {
   AlertTriangle,
+  Anchor,
   ArrowLeft,
-  Building2,
   CalendarClock,
   CheckCircle2,
   Clock3,
   Edit3,
   FileText,
-  Flag,
+  LoaderCircle,
   MapPin,
   Package,
   RefreshCw,
   SearchCheck,
   Ship,
+  X,
 } from "lucide-react";
 
 import {
@@ -27,6 +28,8 @@ import {
 
 import {
   obtenerOperacionPorId,
+  registrarLlegadaOperacion,
+  registrarSalidaOperacion,
 } from "../../services/operacionesService.js";
 
 import "../../styles/detalleOperacion.css";
@@ -64,6 +67,42 @@ function DetalleOperacionPage() {
   const [
     error,
     setError,
+  ] = useState("");
+
+
+  const [
+    mostrarModalLlegada,
+    setMostrarModalLlegada,
+  ] = useState(false);
+
+
+  const [
+    mostrarModalSalida,
+    setMostrarModalSalida,
+  ] = useState(false);
+
+
+  const [
+    fechaLlegada,
+    setFechaLlegada,
+  ] = useState("");
+
+
+  const [
+    fechaSalida,
+    setFechaSalida,
+  ] = useState("");
+
+
+  const [
+    guardandoEvento,
+    setGuardandoEvento,
+  ] = useState(false);
+
+
+  const [
+    errorEvento,
+    setErrorEvento,
   ] = useState("");
 
 
@@ -136,6 +175,36 @@ function DetalleOperacionPage() {
   }
 
 
+  function convertirFechaParaInput(
+    fecha
+  ) {
+    if (!fecha) {
+      return "";
+    }
+
+    const fechaOriginal =
+      new Date(fecha);
+
+    const ajuste =
+      fechaOriginal.getTimezoneOffset() *
+      60000;
+
+    return new Date(
+      fechaOriginal.getTime() -
+      ajuste
+    )
+      .toISOString()
+      .slice(0, 16);
+  }
+
+
+  function obtenerFechaHoraActualInput() {
+    return convertirFechaParaInput(
+      new Date()
+    );
+  }
+
+
   function obtenerClaseEstado(
     estado
   ) {
@@ -165,6 +234,157 @@ function DetalleOperacionPage() {
     return estadosOperacion.indexOf(
       operacion.estado
     );
+  }
+
+
+  function irAsignarMuelle() {
+    navigate(
+      `/operaciones/${operacion.id_operacion}/asignar-muelle`
+    );
+  }
+
+
+  function abrirModalLlegada() {
+    setFechaLlegada(
+      obtenerFechaHoraActualInput()
+    );
+
+    setErrorEvento("");
+
+    setMostrarModalLlegada(
+      true
+    );
+  }
+
+
+  function cerrarModalLlegada() {
+    if (guardandoEvento) {
+      return;
+    }
+
+    setMostrarModalLlegada(
+      false
+    );
+
+    setErrorEvento("");
+  }
+
+
+  function abrirModalSalida() {
+    setFechaSalida(
+      obtenerFechaHoraActualInput()
+    );
+
+    setErrorEvento("");
+
+    setMostrarModalSalida(
+      true
+    );
+  }
+
+
+  function cerrarModalSalida() {
+    if (guardandoEvento) {
+      return;
+    }
+
+    setMostrarModalSalida(
+      false
+    );
+
+    setErrorEvento("");
+  }
+
+
+  async function confirmarLlegada() {
+    if (!fechaLlegada) {
+      setErrorEvento(
+        "Seleccione la fecha y hora real de llegada."
+      );
+
+      return;
+    }
+
+
+    try {
+      setGuardandoEvento(true);
+
+      setErrorEvento("");
+
+
+      const resultado =
+        await registrarLlegadaOperacion(
+          operacion.id_operacion,
+          new Date(
+            fechaLlegada
+          ).toISOString()
+        );
+
+
+      setOperacion(
+        resultado.datos
+      );
+
+
+      setMostrarModalLlegada(
+        false
+      );
+
+
+      setFechaLlegada("");
+    } catch (error) {
+      setErrorEvento(
+        error.message
+      );
+    } finally {
+      setGuardandoEvento(false);
+    }
+  }
+
+
+  async function confirmarSalida() {
+    if (!fechaSalida) {
+      setErrorEvento(
+        "Seleccione la fecha y hora real de salida."
+      );
+
+      return;
+    }
+
+
+    try {
+      setGuardandoEvento(true);
+
+      setErrorEvento("");
+
+
+      const resultado =
+        await registrarSalidaOperacion(
+          operacion.id_operacion,
+          new Date(
+            fechaSalida
+          ).toISOString()
+        );
+
+
+      setOperacion(
+        resultado.datos
+      );
+
+
+      setMostrarModalSalida(
+        false
+      );
+
+
+      setFechaSalida("");
+    } catch (error) {
+      setErrorEvento(
+        error.message
+      );
+    } finally {
+      setGuardandoEvento(false);
+    }
   }
 
 
@@ -300,24 +520,93 @@ function DetalleOperacionPage() {
         </div>
 
 
-        {operacion.estado !==
-          "Finalizada" && (
+        <div className="acciones-encabezado-operacion">
 
-          <button
-            type="button"
-            className="boton-editar-operacion"
-            onClick={() =>
-              navigate(
-                `/operaciones/${operacion.id_operacion}/editar`
-              )
-            }
-          >
-            <Edit3 size={18} />
+          {operacion.estado !==
+            "Finalizada" && (
 
-            Editar operación
-          </button>
+              <button
+                type="button"
+                className="boton-editar-operacion"
+                onClick={() =>
+                  navigate(
+                    `/operaciones/${operacion.id_operacion}/editar`
+                  )
+                }
+              >
+                <Edit3 size={18} />
 
-        )}
+                Editar operación
+              </button>
+
+            )}
+
+
+          {operacion.estado ===
+            "Programada" && (
+
+              <button
+                type="button"
+                className="boton-asignar-muelle"
+                onClick={
+                  irAsignarMuelle
+                }
+              >
+                <Anchor size={18} />
+
+                Asignar muelle
+              </button>
+
+            )}
+
+
+          {operacion.estado ===
+            "Muelle asignado" &&
+            !operacion.llegada_real && (
+
+              <button
+                type="button"
+                className="boton-evento-operacion llegada"
+                onClick={
+                  abrirModalLlegada
+                }
+              >
+                <CalendarClock
+                  size={18}
+                />
+
+                Registrar llegada
+              </button>
+
+            )}
+
+
+          {operacion.llegada_real &&
+            !operacion.salida_real &&
+            [
+              "En puerto",
+              "En operación",
+            ].includes(
+              operacion.estado
+            ) && (
+
+              <button
+                type="button"
+                className="boton-evento-operacion salida"
+                onClick={
+                  abrirModalSalida
+                }
+              >
+                <CheckCircle2
+                  size={18}
+                />
+
+                Registrar salida
+              </button>
+
+            )}
+
+        </div>
 
       </div>
 
@@ -400,6 +689,7 @@ function DetalleOperacionPage() {
           <Clock3 size={20} />
 
           <div>
+
             <h2>
               Progreso de la operación
             </h2>
@@ -408,6 +698,7 @@ function DetalleOperacionPage() {
               Estado actual dentro del
               flujo portuario.
             </p>
+
           </div>
 
         </div>
@@ -471,12 +762,9 @@ function DetalleOperacionPage() {
       </article>
 
 
-      {/* INFORMACION PRINCIPAL */}
+      {/* INFORMACION */}
 
       <div className="rejilla-detalle-operacion">
-
-
-        {/* BUQUE */}
 
         <article className="glass-card tarjeta-detalle-operacion">
 
@@ -485,6 +773,7 @@ function DetalleOperacionPage() {
             <Ship size={20} />
 
             <div>
+
               <h2>
                 Buque
               </h2>
@@ -493,6 +782,7 @@ function DetalleOperacionPage() {
                 Embarcación asociada
                 a la operación.
               </p>
+
             </div>
 
           </div>
@@ -563,8 +853,6 @@ function DetalleOperacionPage() {
         </article>
 
 
-        {/* CARGA */}
-
         <article className="glass-card tarjeta-detalle-operacion">
 
           <div className="titulo-seccion-detalle-operacion">
@@ -572,6 +860,7 @@ function DetalleOperacionPage() {
             <Package size={20} />
 
             <div>
+
               <h2>
                 Carga
               </h2>
@@ -580,6 +869,7 @@ function DetalleOperacionPage() {
                 Clasificación declarada
                 para esta operación.
               </p>
+
             </div>
 
           </div>
@@ -590,6 +880,7 @@ function DetalleOperacionPage() {
             <div className="icono-carga-operacion">
               <Package size={26} />
             </div>
+
 
             <div>
 
@@ -621,6 +912,7 @@ function DetalleOperacionPage() {
           <MapPin size={20} />
 
           <div>
+
             <h2>
               Ruta
             </h2>
@@ -629,6 +921,7 @@ function DetalleOperacionPage() {
               Procedencia y destino
               declarados.
             </p>
+
           </div>
 
         </div>
@@ -641,6 +934,7 @@ function DetalleOperacionPage() {
             <div className="marcador-ruta origen">
               <MapPin size={19} />
             </div>
+
 
             <div>
 
@@ -667,6 +961,7 @@ function DetalleOperacionPage() {
             <div className="marcador-ruta destino">
               <MapPin size={19} />
             </div>
+
 
             <div>
 
@@ -698,6 +993,7 @@ function DetalleOperacionPage() {
           <CalendarClock size={20} />
 
           <div>
+
             <h2>
               Programación
             </h2>
@@ -706,6 +1002,7 @@ function DetalleOperacionPage() {
               Fechas estimadas y reales
               de la visita portuaria.
             </p>
+
           </div>
 
         </div>
@@ -750,8 +1047,8 @@ function DetalleOperacionPage() {
               >
                 {operacion.llegada_real
                   ? formatearFechaHora(
-                      operacion.llegada_real
-                    )
+                    operacion.llegada_real
+                  )
                   : "Pendiente"}
               </strong>
 
@@ -797,8 +1094,8 @@ function DetalleOperacionPage() {
               >
                 {operacion.salida_real
                   ? formatearFechaHora(
-                      operacion.salida_real
-                    )
+                    operacion.salida_real
+                  )
                   : "Pendiente"}
               </strong>
 
@@ -820,6 +1117,7 @@ function DetalleOperacionPage() {
           <FileText size={20} />
 
           <div>
+
             <h2>
               Observaciones
             </h2>
@@ -828,6 +1126,7 @@ function DetalleOperacionPage() {
               Información adicional
               registrada.
             </p>
+
           </div>
 
         </div>
@@ -888,6 +1187,320 @@ function DetalleOperacionPage() {
         </div>
 
       </article>
+
+
+      {/* MODAL LLEGADA */}
+
+      {mostrarModalLlegada && (
+
+        <div className="fondo-modal-operacion">
+
+          <div className="modal-evento-operacion">
+
+            <button
+              type="button"
+              className="cerrar-modal-operacion"
+              onClick={
+                cerrarModalLlegada
+              }
+              disabled={
+                guardandoEvento
+              }
+            >
+              <X size={19} />
+            </button>
+
+
+            <div className="icono-modal-operacion llegada">
+              <CalendarClock
+                size={27}
+              />
+            </div>
+
+
+            <h2>
+              Registrar llegada real
+            </h2>
+
+
+            <p>
+              Registre la fecha y hora
+              en que el buque llegó
+              realmente al puerto.
+            </p>
+
+
+            <div className="resumen-evento-operacion">
+
+              <span>
+                Operación
+              </span>
+
+              <strong>
+                {operacion.codigo}
+              </strong>
+
+
+              <span>
+                Buque
+              </span>
+
+              <strong>
+                {operacion.buque}
+              </strong>
+
+            </div>
+
+
+            <div className="campo-modal-operacion">
+
+              <label htmlFor="fechaLlegada">
+                Fecha y hora real
+              </label>
+
+
+              <input
+                id="fechaLlegada"
+                type="datetime-local"
+                value={
+                  fechaLlegada
+                }
+                max={
+                  obtenerFechaHoraActualInput()
+                }
+                onChange={(evento) =>
+                  setFechaLlegada(
+                    evento.target.value
+                  )
+                }
+              />
+
+            </div>
+
+
+            {errorEvento && (
+              <div className="error-modal-operacion">
+                {errorEvento}
+              </div>
+            )}
+
+
+            <div className="acciones-modal-operacion">
+
+              <button
+                type="button"
+                className="boton-cancelar-modal-operacion"
+                onClick={
+                  cerrarModalLlegada
+                }
+                disabled={
+                  guardandoEvento
+                }
+              >
+                Cancelar
+              </button>
+
+
+              <button
+                type="button"
+                className="boton-confirmar-modal-operacion"
+                onClick={
+                  confirmarLlegada
+                }
+                disabled={
+                  guardandoEvento
+                }
+              >
+
+                {guardandoEvento ? (
+                  <>
+                    <LoaderCircle
+                      size={17}
+                      className="icono-cargando-evento-operacion"
+                    />
+
+                    Registrando...
+                  </>
+                ) : (
+                  <>
+                    <CalendarClock
+                      size={17}
+                    />
+
+                    Confirmar llegada
+                  </>
+                )}
+
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      )}
+
+
+      {/* MODAL SALIDA */}
+
+      {mostrarModalSalida && (
+
+        <div className="fondo-modal-operacion">
+
+          <div className="modal-evento-operacion">
+
+            <button
+              type="button"
+              className="cerrar-modal-operacion"
+              onClick={
+                cerrarModalSalida
+              }
+              disabled={
+                guardandoEvento
+              }
+            >
+              <X size={19} />
+            </button>
+
+
+            <div className="icono-modal-operacion salida">
+              <CheckCircle2
+                size={27}
+              />
+            </div>
+
+
+            <h2>
+              Registrar salida
+            </h2>
+
+
+            <p>
+              Registre la salida real
+              del buque. Al confirmar,
+              la operación quedará
+              finalizada.
+            </p>
+
+
+            <div className="resumen-evento-operacion">
+
+              <span>
+                Operación
+              </span>
+
+              <strong>
+                {operacion.codigo}
+              </strong>
+
+
+              <span>
+                Llegada real
+              </span>
+
+              <strong>
+                {formatearFechaHora(
+                  operacion.llegada_real
+                )}
+              </strong>
+
+            </div>
+
+
+            <div className="campo-modal-operacion">
+
+              <label htmlFor="fechaSalida">
+                Fecha y hora real
+              </label>
+
+
+              <input
+                id="fechaSalida"
+                type="datetime-local"
+                value={
+                  fechaSalida
+                }
+                min={
+                  convertirFechaParaInput(
+                    operacion.llegada_real
+                  )
+                }
+                max={
+                  obtenerFechaHoraActualInput()
+                }
+                onChange={(evento) =>
+                  setFechaSalida(
+                    evento.target.value
+                  )
+                }
+              />
+
+            </div>
+
+
+            {errorEvento && (
+              <div className="error-modal-operacion">
+                {errorEvento}
+              </div>
+            )}
+
+
+            <div className="acciones-modal-operacion">
+
+              <button
+                type="button"
+                className="boton-cancelar-modal-operacion"
+                onClick={
+                  cerrarModalSalida
+                }
+                disabled={
+                  guardandoEvento
+                }
+              >
+                Cancelar
+              </button>
+
+
+              <button
+                type="button"
+                className="boton-confirmar-modal-operacion finalizar"
+                onClick={
+                  confirmarSalida
+                }
+                disabled={
+                  guardandoEvento
+                }
+              >
+
+                {guardandoEvento ? (
+                  <>
+                    <LoaderCircle
+                      size={17}
+                      className="icono-cargando-evento-operacion"
+                    />
+
+                    Finalizando...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2
+                      size={17}
+                    />
+
+                    Registrar y finalizar
+                  </>
+                )}
+
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      )}
 
     </section>
   );

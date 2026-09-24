@@ -1121,3 +1121,507 @@ strong {
   }
 
 }
+
+.boton-asignar-muelle {
+  min-height: 43px;
+  padding: 0 17px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  border: none;
+  border-radius: 12px;
+
+  color: #08745d;
+
+  background:
+    rgba(172, 252, 204, 0.72);
+
+  box-shadow:
+    0 8px 20px
+    rgba(21, 150, 104, 0.12);
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.acciones-encabezado-operacion {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+
+.boton-asignar-muelle,
+.boton-evento-operacion {
+  min-height: 43px;
+  padding: 0 17px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  border: none;
+  border-radius: 12px;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+
+.boton-asignar-muelle,
+.boton-evento-operacion.llegada {
+  color: #08745d;
+
+  background:
+    rgba(
+      172,
+      252,
+      204,
+      0.75
+    );
+
+  box-shadow:
+    0 8px 20px
+    rgba(
+      21,
+      150,
+      104,
+      0.12
+    );
+}
+
+
+.boton-evento-operacion.salida {
+  color: white;
+
+  background:
+    linear-gradient(
+      135deg,
+      #08745d,
+      #159668
+    );
+
+  box-shadow:
+    0 8px 20px
+    rgba(
+      21,
+      150,
+      104,
+      0.18
+    );
+}
+
+
+/* FONDO MODAL */
+
+.fondo-modal-operacion {
+  position: fixed;
+  inset: 0;
+
+  z-index: 1000;
+
+  padding: 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    rgba(
+      7,
+      30,
+      55,
+      0.42
+    );
+
+  backdrop-filter:
+    blur(6px);
+}
+
+
+/* MODAL */
+
+.modal-evento-operacion {
+  position: relative;
+
+  width: 100%;
+  max-width: 470px;
+
+  padding: 28px;
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.92
+    );
+
+  border-radius: 22px;
+
+  background:
+    rgba(
+      250,
+      253,
+      255,
+      0.98
+    );
+
+  box-shadow:
+    0 24px 65px
+    rgba(
+      13,
+      59,
+      142,
+      0.22
+    );
+}
+
+
+.cerrar-modal-operacion {
+  position: absolute;
+
+  top: 15px;
+  right: 15px;
+
+  width: 34px;
+  height: 34px;
+
+  display: grid;
+  place-items: center;
+
+  border: none;
+  border-radius: 50%;
+
+  color: #6b849d;
+
+  background:
+    rgba(
+      229,
+      239,
+      247,
+      0.80
+    );
+
+  cursor: pointer;
+}
+
+
+/* ICONO */
+
+.icono-modal-operacion {
+  width: 54px;
+  height: 54px;
+
+  margin-bottom: 15px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 16px;
+}
+
+
+.icono-modal-operacion.llegada {
+  color: #08745d;
+
+  background:
+    rgba(
+      172,
+      252,
+      204,
+      0.55
+    );
+}
+
+
+.icono-modal-operacion.salida {
+  color: var(--navy);
+
+  background:
+    rgba(
+      143,
+      197,
+      255,
+      0.28
+    );
+}
+
+
+.modal-evento-operacion h2 {
+  margin: 0;
+
+  color:
+    var(--navy-dark);
+
+  font-size: 22px;
+}
+
+
+.modal-evento-operacion > p {
+  margin:
+    7px 0 20px;
+
+  color: #718aa2;
+
+  font-size: 11px;
+
+  line-height: 1.5;
+}
+
+
+/* RESUMEN */
+
+.resumen-evento-operacion {
+  margin-bottom: 18px;
+
+  padding: 13px;
+
+  display: grid;
+
+  grid-template-columns:
+    auto 1fr;
+
+  gap:
+    7px 16px;
+
+  border-radius: 12px;
+
+  background:
+    rgba(
+      235,
+      245,
+      252,
+      0.72
+    );
+}
+
+
+.resumen-evento-operacion span {
+  color: #859aae;
+  font-size: 9px;
+}
+
+
+.resumen-evento-operacion strong {
+  color: #31597e;
+
+  text-align: right;
+
+  font-size: 10px;
+}
+
+
+/* CAMPO */
+
+.campo-modal-operacion {
+  display: flex;
+  flex-direction: column;
+
+  gap: 7px;
+}
+
+
+.campo-modal-operacion label {
+  color: #3d6287;
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+
+.campo-modal-operacion input {
+  min-height: 45px;
+
+  padding: 0 12px;
+
+  outline: none;
+
+  border:
+    1px solid
+    rgba(
+      121,
+      158,
+      190,
+      0.30
+    );
+
+  border-radius: 11px;
+
+  color: #31597e;
+
+  background:
+    rgba(
+      247,
+      251,
+      254,
+      0.95
+    );
+
+  font-family: inherit;
+}
+
+
+/* ERROR */
+
+.error-modal-operacion {
+  margin-top: 12px;
+
+  padding: 10px 12px;
+
+  border-radius: 10px;
+
+  color: #aa3b42;
+
+  background:
+    rgba(
+      255,
+      230,
+      232,
+      0.84
+    );
+
+  font-size: 10px;
+}
+
+
+/* ACCIONES */
+
+.acciones-modal-operacion {
+  margin-top: 22px;
+
+  display: flex;
+
+  justify-content:
+    flex-end;
+
+  gap: 9px;
+}
+
+
+.boton-cancelar-modal-operacion,
+.boton-confirmar-modal-operacion {
+  min-height: 41px;
+
+  padding: 0 15px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  border-radius: 11px;
+
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+
+.boton-cancelar-modal-operacion {
+  border:
+    1px solid
+    rgba(
+      103,
+      143,
+      178,
+      0.25
+    );
+
+  color: #587896;
+
+  background: white;
+}
+
+
+.boton-confirmar-modal-operacion {
+  border: none;
+
+  color: white;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--navy),
+      #185baa
+    );
+}
+
+
+.boton-confirmar-modal-operacion.finalizar {
+  background:
+    linear-gradient(
+      135deg,
+      #08745d,
+      #159668
+    );
+}
+
+
+.boton-cancelar-modal-operacion:disabled,
+.boton-confirmar-modal-operacion:disabled,
+.cerrar-modal-operacion:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+
+.icono-cargando-evento-operacion {
+  animation:
+    girar-evento-operacion
+    0.9s linear infinite;
+}
+
+
+@keyframes girar-evento-operacion {
+  to {
+    transform:
+      rotate(360deg);
+  }
+}
+
+
+@media (max-width: 700px) {
+
+  .acciones-encabezado-operacion {
+    width: 100%;
+
+    flex-direction:
+      column;
+  }
+
+
+  .acciones-encabezado-operacion
+  button {
+    width: 100%;
+  }
+
+
+  .acciones-modal-operacion {
+    flex-direction:
+      column-reverse;
+  }
+
+
+  .acciones-modal-operacion
+  button {
+    width: 100%;
+  }
+
+}

@@ -1,6 +1,10 @@
-import { useState } from "react";
+import {
+  useState,
+} from "react";
 
-import { useNavigate } from "react-router-dom";
+import {
+  useNavigate,
+} from "react-router-dom";
 
 import {
   Bell,
@@ -18,7 +22,18 @@ import {
 
 
 function Header() {
-  const navigate = useNavigate();
+  const navigate =
+    useNavigate();
+
+
+  /* ======================================
+     DROPDOWN
+  ====================================== */
+
+  const [
+    profileOpen,
+    setProfileOpen,
+  ] = useState(false);
 
 
   /* ======================================
@@ -33,7 +48,9 @@ function Header() {
         month: "short",
         year: "numeric",
       }
-    ).format(new Date());
+    ).format(
+      new Date()
+    );
 
 
   /* ======================================
@@ -47,23 +64,32 @@ function Header() {
 
 
   const nombres =
-    usuario?.nombres || "Usuario";
+    usuario?.nombres
+    ||
+    "Usuario";
 
 
   const apellidos =
-    usuario?.apellidos || "";
+    usuario?.apellidos
+    ||
+    "";
 
 
   const nombreCompleto =
-    `${nombres} ${apellidos}`.trim();
+    `${nombres} ${apellidos}`
+      .trim();
 
 
   const rol =
-    usuario?.rol || "Sin rol";
+    usuario?.rol
+    ||
+    "Sin rol";
 
 
   const correo =
-    usuario?.correo || "";
+    usuario?.correo
+    ||
+    "";
 
 
   const iniciales =
@@ -72,23 +98,17 @@ function Header() {
 
 
   /* ======================================
-     DROPDOWN
-  ====================================== */
-
-  const [
-    profileOpen,
-    setProfileOpen,
-  ] = useState(false);
-
-
-  /* ======================================
      CERRAR SESIÓN
   ====================================== */
 
-  const handleLogout = () => {
+  function handleLogout() {
+    setProfileOpen(
+      false
+    );
+
+
     cerrarSesion();
 
-    setProfileOpen(false);
 
     navigate(
       "/login",
@@ -96,7 +116,7 @@ function Header() {
         replace: true,
       }
     );
-  };
+  }
 
 
   return (
@@ -108,7 +128,9 @@ function Header() {
 
       <div className="header-search">
 
-        <Search size={20} />
+        <Search
+          size={20}
+        />
 
         <input
           placeholder="Buscar buques, contenedores, operaciones..."
@@ -123,11 +145,16 @@ function Header() {
 
       <div className="header-actions">
 
-        {/* FECHA */}
+
+        {/* ==================================
+            FECHA
+        ================================== */}
 
         <div className="header-date">
 
-          <CalendarDays size={19} />
+          <CalendarDays
+            size={19}
+          />
 
           <span>
             Hoy, {fechaActual}
@@ -136,14 +163,18 @@ function Header() {
         </div>
 
 
-        {/* NOTIFICACIONES */}
+        {/* ==================================
+            NOTIFICACIONES
+        ================================== */}
 
         <button
           className="notification-button"
           type="button"
         >
 
-          <Bell size={21} />
+          <Bell
+            size={21}
+          />
 
           <span className="notification-number">
             3
@@ -163,13 +194,16 @@ function Header() {
             type="button"
             onClick={() =>
               setProfileOpen(
-                (value) => !value
+                (value) =>
+                  !value
               )
             }
           >
 
             <div className="profile-photo">
+
               {iniciales}
+
             </div>
 
 
@@ -186,13 +220,15 @@ function Header() {
             </div>
 
 
-            <ChevronDown size={17} />
+            <ChevronDown
+              size={17}
+            />
 
           </button>
 
 
           {/* ==================================
-              DROPDOWN
+              MENÚ DEL PERFIL
           ================================== */}
 
           {profileOpen && (
@@ -201,8 +237,15 @@ function Header() {
 
               <div className="profile-dropdown-user">
 
-                <div className="profile-photo profile-photo-large">
+                <div
+                  className="
+                    profile-photo
+                    profile-photo-large
+                  "
+                >
+
                   {iniciales}
+
                 </div>
 
 
@@ -216,9 +259,13 @@ function Header() {
                     {rol}
                   </span>
 
-                  <small>
-                    {correo}
-                  </small>
+                  {correo && (
+
+                    <small>
+                      {correo}
+                    </small>
+
+                  )}
 
                 </div>
 
@@ -228,12 +275,14 @@ function Header() {
               <div className="profile-divider" />
 
 
-              {/* MI PERFIL */}
+              {/* PERFIL */}
 
               <button
                 type="button"
                 onClick={() => {
-                  setProfileOpen(false);
+                  setProfileOpen(
+                    false
+                  );
 
                   navigate(
                     "/perfil"
@@ -241,7 +290,9 @@ function Header() {
                 }}
               >
 
-                <UserRound size={19} />
+                <UserRound
+                  size={19}
+                />
 
                 Mi perfil
 
@@ -256,10 +307,14 @@ function Header() {
               <button
                 type="button"
                 className="logout-option"
-                onClick={handleLogout}
+                onClick={
+                  handleLogout
+                }
               >
 
-                <LogOut size={19} />
+                <LogOut
+                  size={19}
+                />
 
                 Cerrar sesión
 
