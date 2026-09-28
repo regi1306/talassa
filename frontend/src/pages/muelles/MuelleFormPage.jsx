@@ -14,6 +14,7 @@ import {
   ArrowLeft,
   CheckCircle2,
   Info,
+  Package,
   Ruler,
   Save,
   Ship,
@@ -25,6 +26,7 @@ import {
   actualizarMuelle,
   crearMuelle,
   obtenerMuellePorId,
+  obtenerOpcionesFormularioMuelle,
 } from "../../services/muellesService.js";
 
 import "../../styles/muelles.css";
@@ -39,7 +41,17 @@ const estadoInicial = {
   nombre: "",
   longitud_maxima: "",
   calado_maximo: "",
-  estado_operativo: "Disponible",
+  estado_operativo:
+    "Disponible",
+
+  tipos_carga_permitidos:
+    [],
+
+  restricciones_adicionales:
+    "",
+
+  observaciones:
+    "",
 };
 
 
@@ -51,6 +63,7 @@ function obtenerClaseEstado(
   estado
 ) {
   switch (estado) {
+
     case "Disponible":
       return "muelle-status-disponible";
     case "Mantenimiento":
@@ -77,7 +90,7 @@ function MuelleFormPage() {
 
 
   /* ======================================
-     MODOS DE LA PANTALLA
+     MODOS
   ====================================== */
 
   const soloLectura =
@@ -106,6 +119,12 @@ function MuelleFormPage() {
 
 
   const [
+    tiposCarga,
+    setTiposCarga,
+  ] = useState([]);
+
+
+  const [
     muelleCompleto,
     setMuelleCompleto,
   ] = useState(null);
@@ -114,9 +133,7 @@ function MuelleFormPage() {
   const [
     cargando,
     setCargando,
-  ] = useState(
-    tieneId
-  );
+  ] = useState(true);
 
 
   const [
@@ -138,21 +155,41 @@ function MuelleFormPage() {
 
 
   /* ======================================
-     CARGAR MUELLE
-     VER / EDITAR
+     CARGAR OPCIONES + MUELLE
   ====================================== */
 
   useEffect(() => {
-    if (!tieneId) {
-      return;
-    }
-
-
-    async function cargarMuelle() {
+    async function cargarPantalla() {
       try {
         setCargando(true);
 
         setError("");
+
+
+        const respuestaOpciones =
+          await obtenerOpcionesFormularioMuelle();
+
+
+        if (
+          !respuestaOpciones.ok
+        ) {
+          throw new Error(
+            respuestaOpciones.mensaje ||
+            "No fue posible cargar los tipos de carga."
+          );
+        }
+
+
+        setTiposCarga(
+          respuestaOpciones.datos
+            ?.tipos_carga ||
+          []
+        );
+
+
+        if (!tieneId) {
+          return;
+        }
 
 
         const respuesta =
@@ -180,25 +217,49 @@ function MuelleFormPage() {
 
         setFormulario({
           codigo:
-            muelle.codigo || "",
+            muelle.codigo ||
+            "",
 
           nombre:
-            muelle.nombre || "",
+            muelle.nombre ||
+            "",
 
           longitud_maxima:
-            muelle.longitud_maxima || "",
+            muelle.longitud_maxima ||
+            "",
 
           calado_maximo:
-            muelle.calado_maximo || "",
+            muelle.calado_maximo ||
+            "",
 
           estado_operativo:
             muelle.estado_operativo ||
             "Disponible",
+
+          tipos_carga_permitidos:
+            (
+              muelle.tipos_carga ||
+              []
+            ).map(
+              (tipo) =>
+                String(
+                  tipo.id_tipo_carga
+                )
+            ),
+
+          restricciones_adicionales:
+            muelle.restricciones_adicionales ||
+            "",
+
+          observaciones:
+            muelle.observaciones ||
+            "",
         });
 
       } catch (error) {
+
         console.error(
-          "Error al cargar muelle:",
+          "Error al cargar formulario de muelle:",
           error
         );
 
@@ -206,16 +267,18 @@ function MuelleFormPage() {
         setError(
           error.response?.data?.mensaje ||
           error.message ||
-          "No fue posible cargar el muelle."
+          "No fue posible cargar la información del muelle."
         );
 
       } finally {
+
         setCargando(false);
+
       }
     }
 
 
-    cargarMuelle();
+    cargarPantalla();
 
   }, [
     id,
@@ -248,6 +311,60 @@ function MuelleFormPage() {
         [name]:
           value,
       })
+    );
+
+
+    setError("");
+
+    setMensaje("");
+  }
+
+
+  /* ======================================
+     CAMBIAR TIPO DE CARGA
+  ====================================== */
+
+  function manejarTipoCarga(
+    event
+  ) {
+    if (soloLectura) {
+      return;
+    }
+
+
+    const {
+      value,
+      checked,
+    } = event.target;
+
+
+    setFormulario(
+      (anterior) => {
+
+        const actuales =
+          anterior
+            .tipos_carga_permitidos;
+
+
+        const nuevos =
+          checked
+            ? [
+                ...actuales,
+                value,
+              ]
+            : actuales.filter(
+                (idTipo) =>
+                  idTipo !== value
+              );
+
+
+        return {
+          ...anterior,
+
+          tipos_carga_permitidos:
+            nuevos,
+        };
+      }
     );
 
 
@@ -308,13 +425,21 @@ function MuelleFormPage() {
     }
 
 
+    if (
+      formulario
+        .tipos_carga_permitidos
+        .length === 0
+    ) {
+      return "Seleccione al menos un tipo de carga permitido.";
+    }
+
+
     return "";
   }
 
 
   /* ======================================
      GUARDAR
-     POST / PUT
   ====================================== */
 
   async function manejarSubmit(
@@ -363,6 +488,26 @@ function MuelleFormPage() {
 
       estado_operativo:
         formulario.estado_operativo,
+
+      tipos_carga_permitidos:
+        formulario
+          .tipos_carga_permitidos
+          .map(
+            (idTipo) =>
+              Number(idTipo)
+          ),
+
+      restricciones_adicionales:
+        formulario
+          .restricciones_adicionales
+          .trim() ||
+        null,
+
+      observaciones:
+        formulario
+          .observaciones
+          .trim() ||
+        null,
     };
 
 
@@ -377,24 +522,21 @@ function MuelleFormPage() {
       let respuesta;
 
 
-      /* EDITAR */
-
       if (modoEdicion) {
+
         respuesta =
           await actualizarMuelle(
             id,
             datosMuelle
           );
-      }
 
+      } else {
 
-      /* REGISTRAR */
-
-      else {
         respuesta =
           await crearMuelle(
             datosMuelle
           );
+
       }
 
 
@@ -423,6 +565,7 @@ function MuelleFormPage() {
       }, 700);
 
     } catch (error) {
+
       console.error(
         "Error al guardar muelle:",
         error
@@ -436,9 +579,33 @@ function MuelleFormPage() {
       );
 
     } finally {
+
       setGuardando(false);
+
     }
   }
+
+
+  /* ======================================
+     NOMBRES DE TIPOS SELECCIONADOS
+  ====================================== */
+
+  const nombresTiposSeleccionados =
+    tiposCarga
+      .filter(
+        (tipo) =>
+          formulario
+            .tipos_carga_permitidos
+            .includes(
+              String(
+                tipo.id_tipo_carga
+              )
+            )
+      )
+      .map(
+        (tipo) =>
+          tipo.nombre
+      );
 
 
   /* ======================================
@@ -478,7 +645,9 @@ function MuelleFormPage() {
             type="button"
             className="button button-secondary"
             onClick={() =>
-              navigate("/muelles")
+              navigate(
+                "/muelles"
+              )
             }
           >
             <ArrowLeft size={18} />
@@ -513,20 +682,26 @@ function MuelleFormPage() {
       </div>
 
 
-      {/* ==================================
-          MENSAJE DE ERROR
-      ================================== */}
+      {/* ERROR */}
 
       {error && (
 
         <div
           style={{
-            marginBottom: "16px",
-            padding: "13px 16px",
-            borderRadius: "12px",
+            marginBottom:
+              "16px",
+
+            padding:
+              "13px 16px",
+
+            borderRadius:
+              "12px",
+
             background:
               "rgba(255, 226, 229, 0.94)",
-            color: "#b4232c",
+
+            color:
+              "#b4232c",
           }}
         >
           {error}
@@ -535,20 +710,26 @@ function MuelleFormPage() {
       )}
 
 
-      {/* ==================================
-          MENSAJE CORRECTO
-      ================================== */}
+      {/* MENSAJE */}
 
       {mensaje && (
 
         <div
           style={{
-            marginBottom: "16px",
-            padding: "13px 16px",
-            borderRadius: "12px",
+            marginBottom:
+              "16px",
+
+            padding:
+              "13px 16px",
+
+            borderRadius:
+              "12px",
+
             background:
               "rgba(207, 248, 232, 0.94)",
-            color: "#08745d",
+
+            color:
+              "#08745d",
           }}
         >
           {mensaje}
@@ -606,16 +787,13 @@ function MuelleFormPage() {
           <div className="form-grid">
 
 
-            {/* ==================================
-                CÓDIGO
-            ================================== */}
+            {/* CÓDIGO */}
 
             <div className="form-field">
 
               <label htmlFor="codigo">
                 Código del muelle
               </label>
-
 
               <input
                 id="codigo"
@@ -637,16 +815,13 @@ function MuelleFormPage() {
             </div>
 
 
-            {/* ==================================
-                NOMBRE
-            ================================== */}
+            {/* NOMBRE */}
 
             <div className="form-field">
 
               <label htmlFor="nombre">
                 Nombre
               </label>
-
 
               <input
                 id="nombre"
@@ -668,16 +843,13 @@ function MuelleFormPage() {
             </div>
 
 
-            {/* ==================================
-                LONGITUD
-            ================================== */}
+            {/* LONGITUD */}
 
             <div className="form-field">
 
               <label htmlFor="longitud_maxima">
                 Longitud máxima
               </label>
-
 
               <div className="muelle-measure-input">
 
@@ -699,7 +871,6 @@ function MuelleFormPage() {
                   }
                 />
 
-
                 <span>
                   m
                 </span>
@@ -709,16 +880,13 @@ function MuelleFormPage() {
             </div>
 
 
-            {/* ==================================
-                CALADO
-            ================================== */}
+            {/* CALADO */}
 
             <div className="form-field">
 
               <label htmlFor="calado_maximo">
                 Calado máximo
               </label>
-
 
               <div className="muelle-measure-input">
 
@@ -740,7 +908,6 @@ function MuelleFormPage() {
                   }
                 />
 
-
                 <span>
                   m
                 </span>
@@ -750,16 +917,13 @@ function MuelleFormPage() {
             </div>
 
 
-            {/* ==================================
-                ESTADO OPERATIVO
-            ================================== */}
+            {/* ESTADO */}
 
             <div className="form-field form-field-full">
 
               <label htmlFor="estado_operativo">
                 Estado operativo
               </label>
-
 
               <select
                 id="estado_operativo"
@@ -779,7 +943,6 @@ function MuelleFormPage() {
                   Disponible
                 </option>
 
-
                 <option value="Mantenimiento">
                   Mantenimiento
                 </option>
@@ -794,9 +957,169 @@ function MuelleFormPage() {
 
 
             {/* ==================================
-                DATOS ASOCIADOS
-                SOLO EN VISTA
+                TIPOS DE CARGA
             ================================== */}
+
+            <div className="form-field form-field-full">
+
+              <label>
+                Tipos de carga permitidos
+                <span className="muelle-required">
+                  *
+                </span>
+              </label>
+
+
+              <div className="muelle-cargo-options">
+
+                {tiposCarga.length > 0 ? (
+
+                  tiposCarga.map(
+                    (tipo) => {
+
+                      const seleccionado =
+                        formulario
+                          .tipos_carga_permitidos
+                          .includes(
+                            String(
+                              tipo.id_tipo_carga
+                            )
+                          );
+
+
+                      return (
+                        <label
+                          key={
+                            tipo.id_tipo_carga
+                          }
+                          className={
+                            seleccionado
+                              ? "muelle-cargo-option selected"
+                              : "muelle-cargo-option"
+                          }
+                        >
+
+                          <input
+                            type="checkbox"
+                            value={
+                              tipo.id_tipo_carga
+                            }
+                            checked={
+                              seleccionado
+                            }
+                            onChange={
+                              manejarTipoCarga
+                            }
+                            disabled={
+                              soloLectura
+                            }
+                          />
+
+
+                          <Package
+                            size={18}
+                          />
+
+
+                          <div>
+
+                            <strong>
+                              {
+                                tipo.nombre
+                              }
+                            </strong>
+
+                            {tipo.descripcion && (
+                              <small>
+                                {
+                                  tipo.descripcion
+                                }
+                              </small>
+                            )}
+
+                          </div>
+
+                        </label>
+                      );
+                    }
+                  )
+
+                ) : (
+
+                  <p className="muelle-no-cargo-options">
+                    No hay tipos de carga activos disponibles.
+                  </p>
+
+                )}
+
+              </div>
+
+            </div>
+
+
+            {/* RESTRICCIONES */}
+
+            <div className="form-field form-field-full">
+
+              <label htmlFor="restricciones_adicionales">
+                Restricciones adicionales
+                <small>
+                  Opcional
+                </small>
+              </label>
+
+              <textarea
+                id="restricciones_adicionales"
+                name="restricciones_adicionales"
+                rows={3}
+                maxLength={1000}
+                placeholder="Ej. Restricciones especiales de acceso, maniobra o condiciones operativas..."
+                value={
+                  formulario.restricciones_adicionales
+                }
+                onChange={
+                  manejarCambio
+                }
+                readOnly={
+                  soloLectura
+                }
+              />
+
+            </div>
+
+
+            {/* OBSERVACIONES */}
+
+            <div className="form-field form-field-full">
+
+              <label htmlFor="observaciones">
+                Observaciones
+                <small>
+                  Opcional
+                </small>
+              </label>
+
+              <textarea
+                id="observaciones"
+                name="observaciones"
+                rows={3}
+                maxLength={1000}
+                placeholder="Ingrese información adicional sobre el muelle..."
+                value={
+                  formulario.observaciones
+                }
+                onChange={
+                  manejarCambio
+                }
+                readOnly={
+                  soloLectura
+                }
+              />
+
+            </div>
+
+
+            {/* DATOS ASOCIADOS - SOLO VISTA */}
 
             {soloLectura && (
 
@@ -807,7 +1130,6 @@ function MuelleFormPage() {
                   <label>
                     Operación asociada
                   </label>
-
 
                   <input
                     type="text"
@@ -827,7 +1149,6 @@ function MuelleFormPage() {
                     Buque asociado
                   </label>
 
-
                   <input
                     type="text"
                     value={
@@ -846,14 +1167,9 @@ function MuelleFormPage() {
           </div>
 
 
-          {/* ==================================
-              BOTONES
-          ================================== */}
+          {/* BOTONES */}
 
           <div className="form-actions">
-
-
-            {/* SOLO VER */}
 
             {soloLectura ? (
 
@@ -861,7 +1177,9 @@ function MuelleFormPage() {
                 type="button"
                 className="button button-primary"
                 onClick={() =>
-                  navigate("/muelles")
+                  navigate(
+                    "/muelles"
+                  )
                 }
               >
                 <ArrowLeft size={18} />
@@ -873,13 +1191,13 @@ function MuelleFormPage() {
 
               <>
 
-                {/* CANCELAR */}
-
                 <button
                   type="button"
                   className="button button-secondary"
                   onClick={() =>
-                    navigate("/muelles")
+                    navigate(
+                      "/muelles"
+                    )
                   }
                   disabled={
                     guardando
@@ -888,8 +1206,6 @@ function MuelleFormPage() {
                   Cancelar
                 </button>
 
-
-                {/* GUARDAR */}
 
                 <button
                   type="submit"
@@ -900,7 +1216,6 @@ function MuelleFormPage() {
                 >
 
                   <Save size={18} />
-
 
                   {
                     guardando
@@ -922,20 +1237,20 @@ function MuelleFormPage() {
 
 
         {/* ==================================
-            PREVISUALIZACIÓN DERECHA
+            PREVISUALIZACIÓN
         ================================== */}
 
         <aside className="muelle-preview-column">
 
-
           <div className="glass-card muelle-preview-card">
-
 
             <div className="muelle-preview-heading">
 
               <div className="muelle-note-icon">
 
-                <ShipWheel size={21} />
+                <ShipWheel
+                  size={21}
+                />
 
               </div>
 
@@ -950,7 +1265,6 @@ function MuelleFormPage() {
                   }
                 </h2>
 
-
                 <p>
                   Información actual del recurso.
                 </p>
@@ -962,10 +1276,11 @@ function MuelleFormPage() {
 
             <div className="muelle-preview-main">
 
-
               <div className="muelle-preview-image">
 
-                <Anchor size={38} />
+                <Anchor
+                  size={38}
+                />
 
               </div>
 
@@ -973,22 +1288,18 @@ function MuelleFormPage() {
               <div>
 
                 <strong className="muelle-preview-code">
-
                   {
                     formulario.codigo ||
                     "M-00"
                   }
-
                 </strong>
 
 
                 <span className="muelle-preview-name">
-
                   {
                     formulario.nombre ||
                     "Nombre del muelle"
                   }
-
                 </span>
 
 
@@ -1020,8 +1331,6 @@ function MuelleFormPage() {
             <div className="muelle-preview-details">
 
 
-              {/* LONGITUD */}
-
               <div>
 
                 <Ruler size={18} />
@@ -1039,8 +1348,6 @@ function MuelleFormPage() {
 
               </div>
 
-
-              {/* CALADO */}
 
               <div>
 
@@ -1060,11 +1367,11 @@ function MuelleFormPage() {
               </div>
 
 
-              {/* ESTADO */}
-
               <div>
 
-                <CheckCircle2 size={18} />
+                <CheckCircle2
+                  size={18}
+                />
 
                 <span>
                   Estado operativo
@@ -1079,7 +1386,26 @@ function MuelleFormPage() {
               </div>
 
 
-              {/* OPERACIÓN */}
+              <div>
+
+                <Package size={18} />
+
+                <span>
+                  Tipos permitidos
+                </span>
+
+                <strong>
+                  {
+                    nombresTiposSeleccionados
+                      .length > 0
+                      ? nombresTiposSeleccionados
+                          .join(", ")
+                      : "Sin seleccionar"
+                  }
+                </strong>
+
+              </div>
+
 
               {soloLectura && (
 
@@ -1107,9 +1433,7 @@ function MuelleFormPage() {
           </div>
 
 
-          {/* ==================================
-              NOTA
-          ================================== */}
+          {/* NOTA */}
 
           <div className="glass-card muelle-form-note">
 
@@ -1135,7 +1459,7 @@ function MuelleFormPage() {
                 {
                   soloLectura
                     ? "Esta vista es únicamente de consulta. Los campos no pueden modificarse."
-                    : "Revisa los datos técnicos del muelle antes de registrar. Una vez guardado, se actualizará en el listado general."
+                    : "La compatibilidad física se evaluará automáticamente con la longitud y el calado. Los tipos de carga seleccionados se utilizarán para validar la compatibilidad de cada operación."
                 }
               </p>
 

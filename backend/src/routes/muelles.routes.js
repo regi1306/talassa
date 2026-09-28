@@ -8,6 +8,7 @@ import {
   crearMuelle,
   obtenerMuelle,
   obtenerMuelles,
+  obtenerOpcionesMuelle,
 } from "../controllers/muelles.controller.js";
 
 import {
@@ -37,6 +38,10 @@ router.get(
   obtenerMuelles
 );
 
+router.get(
+  "/opciones-formulario",
+  obtenerOpcionesMuelle
+);
 
 /* ======================================
    DETALLE
