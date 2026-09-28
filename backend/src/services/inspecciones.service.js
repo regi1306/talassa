@@ -13,6 +13,10 @@ import {
   obtenerTodasLasInspecciones,
 } from "../repositories/inspecciones.repository.js";
 
+import {
+  registrarEventoAuditoria,
+} from "./auditoria.service.js";
+
 
 /* ======================================
    ERROR PERSONALIZADO
@@ -27,8 +31,10 @@ function crearError(
       mensaje
     );
 
+
   error.estadoHttp =
     estadoHttp;
+
 
   return error;
 }
@@ -42,7 +48,9 @@ function validarIdInspeccion(
   id
 ) {
   const idInspeccion =
-    Number(id);
+    Number(
+      id
+    );
 
 
   if (
@@ -274,7 +282,8 @@ function prepararDatosInspeccion(
 
 
   if (
-    observaciones.length > 500
+    observaciones.length >
+    500
   ) {
     throw crearError(
       "Las observaciones no pueden superar los 500 caracteres.",
@@ -445,7 +454,8 @@ export async function listarOpcionesInspeccion() {
 ====================================== */
 
 export async function registrarInspeccion(
-  datos
+  datos,
+  idUsuario = null
 ) {
   const datosPreparados =
     prepararDatosInspeccion(
@@ -469,9 +479,43 @@ export async function registrarInspeccion(
     });
 
 
-  return await obtenerInspeccionPorId(
-    nuevaInspeccion.id_inspeccion
-  );
+  const inspeccion =
+    await obtenerInspeccionPorId(
+      nuevaInspeccion.id_inspeccion
+    );
+
+
+  /* ======================================
+     AUDITORÍA
+  ====================================== */
+
+  await registrarEventoAuditoria({
+    idUsuario,
+
+    accion:
+      "CREAR",
+
+    modulo:
+      "Inspecciones",
+
+    entidad:
+      "inspecciones",
+
+    idRegistroAfectado:
+      inspeccion.id_inspeccion,
+
+    valoresAnteriores:
+      null,
+
+    valoresNuevos:
+      inspeccion,
+
+    descripcion:
+      `Se registró la inspección ${inspeccion.codigo}.`,
+  });
+
+
+  return inspeccion;
 }
 
 
@@ -481,7 +525,8 @@ export async function registrarInspeccion(
 
 export async function editarInspeccion(
   id,
-  datos
+  datos,
+  idUsuario = null
 ) {
   const idInspeccion =
     validarIdInspeccion(
@@ -520,9 +565,43 @@ export async function editarInspeccion(
   );
 
 
-  return await obtenerInspeccionPorId(
-    idInspeccion
-  );
+  const inspeccionActualizada =
+    await obtenerInspeccionPorId(
+      idInspeccion
+    );
+
+
+  /* ======================================
+     AUDITORÍA
+  ====================================== */
+
+  await registrarEventoAuditoria({
+    idUsuario,
+
+    accion:
+      "EDITAR",
+
+    modulo:
+      "Inspecciones",
+
+    entidad:
+      "inspecciones",
+
+    idRegistroAfectado:
+      idInspeccion,
+
+    valoresAnteriores:
+      actual,
+
+    valoresNuevos:
+      inspeccionActualizada,
+
+    descripcion:
+      `Se actualizó la inspección ${inspeccionActualizada.codigo}.`,
+  });
+
+
+  return inspeccionActualizada;
 }
 
 
@@ -531,7 +610,8 @@ export async function editarInspeccion(
 ====================================== */
 
 export async function eliminarInspeccion(
-  id
+  id,
+  idUsuario = null
 ) {
   const idInspeccion =
     validarIdInspeccion(
@@ -557,6 +637,44 @@ export async function eliminarInspeccion(
     await eliminarInspeccionPorId(
       idInspeccion
     );
+
+
+  if (!eliminada) {
+    throw crearError(
+      "No fue posible eliminar la inspección.",
+      500
+    );
+  }
+
+
+  /* ======================================
+     AUDITORÍA
+  ====================================== */
+
+  await registrarEventoAuditoria({
+    idUsuario,
+
+    accion:
+      "ELIMINAR",
+
+    modulo:
+      "Inspecciones",
+
+    entidad:
+      "inspecciones",
+
+    idRegistroAfectado:
+      idInspeccion,
+
+    valoresAnteriores:
+      actual,
+
+    valoresNuevos:
+      null,
+
+    descripcion:
+      `Se eliminó la inspección ${actual.codigo}.`,
+  });
 
 
   return eliminada;

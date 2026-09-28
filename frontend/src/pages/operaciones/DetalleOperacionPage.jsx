@@ -32,6 +32,10 @@ import {
   registrarSalidaOperacion,
 } from "../../services/operacionesService.js";
 
+import {
+  tienePermiso,
+} from "../../services/auth.service.js";
+
 import "../../styles/detalleOperacion.css";
 
 
@@ -48,9 +52,30 @@ function DetalleOperacionPage() {
   const navigate =
     useNavigate();
 
+
   const { id } =
     useParams();
 
+
+  /* ======================================
+     PERMISOS
+  ====================================== */
+
+  const puedeGestionarOperacion =
+    tienePermiso(
+      "OPE_GESTIONAR"
+    );
+
+
+  const puedeGestionarMuelles =
+    tienePermiso(
+      "MUE_GESTIONAR"
+    );
+
+
+  /* ======================================
+     ESTADOS
+  ====================================== */
 
   const [
     operacion,
@@ -106,6 +131,10 @@ function DetalleOperacionPage() {
   ] = useState("");
 
 
+  /* ======================================
+     CARGAR OPERACIÓN
+  ====================================== */
+
   useEffect(() => {
     async function cargarOperacion() {
       try {
@@ -113,16 +142,22 @@ function DetalleOperacionPage() {
 
         setError("");
 
+
         const datos =
           await obtenerOperacionPorId(
             id
           );
 
-        setOperacion(datos);
+
+        setOperacion(
+          datos
+        );
+
       } catch (error) {
         setError(
           error.message
         );
+
       } finally {
         setCargando(false);
       }
@@ -130,8 +165,13 @@ function DetalleOperacionPage() {
 
 
     cargarOperacion();
+
   }, [id]);
 
+
+  /* ======================================
+     FORMATEAR FECHA Y HORA
+  ====================================== */
 
   function formatearFechaHora(
     fecha
@@ -139,6 +179,7 @@ function DetalleOperacionPage() {
     if (!fecha) {
       return "No registrada";
     }
+
 
     return new Intl.DateTimeFormat(
       "es-SV",
@@ -155,12 +196,17 @@ function DetalleOperacionPage() {
   }
 
 
+  /* ======================================
+     FORMATEAR FECHA
+  ====================================== */
+
   function formatearFecha(
     fecha
   ) {
     if (!fecha) {
       return "—";
     }
+
 
     return new Intl.DateTimeFormat(
       "es-SV",
@@ -175,6 +221,10 @@ function DetalleOperacionPage() {
   }
 
 
+  /* ======================================
+     FECHA PARA INPUT
+  ====================================== */
+
   function convertirFechaParaInput(
     fecha
   ) {
@@ -182,19 +232,25 @@ function DetalleOperacionPage() {
       return "";
     }
 
+
     const fechaOriginal =
       new Date(fecha);
+
 
     const ajuste =
       fechaOriginal.getTimezoneOffset() *
       60000;
+
 
     return new Date(
       fechaOriginal.getTime() -
       ajuste
     )
       .toISOString()
-      .slice(0, 16);
+      .slice(
+        0,
+        16
+      );
   }
 
 
@@ -204,6 +260,10 @@ function DetalleOperacionPage() {
     );
   }
 
+
+  /* ======================================
+     ESTADO
+  ====================================== */
 
   function obtenerClaseEstado(
     estado
@@ -237,12 +297,20 @@ function DetalleOperacionPage() {
   }
 
 
+  /* ======================================
+     ASIGNAR MUELLE
+  ====================================== */
+
   function irAsignarMuelle() {
     navigate(
       `/operaciones/${operacion.id_operacion}/asignar-muelle`
     );
   }
 
+
+  /* ======================================
+     MODAL LLEGADA
+  ====================================== */
 
   function abrirModalLlegada() {
     setFechaLlegada(
@@ -262,6 +330,7 @@ function DetalleOperacionPage() {
       return;
     }
 
+
     setMostrarModalLlegada(
       false
     );
@@ -269,6 +338,10 @@ function DetalleOperacionPage() {
     setErrorEvento("");
   }
 
+
+  /* ======================================
+     MODAL SALIDA
+  ====================================== */
 
   function abrirModalSalida() {
     setFechaSalida(
@@ -288,6 +361,7 @@ function DetalleOperacionPage() {
       return;
     }
 
+
     setMostrarModalSalida(
       false
     );
@@ -295,6 +369,10 @@ function DetalleOperacionPage() {
     setErrorEvento("");
   }
 
+
+  /* ======================================
+     CONFIRMAR LLEGADA
+  ====================================== */
 
   async function confirmarLlegada() {
     if (!fechaLlegada) {
@@ -307,7 +385,9 @@ function DetalleOperacionPage() {
 
 
     try {
-      setGuardandoEvento(true);
+      setGuardandoEvento(
+        true
+      );
 
       setErrorEvento("");
 
@@ -315,6 +395,7 @@ function DetalleOperacionPage() {
       const resultado =
         await registrarLlegadaOperacion(
           operacion.id_operacion,
+
           new Date(
             fechaLlegada
           ).toISOString()
@@ -332,15 +413,23 @@ function DetalleOperacionPage() {
 
 
       setFechaLlegada("");
+
     } catch (error) {
       setErrorEvento(
         error.message
       );
+
     } finally {
-      setGuardandoEvento(false);
+      setGuardandoEvento(
+        false
+      );
     }
   }
 
+
+  /* ======================================
+     CONFIRMAR SALIDA
+  ====================================== */
 
   async function confirmarSalida() {
     if (!fechaSalida) {
@@ -353,7 +442,9 @@ function DetalleOperacionPage() {
 
 
     try {
-      setGuardandoEvento(true);
+      setGuardandoEvento(
+        true
+      );
 
       setErrorEvento("");
 
@@ -361,6 +452,7 @@ function DetalleOperacionPage() {
       const resultado =
         await registrarSalidaOperacion(
           operacion.id_operacion,
+
           new Date(
             fechaSalida
           ).toISOString()
@@ -378,15 +470,23 @@ function DetalleOperacionPage() {
 
 
       setFechaSalida("");
+
     } catch (error) {
       setErrorEvento(
         error.message
       );
+
     } finally {
-      setGuardandoEvento(false);
+      setGuardandoEvento(
+        false
+      );
     }
   }
 
+
+  /* ======================================
+     CARGANDO
+  ====================================== */
 
   if (cargando) {
     return (
@@ -410,7 +510,14 @@ function DetalleOperacionPage() {
   }
 
 
-  if (error || !operacion) {
+  /* ======================================
+     ERROR
+  ====================================== */
+
+  if (
+    error ||
+    !operacion
+  ) {
     return (
       <section className="pagina-detalle-operacion">
 
@@ -423,9 +530,11 @@ function DetalleOperacionPage() {
             )
           }
         >
+
           <ArrowLeft size={18} />
 
           Volver a Operaciones
+
         </button>
 
 
@@ -439,8 +548,10 @@ function DetalleOperacionPage() {
           </h2>
 
           <p>
-            {error ||
-              "La operación solicitada no está disponible."}
+            {
+              error ||
+              "La operación solicitada no está disponible."
+            }
           </p>
 
         </div>
@@ -457,7 +568,10 @@ function DetalleOperacionPage() {
   return (
     <section className="pagina-detalle-operacion">
 
-      {/* VOLVER */}
+
+      {/* ==================================
+          VOLVER
+      ================================== */}
 
       <button
         type="button"
@@ -468,13 +582,17 @@ function DetalleOperacionPage() {
           )
         }
       >
+
         <ArrowLeft size={18} />
 
         Volver a Operaciones
+
       </button>
 
 
-      {/* ENCABEZADO */}
+      {/* ==================================
+          ENCABEZADO
+      ================================== */}
 
       <div className="encabezado-detalle-operacion">
 
@@ -501,9 +619,11 @@ function DetalleOperacionPage() {
                   )}`
                 }
               >
+
                 <i />
 
                 {operacion.estado}
+
               </span>
 
             </div>
@@ -520,9 +640,18 @@ function DetalleOperacionPage() {
         </div>
 
 
+        {/* ==================================
+            ACCIONES
+        ================================== */}
+
         <div className="acciones-encabezado-operacion">
 
-          {operacion.estado !==
+
+          {/* EDITAR OPERACIÓN */}
+
+          {
+            puedeGestionarOperacion &&
+            operacion.estado !==
             "Finalizada" && (
 
               <button
@@ -534,15 +663,22 @@ function DetalleOperacionPage() {
                   )
                 }
               >
+
                 <Edit3 size={18} />
 
                 Editar operación
+
               </button>
 
-            )}
+            )
+          }
 
 
-          {operacion.estado ===
+          {/* ASIGNAR MUELLE */}
+
+          {
+            puedeGestionarMuelles &&
+            operacion.estado ===
             "Programada" && (
 
               <button
@@ -552,15 +688,22 @@ function DetalleOperacionPage() {
                   irAsignarMuelle
                 }
               >
+
                 <Anchor size={18} />
 
                 Asignar muelle
+
               </button>
 
-            )}
+            )
+          }
 
 
-          {operacion.estado ===
+          {/* REGISTRAR LLEGADA */}
+
+          {
+            puedeGestionarOperacion &&
+            operacion.estado ===
             "Muelle asignado" &&
             !operacion.llegada_real && (
 
@@ -571,17 +714,24 @@ function DetalleOperacionPage() {
                   abrirModalLlegada
                 }
               >
+
                 <CalendarClock
                   size={18}
                 />
 
                 Registrar llegada
+
               </button>
 
-            )}
+            )
+          }
 
 
-          {operacion.llegada_real &&
+          {/* REGISTRAR SALIDA */}
+
+          {
+            puedeGestionarOperacion &&
+            operacion.llegada_real &&
             !operacion.salida_real &&
             [
               "En puerto",
@@ -597,21 +747,26 @@ function DetalleOperacionPage() {
                   abrirModalSalida
                 }
               >
+
                 <CheckCircle2
                   size={18}
                 />
 
                 Registrar salida
+
               </button>
 
-            )}
+            )
+          }
 
         </div>
 
       </div>
 
 
-      {/* INDICADORES */}
+      {/* ==================================
+          INDICADORES
+      ================================== */}
 
       <div className="resumen-detalle-operacion">
 
@@ -655,7 +810,8 @@ function DetalleOperacionPage() {
 
         <article
           className={
-            operacion.incidencias_activas > 0
+            operacion.incidencias_activas >
+            0
               ? "tarjeta-indicador-operacion alerta"
               : "tarjeta-indicador-operacion"
           }
@@ -680,7 +836,9 @@ function DetalleOperacionPage() {
       </div>
 
 
-      {/* PROGRESO */}
+      {/* ==================================
+          PROGRESO
+      ================================== */}
 
       <article className="glass-card tarjeta-progreso-operacion">
 
@@ -706,63 +864,78 @@ function DetalleOperacionPage() {
 
         <div className="linea-estados-operacion">
 
-          {estadosOperacion.map(
-            (
-              estado,
-              indice
-            ) => {
-
-              const completado =
-                indice <
-                indiceEstado;
-
-              const actual =
-                indice ===
-                indiceEstado;
+          {
+            estadosOperacion.map(
+              (
+                estado,
+                indice
+              ) => {
+                const completado =
+                  indice <
+                  indiceEstado;
 
 
-              return (
-                <div
-                  key={estado}
-                  className={
-                    actual
-                      ? "paso-operacion actual"
-                      : completado
-                        ? "paso-operacion completado"
-                        : "paso-operacion"
-                  }
-                >
+                const actual =
+                  indice ===
+                  indiceEstado;
 
-                  <div className="circulo-paso-operacion">
 
-                    {completado ? (
-                      <CheckCircle2
-                        size={16}
-                      />
-                    ) : (
-                      <span>
-                        {indice + 1}
-                      </span>
-                    )}
+                return (
+                  <div
+                    key={estado}
+                    className={
+                      actual
+                        ? "paso-operacion actual"
+                        : completado
+                          ? "paso-operacion completado"
+                          : "paso-operacion"
+                    }
+                  >
+
+                    <div className="circulo-paso-operacion">
+
+                      {
+                        completado
+                          ? (
+
+                            <CheckCircle2
+                              size={16}
+                            />
+
+                          )
+                          : (
+
+                            <span>
+                              {
+                                indice +
+                                1
+                              }
+                            </span>
+
+                          )
+                      }
+
+                    </div>
+
+
+                    <strong>
+                      {estado}
+                    </strong>
 
                   </div>
-
-
-                  <strong>
-                    {estado}
-                  </strong>
-
-                </div>
-              );
-            }
-          )}
+                );
+              }
+            )
+          }
 
         </div>
 
       </article>
 
 
-      {/* INFORMACION */}
+      {/* ==================================
+          INFORMACIÓN
+      ================================== */}
 
       <div className="rejilla-detalle-operacion">
 
@@ -903,7 +1076,9 @@ function DetalleOperacionPage() {
       </div>
 
 
-      {/* RUTA */}
+      {/* ==================================
+          RUTA
+      ================================== */}
 
       <article className="glass-card tarjeta-ruta-operacion">
 
@@ -984,7 +1159,9 @@ function DetalleOperacionPage() {
       </article>
 
 
-      {/* FECHAS */}
+      {/* ==================================
+          FECHAS
+      ================================== */}
 
       <article className="glass-card tarjeta-fechas-operacion">
 
@@ -1024,9 +1201,11 @@ function DetalleOperacionPage() {
               </span>
 
               <strong>
-                {formatearFechaHora(
-                  operacion.llegada_estimada
-                )}
+                {
+                  formatearFechaHora(
+                    operacion.llegada_estimada
+                  )
+                }
               </strong>
 
             </div>
@@ -1045,11 +1224,15 @@ function DetalleOperacionPage() {
                     : "fecha-real pendiente"
                 }
               >
-                {operacion.llegada_real
-                  ? formatearFechaHora(
-                    operacion.llegada_real
-                  )
-                  : "Pendiente"}
+
+                {
+                  operacion.llegada_real
+                    ? formatearFechaHora(
+                        operacion.llegada_real
+                      )
+                    : "Pendiente"
+                }
+
               </strong>
 
             </div>
@@ -1071,9 +1254,11 @@ function DetalleOperacionPage() {
               </span>
 
               <strong>
-                {formatearFechaHora(
-                  operacion.salida_estimada
-                )}
+                {
+                  formatearFechaHora(
+                    operacion.salida_estimada
+                  )
+                }
               </strong>
 
             </div>
@@ -1092,11 +1277,15 @@ function DetalleOperacionPage() {
                     : "fecha-real pendiente"
                 }
               >
-                {operacion.salida_real
-                  ? formatearFechaHora(
-                    operacion.salida_real
-                  )
-                  : "Pendiente"}
+
+                {
+                  operacion.salida_real
+                    ? formatearFechaHora(
+                        operacion.salida_real
+                      )
+                    : "Pendiente"
+                }
+
               </strong>
 
             </div>
@@ -1108,7 +1297,9 @@ function DetalleOperacionPage() {
       </article>
 
 
-      {/* OBSERVACIONES */}
+      {/* ==================================
+          OBSERVACIONES
+      ================================== */}
 
       <article className="glass-card tarjeta-observaciones-operacion">
 
@@ -1133,14 +1324,18 @@ function DetalleOperacionPage() {
 
 
         <p className="texto-observaciones-operacion">
-          {operacion.observaciones ||
-            "No se registraron observaciones para esta operación."}
+          {
+            operacion.observaciones ||
+            "No se registraron observaciones para esta operación."
+          }
         </p>
 
       </article>
 
 
-      {/* REGISTRO */}
+      {/* ==================================
+          REGISTRO
+      ================================== */}
 
       <article className="glass-card tarjeta-registro-operacion">
 
@@ -1151,9 +1346,11 @@ function DetalleOperacionPage() {
           </span>
 
           <strong>
-            {formatearFecha(
-              operacion.fecha_creacion
-            )}
+            {
+              formatearFecha(
+                operacion.fecha_creacion
+              )
+            }
           </strong>
 
         </div>
@@ -1166,9 +1363,11 @@ function DetalleOperacionPage() {
           </span>
 
           <strong>
-            {formatearFecha(
-              operacion.fecha_actualizacion
-            )}
+            {
+              formatearFecha(
+                operacion.fecha_actualizacion
+              )
+            }
           </strong>
 
         </div>
@@ -1189,107 +1388,21 @@ function DetalleOperacionPage() {
       </article>
 
 
-      {/* MODAL LLEGADA */}
+      {/* ==================================
+          MODAL LLEGADA
+      ================================== */}
 
-      {mostrarModalLlegada && (
+      {
+        puedeGestionarOperacion &&
+        mostrarModalLlegada && (
 
-        <div className="fondo-modal-operacion">
+          <div className="fondo-modal-operacion">
 
-          <div className="modal-evento-operacion">
-
-            <button
-              type="button"
-              className="cerrar-modal-operacion"
-              onClick={
-                cerrarModalLlegada
-              }
-              disabled={
-                guardandoEvento
-              }
-            >
-              <X size={19} />
-            </button>
-
-
-            <div className="icono-modal-operacion llegada">
-              <CalendarClock
-                size={27}
-              />
-            </div>
-
-
-            <h2>
-              Registrar llegada real
-            </h2>
-
-
-            <p>
-              Registre la fecha y hora
-              en que el buque llegó
-              realmente al puerto.
-            </p>
-
-
-            <div className="resumen-evento-operacion">
-
-              <span>
-                Operación
-              </span>
-
-              <strong>
-                {operacion.codigo}
-              </strong>
-
-
-              <span>
-                Buque
-              </span>
-
-              <strong>
-                {operacion.buque}
-              </strong>
-
-            </div>
-
-
-            <div className="campo-modal-operacion">
-
-              <label htmlFor="fechaLlegada">
-                Fecha y hora real
-              </label>
-
-
-              <input
-                id="fechaLlegada"
-                type="datetime-local"
-                value={
-                  fechaLlegada
-                }
-                max={
-                  obtenerFechaHoraActualInput()
-                }
-                onChange={(evento) =>
-                  setFechaLlegada(
-                    evento.target.value
-                  )
-                }
-              />
-
-            </div>
-
-
-            {errorEvento && (
-              <div className="error-modal-operacion">
-                {errorEvento}
-              </div>
-            )}
-
-
-            <div className="acciones-modal-operacion">
+            <div className="modal-evento-operacion">
 
               <button
                 type="button"
-                className="boton-cancelar-modal-operacion"
+                className="cerrar-modal-operacion"
                 onClick={
                   cerrarModalLlegada
                 }
@@ -1297,160 +1410,169 @@ function DetalleOperacionPage() {
                   guardandoEvento
                 }
               >
-                Cancelar
+                <X size={19} />
               </button>
 
 
-              <button
-                type="button"
-                className="boton-confirmar-modal-operacion"
-                onClick={
-                  confirmarLlegada
-                }
-                disabled={
-                  guardandoEvento
-                }
-              >
+              <div className="icono-modal-operacion llegada">
 
-                {guardandoEvento ? (
-                  <>
-                    <LoaderCircle
-                      size={17}
-                      className="icono-cargando-evento-operacion"
-                    />
+                <CalendarClock
+                  size={27}
+                />
 
-                    Registrando...
-                  </>
-                ) : (
-                  <>
-                    <CalendarClock
-                      size={17}
-                    />
+              </div>
 
-                    Confirmar llegada
-                  </>
-                )}
 
-              </button>
+              <h2>
+                Registrar llegada real
+              </h2>
+
+
+              <p>
+                Registre la fecha y hora
+                en que el buque llegó
+                realmente al puerto.
+              </p>
+
+
+              <div className="resumen-evento-operacion">
+
+                <span>
+                  Operación
+                </span>
+
+                <strong>
+                  {operacion.codigo}
+                </strong>
+
+
+                <span>
+                  Buque
+                </span>
+
+                <strong>
+                  {operacion.buque}
+                </strong>
+
+              </div>
+
+
+              <div className="campo-modal-operacion">
+
+                <label htmlFor="fechaLlegada">
+                  Fecha y hora real
+                </label>
+
+
+                <input
+                  id="fechaLlegada"
+                  type="datetime-local"
+                  value={
+                    fechaLlegada
+                  }
+                  max={
+                    obtenerFechaHoraActualInput()
+                  }
+                  onChange={(evento) =>
+                    setFechaLlegada(
+                      evento.target.value
+                    )
+                  }
+                />
+
+              </div>
+
+
+              {errorEvento && (
+
+                <div className="error-modal-operacion">
+                  {errorEvento}
+                </div>
+
+              )}
+
+
+              <div className="acciones-modal-operacion">
+
+                <button
+                  type="button"
+                  className="boton-cancelar-modal-operacion"
+                  onClick={
+                    cerrarModalLlegada
+                  }
+                  disabled={
+                    guardandoEvento
+                  }
+                >
+                  Cancelar
+                </button>
+
+
+                <button
+                  type="button"
+                  className="boton-confirmar-modal-operacion"
+                  onClick={
+                    confirmarLlegada
+                  }
+                  disabled={
+                    guardandoEvento
+                  }
+                >
+
+                  {
+                    guardandoEvento
+                      ? (
+                        <>
+
+                          <LoaderCircle
+                            size={17}
+                            className="icono-cargando-evento-operacion"
+                          />
+
+                          Registrando...
+
+                        </>
+                      )
+                      : (
+                        <>
+
+                          <CalendarClock
+                            size={17}
+                          />
+
+                          Confirmar llegada
+
+                        </>
+                      )
+                  }
+
+                </button>
+
+              </div>
 
             </div>
 
           </div>
 
-        </div>
-
-      )}
-
-
-      {/* MODAL SALIDA */}
-
-      {mostrarModalSalida && (
-
-        <div className="fondo-modal-operacion">
-
-          <div className="modal-evento-operacion">
-
-            <button
-              type="button"
-              className="cerrar-modal-operacion"
-              onClick={
-                cerrarModalSalida
-              }
-              disabled={
-                guardandoEvento
-              }
-            >
-              <X size={19} />
-            </button>
+        )
+      }
 
 
-            <div className="icono-modal-operacion salida">
-              <CheckCircle2
-                size={27}
-              />
-            </div>
+      {/* ==================================
+          MODAL SALIDA
+      ================================== */}
 
+      {
+        puedeGestionarOperacion &&
+        mostrarModalSalida && (
 
-            <h2>
-              Registrar salida
-            </h2>
+          <div className="fondo-modal-operacion">
 
-
-            <p>
-              Registre la salida real
-              del buque. Al confirmar,
-              la operación quedará
-              finalizada.
-            </p>
-
-
-            <div className="resumen-evento-operacion">
-
-              <span>
-                Operación
-              </span>
-
-              <strong>
-                {operacion.codigo}
-              </strong>
-
-
-              <span>
-                Llegada real
-              </span>
-
-              <strong>
-                {formatearFechaHora(
-                  operacion.llegada_real
-                )}
-              </strong>
-
-            </div>
-
-
-            <div className="campo-modal-operacion">
-
-              <label htmlFor="fechaSalida">
-                Fecha y hora real
-              </label>
-
-
-              <input
-                id="fechaSalida"
-                type="datetime-local"
-                value={
-                  fechaSalida
-                }
-                min={
-                  convertirFechaParaInput(
-                    operacion.llegada_real
-                  )
-                }
-                max={
-                  obtenerFechaHoraActualInput()
-                }
-                onChange={(evento) =>
-                  setFechaSalida(
-                    evento.target.value
-                  )
-                }
-              />
-
-            </div>
-
-
-            {errorEvento && (
-              <div className="error-modal-operacion">
-                {errorEvento}
-              </div>
-            )}
-
-
-            <div className="acciones-modal-operacion">
+            <div className="modal-evento-operacion">
 
               <button
                 type="button"
-                className="boton-cancelar-modal-operacion"
+                className="cerrar-modal-operacion"
                 onClick={
                   cerrarModalSalida
                 }
@@ -1458,49 +1580,162 @@ function DetalleOperacionPage() {
                   guardandoEvento
                 }
               >
-                Cancelar
+                <X size={19} />
               </button>
 
 
-              <button
-                type="button"
-                className="boton-confirmar-modal-operacion finalizar"
-                onClick={
-                  confirmarSalida
-                }
-                disabled={
-                  guardandoEvento
-                }
-              >
+              <div className="icono-modal-operacion salida">
 
-                {guardandoEvento ? (
-                  <>
-                    <LoaderCircle
-                      size={17}
-                      className="icono-cargando-evento-operacion"
-                    />
+                <CheckCircle2
+                  size={27}
+                />
 
-                    Finalizando...
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2
-                      size={17}
-                    />
+              </div>
 
-                    Registrar y finalizar
-                  </>
-                )}
 
-              </button>
+              <h2>
+                Registrar salida
+              </h2>
+
+
+              <p>
+                Registre la salida real
+                del buque. Al confirmar,
+                la operación quedará
+                finalizada.
+              </p>
+
+
+              <div className="resumen-evento-operacion">
+
+                <span>
+                  Operación
+                </span>
+
+                <strong>
+                  {operacion.codigo}
+                </strong>
+
+
+                <span>
+                  Llegada real
+                </span>
+
+                <strong>
+                  {
+                    formatearFechaHora(
+                      operacion.llegada_real
+                    )
+                  }
+                </strong>
+
+              </div>
+
+
+              <div className="campo-modal-operacion">
+
+                <label htmlFor="fechaSalida">
+                  Fecha y hora real
+                </label>
+
+
+                <input
+                  id="fechaSalida"
+                  type="datetime-local"
+                  value={
+                    fechaSalida
+                  }
+                  min={
+                    convertirFechaParaInput(
+                      operacion.llegada_real
+                    )
+                  }
+                  max={
+                    obtenerFechaHoraActualInput()
+                  }
+                  onChange={(evento) =>
+                    setFechaSalida(
+                      evento.target.value
+                    )
+                  }
+                />
+
+              </div>
+
+
+              {errorEvento && (
+
+                <div className="error-modal-operacion">
+                  {errorEvento}
+                </div>
+
+              )}
+
+
+              <div className="acciones-modal-operacion">
+
+                <button
+                  type="button"
+                  className="boton-cancelar-modal-operacion"
+                  onClick={
+                    cerrarModalSalida
+                  }
+                  disabled={
+                    guardandoEvento
+                  }
+                >
+                  Cancelar
+                </button>
+
+
+                <button
+                  type="button"
+                  className="boton-confirmar-modal-operacion finalizar"
+                  onClick={
+                    confirmarSalida
+                  }
+                  disabled={
+                    guardandoEvento
+                  }
+                >
+
+                  {
+                    guardandoEvento
+                      ? (
+                        <>
+
+                          <LoaderCircle
+                            size={17}
+                            className="icono-cargando-evento-operacion"
+                          />
+
+                          Finalizando...
+
+                        </>
+                      )
+                      : (
+                        <>
+
+                          <CheckCircle2
+                            size={17}
+                          />
+
+                          Registrar y finalizar
+
+                        </>
+                      )
+                  }
+
+                </button>
+
+              </div>
 
             </div>
 
           </div>
 
-        </div>
-
-      )}
+        )
+      }
 
     </section>
   );

@@ -22,9 +22,7 @@ function responderErrorInspeccion(
   );
 
 
-  /*
-   * Código duplicado.
-   */
+  /* Código duplicado */
 
   if (
     error.code === "23505"
@@ -33,15 +31,14 @@ function responderErrorInspeccion(
       409
     ).json({
       ok: false,
+
       mensaje:
         "Ya existe una inspección con ese código.",
     });
   }
 
 
-  /*
-   * Restricción de llave foránea.
-   */
+  /* Restricción de llave foránea */
 
   if (
     error.code === "23503"
@@ -50,15 +47,14 @@ function responderErrorInspeccion(
       409
     ).json({
       ok: false,
+
       mensaje:
         "No se puede realizar esta acción porque la inspección tiene registros relacionados.",
     });
   }
 
 
-  /*
-   * CHECK de PostgreSQL.
-   */
+  /* CHECK de PostgreSQL */
 
   if (
     error.code === "23514"
@@ -67,6 +63,7 @@ function responderErrorInspeccion(
       400
     ).json({
       ok: false,
+
       mensaje:
         "Uno de los valores enviados no cumple las reglas de la base de datos.",
     });
@@ -199,7 +196,8 @@ export async function crearInspeccion(
   try {
     const inspeccion =
       await registrarInspeccion(
-        req.body
+        req.body,
+        req.usuario?.id_usuario
       );
 
 
@@ -236,7 +234,8 @@ export async function actualizarInspeccion(
     const inspeccion =
       await editarInspeccion(
         req.params.id,
-        req.body
+        req.body,
+        req.usuario?.id_usuario
       );
 
 
@@ -272,7 +271,8 @@ export async function borrarInspeccion(
   try {
     const inspeccion =
       await eliminarInspeccion(
-        req.params.id
+        req.params.id,
+        req.usuario?.id_usuario
       );
 
 

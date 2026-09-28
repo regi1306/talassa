@@ -14,7 +14,6 @@ export async function iniciarSesion(
   identificador,
   password
 ) {
-
   const usuario =
     await buscarUsuarioPorLogin(
       identificador
@@ -22,7 +21,6 @@ export async function iniciarSesion(
 
 
   if (!usuario) {
-
     const error =
       new Error(
         "Usuario o contraseña incorrectos."
@@ -35,7 +33,6 @@ export async function iniciarSesion(
 
 
   if (!usuario.activo) {
-
     const error =
       new Error(
         "La cuenta se encuentra inactiva."
@@ -55,7 +52,6 @@ export async function iniciarSesion(
 
 
   if (!passwordValida) {
-
     const error =
       new Error(
         "Usuario o contraseña incorrectos."
@@ -102,10 +98,11 @@ export async function iniciarSesion(
     usuario.id_usuario
   );
 
+
   const permisos =
-  await obtenerPermisosPorRol(
-    usuario.id_rol
-  );
+    await obtenerPermisosPorRol(
+      usuario.id_rol
+    );
 
 
   return {
@@ -168,6 +165,7 @@ export async function obtenerPerfil(
 
   return {
     ...usuario,
+
     permisos,
   };
 }

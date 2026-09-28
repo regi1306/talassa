@@ -144,11 +144,17 @@ function AppRoutes() {
           PANTALLAS PÚBLICAS
       ====================================== */}
 
-      <Route element={<AuthLayout />}>
+      <Route
+        element={
+          <AuthLayout />
+        }
+      >
 
         <Route
           path="/login"
-          element={<LoginPage />}
+          element={
+            <LoginPage />
+          }
         />
 
       </Route>
@@ -158,10 +164,17 @@ function AppRoutes() {
           USUARIO AUTENTICADO
       ====================================== */}
 
-      <Route element={<ProtectedRoute />}>
+      <Route
+        element={
+          <ProtectedRoute />
+        }
+      >
 
-        <Route element={<MainLayout />}>
-
+        <Route
+          element={
+            <MainLayout />
+          }
+        >
 
           {/* ==================================
               DASHBOARD
@@ -177,7 +190,9 @@ function AppRoutes() {
 
             <Route
               path="/dashboard"
-              element={<DashboardPage />}
+              element={
+                <DashboardPage />
+              }
             />
 
           </Route>
@@ -185,14 +200,13 @@ function AppRoutes() {
 
           {/* ==================================
               PERFIL
-
-              Todo usuario autenticado puede
-              consultar su propio perfil.
           ================================== */}
 
           <Route
             path="/perfil"
-            element={<PerfilPage />}
+            element={
+              <PerfilPage />
+            }
           />
 
 
@@ -210,12 +224,16 @@ function AppRoutes() {
 
             <Route
               path="/buques"
-              element={<BuquesPage />}
+              element={
+                <BuquesPage />
+              }
             />
 
             <Route
               path="/buques/:id"
-              element={<DetalleBuquePage />}
+              element={
+                <DetalleBuquePage />
+              }
             />
 
           </Route>
@@ -380,7 +398,9 @@ function AppRoutes() {
 
             <Route
               path="/usuarios"
-              element={<UsuariosPage />}
+              element={
+                <UsuariosPage />
+              }
             />
 
           </Route>
@@ -466,7 +486,9 @@ function AppRoutes() {
 
             <Route
               path="/empresas"
-              element={<EmpresasPage />}
+              element={
+                <EmpresasPage />
+              }
             />
 
           </Route>
@@ -537,12 +559,16 @@ function AppRoutes() {
 
             <Route
               path="/muelles"
-              element={<MuellesPage />}
+              element={
+                <MuellesPage />
+              }
             />
 
             <Route
               path="/muelles/:id/ver"
-              element={<MuelleFormPage />}
+              element={
+                <MuelleFormPage />
+              }
             />
 
           </Route>
@@ -562,12 +588,16 @@ function AppRoutes() {
 
             <Route
               path="/muelles/nuevo"
-              element={<MuelleFormPage />}
+              element={
+                <MuelleFormPage />
+              }
             />
 
             <Route
               path="/muelles/:id/editar"
-              element={<MuelleFormPage />}
+              element={
+                <MuelleFormPage />
+              }
             />
 
             <Route
@@ -594,7 +624,16 @@ function AppRoutes() {
 
             <Route
               path="/inspecciones"
-              element={<InspeccionesPage />}
+              element={
+                <InspeccionesPage />
+              }
+            />
+
+            <Route
+              path="/inspecciones/:id/ver"
+              element={
+                <InspeccionFormPage />
+              }
             />
 
           </Route>
@@ -685,7 +724,6 @@ function AppRoutes() {
             />
 
           </Route>
-
 
         </Route>
 

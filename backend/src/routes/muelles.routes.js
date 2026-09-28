@@ -10,9 +10,22 @@ import {
   obtenerMuelles,
 } from "../controllers/muelles.controller.js";
 
+import {
+  verificarToken,
+} from "../middlewares/auth.middleware.js";
+
 
 const router =
   Router();
+
+
+/* ======================================
+   TODAS LAS RUTAS REQUIEREN SESIÓN
+====================================== */
+
+router.use(
+  verificarToken
+);
 
 
 /* ======================================

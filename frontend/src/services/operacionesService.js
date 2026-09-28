@@ -1,6 +1,45 @@
+import {
+  obtenerToken,
+} from "./auth.service.js";
+
+
 const URL_API =
   "http://localhost:3000/api";
 
+
+/* ======================================
+   HEADERS
+====================================== */
+
+function obtenerHeaders(
+  incluirJson = false
+) {
+  const token =
+    obtenerToken();
+
+
+  const headers = {};
+
+
+  if (incluirJson) {
+    headers["Content-Type"] =
+      "application/json";
+  }
+
+
+  if (token) {
+    headers.Authorization =
+      `Bearer ${token}`;
+  }
+
+
+  return headers;
+}
+
+
+/* ======================================
+   PROCESAR RESPUESTA
+====================================== */
 
 async function procesarRespuesta(
   respuesta
@@ -8,63 +47,100 @@ async function procesarRespuesta(
   const resultado =
     await respuesta.json();
 
+
   if (!respuesta.ok) {
     throw new Error(
       resultado.mensaje ||
+      resultado.message ||
       "Ocurrió un error al procesar la solicitud."
     );
   }
+
 
   return resultado;
 }
 
 
+/* ======================================
+   LISTAR OPERACIONES
+====================================== */
+
 export async function obtenerOperaciones() {
   const respuesta =
     await fetch(
-      `${URL_API}/operaciones`
+      `${URL_API}/operaciones`,
+      {
+        headers:
+          obtenerHeaders(),
+      }
     );
+
 
   const resultado =
     await procesarRespuesta(
       respuesta
     );
 
+
   return resultado.datos;
 }
 
+
+/* ======================================
+   OBTENER DETALLE
+====================================== */
 
 export async function obtenerOperacionPorId(
   idOperacion
 ) {
   const respuesta =
     await fetch(
-      `${URL_API}/operaciones/${idOperacion}`
+      `${URL_API}/operaciones/${idOperacion}`,
+      {
+        headers:
+          obtenerHeaders(),
+      }
     );
+
 
   const resultado =
     await procesarRespuesta(
       respuesta
     );
 
+
   return resultado.datos;
 }
 
+
+/* ======================================
+   OPCIONES DEL FORMULARIO
+====================================== */
 
 export async function obtenerOpcionesFormularioOperacion() {
   const respuesta =
     await fetch(
-      `${URL_API}/operaciones/opciones-formulario`
+      `${URL_API}/operaciones/opciones-formulario`,
+      {
+        headers:
+          obtenerHeaders(),
+      }
     );
+
 
   const resultado =
     await procesarRespuesta(
       respuesta
     );
 
+
   return resultado.datos;
 }
 
+
+/* ======================================
+   REGISTRAR OPERACIÓN
+====================================== */
 
 export async function registrarOperacion(
   datosOperacion
@@ -75,14 +151,15 @@ export async function registrarOperacion(
       {
         method: "POST",
 
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
+        headers:
+          obtenerHeaders(
+            true
+          ),
 
-        body: JSON.stringify(
-          datosOperacion
-        ),
+        body:
+          JSON.stringify(
+            datosOperacion
+          ),
       }
     );
 
@@ -91,6 +168,11 @@ export async function registrarOperacion(
     respuesta
   );
 }
+
+
+/* ======================================
+   ACTUALIZAR OPERACIÓN
+====================================== */
 
 export async function actualizarOperacion(
   idOperacion,
@@ -102,21 +184,28 @@ export async function actualizarOperacion(
       {
         method: "PUT",
 
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
+        headers:
+          obtenerHeaders(
+            true
+          ),
 
-        body: JSON.stringify(
-          datosOperacion
-        ),
+        body:
+          JSON.stringify(
+            datosOperacion
+          ),
       }
     );
+
 
   return await procesarRespuesta(
     respuesta
   );
 }
+
+
+/* ======================================
+   REGISTRAR LLEGADA
+====================================== */
 
 export async function registrarLlegadaOperacion(
   idOperacion,
@@ -128,23 +217,29 @@ export async function registrarLlegadaOperacion(
       {
         method: "PATCH",
 
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
+        headers:
+          obtenerHeaders(
+            true
+          ),
 
-        body: JSON.stringify({
-          llegada_real:
-            llegadaReal,
-        }),
+        body:
+          JSON.stringify({
+            llegada_real:
+              llegadaReal,
+          }),
       }
     );
+
 
   return await procesarRespuesta(
     respuesta
   );
 }
 
+
+/* ======================================
+   REGISTRAR SALIDA
+====================================== */
 
 export async function registrarSalidaOperacion(
   idOperacion,
@@ -156,17 +251,19 @@ export async function registrarSalidaOperacion(
       {
         method: "PATCH",
 
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
+        headers:
+          obtenerHeaders(
+            true
+          ),
 
-        body: JSON.stringify({
-          salida_real:
-            salidaReal,
-        }),
+        body:
+          JSON.stringify({
+            salida_real:
+              salidaReal,
+          }),
       }
     );
+
 
   return await procesarRespuesta(
     respuesta

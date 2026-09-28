@@ -1,8 +1,36 @@
 import axios from "axios";
 
+import {
+  obtenerToken,
+} from "./auth.service.js";
+
 
 const API_URL =
   "http://localhost:3000/api/muelles";
+
+
+/* ======================================
+   CONFIGURACIÓN AUTENTICADA
+====================================== */
+
+function obtenerConfiguracion() {
+  const token =
+    obtenerToken();
+
+
+  const headers = {};
+
+
+  if (token) {
+    headers.Authorization =
+      `Bearer ${token}`;
+  }
+
+
+  return {
+    headers,
+  };
+}
 
 
 /* ======================================
@@ -11,7 +39,11 @@ const API_URL =
 
 export async function obtenerMuelles() {
   const respuesta =
-    await axios.get(API_URL);
+    await axios.get(
+      API_URL,
+      obtenerConfiguracion()
+    );
+
 
   return respuesta.data;
 }
@@ -26,8 +58,10 @@ export async function obtenerMuellePorId(
 ) {
   const respuesta =
     await axios.get(
-      `${API_URL}/${idMuelle}`
+      `${API_URL}/${idMuelle}`,
+      obtenerConfiguracion()
     );
+
 
   return respuesta.data;
 }
@@ -43,8 +77,10 @@ export async function crearMuelle(
   const respuesta =
     await axios.post(
       API_URL,
-      datosMuelle
+      datosMuelle,
+      obtenerConfiguracion()
     );
+
 
   return respuesta.data;
 }
@@ -61,8 +97,10 @@ export async function actualizarMuelle(
   const respuesta =
     await axios.put(
       `${API_URL}/${idMuelle}`,
-      datosMuelle
+      datosMuelle,
+      obtenerConfiguracion()
     );
+
 
   return respuesta.data;
 }
@@ -77,8 +115,10 @@ export async function eliminarMuelle(
 ) {
   const respuesta =
     await axios.delete(
-      `${API_URL}/${idMuelle}`
+      `${API_URL}/${idMuelle}`,
+      obtenerConfiguracion()
     );
+
 
   return respuesta.data;
 }

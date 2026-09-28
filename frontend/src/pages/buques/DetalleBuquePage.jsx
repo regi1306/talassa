@@ -31,14 +31,35 @@ import {
   obtenerBuquePorId,
 } from "../../services/buquesService.js";
 
+import {
+  tienePermiso,
+} from "../../services/auth.service.js";
+
 import "../../styles/detalleBuque.css";
 
 
 function DetalleBuquePage() {
-  const navigate = useNavigate();
+  const navigate =
+    useNavigate();
 
-  const { id } = useParams();
 
+  const { id } =
+    useParams();
+
+
+  /* ======================================
+     PERMISOS
+  ====================================== */
+
+  const puedeGestionar =
+    tienePermiso(
+      "BUQ_GESTIONAR"
+    );
+
+
+  /* ======================================
+     ESTADOS
+  ====================================== */
 
   const [
     buque,
@@ -82,38 +103,63 @@ function DetalleBuquePage() {
   ] = useState("");
 
 
+  /* ======================================
+     CARGAR DETALLE
+  ====================================== */
+
   useEffect(() => {
     async function cargarDetalle() {
       try {
-        setCargando(true);
+        setCargando(
+          true
+        );
 
-        setError("");
+        setError(
+          ""
+        );
+
 
         const resultado =
-          await obtenerBuquePorId(id);
+          await obtenerBuquePorId(
+            id
+          );
+
 
         setBuque(
           resultado.buque
         );
 
+
         setOperaciones(
-          resultado.operaciones || []
+          resultado.operaciones ||
+          []
         );
+
       } catch (error) {
         setError(
           error.message
         );
+
       } finally {
-        setCargando(false);
+        setCargando(
+          false
+        );
       }
     }
 
 
     cargarDetalle();
+
   }, [id]);
 
 
-  function formatearMedida(valor) {
+  /* ======================================
+     MEDIDAS
+  ====================================== */
+
+  function formatearMedida(
+    valor
+  ) {
     if (
       valor === null ||
       valor === undefined ||
@@ -122,14 +168,26 @@ function DetalleBuquePage() {
       return "No registrada";
     }
 
-    return `${Number(valor).toFixed(2)} m`;
+
+    return `${Number(
+      valor
+    ).toFixed(
+      2
+    )} m`;
   }
 
 
-  function formatearFecha(fecha) {
+  /* ======================================
+     FECHA
+  ====================================== */
+
+  function formatearFecha(
+    fecha
+  ) {
     if (!fecha) {
       return "—";
     }
+
 
     return new Intl.DateTimeFormat(
       "es-SV",
@@ -139,15 +197,20 @@ function DetalleBuquePage() {
         year: "numeric",
       }
     ).format(
-      new Date(fecha)
+      new Date(
+        fecha
+      )
     );
   }
 
 
-  function formatearFechaHora(fecha) {
+  function formatearFechaHora(
+    fecha
+  ) {
     if (!fecha) {
       return "—";
     }
+
 
     return new Intl.DateTimeFormat(
       "es-SV",
@@ -159,16 +222,26 @@ function DetalleBuquePage() {
         minute: "2-digit",
       }
     ).format(
-      new Date(fecha)
+      new Date(
+        fecha
+      )
     );
   }
 
 
+  /* ======================================
+     CAMBIAR ESTADO
+  ====================================== */
+
   async function confirmarCambioEstado() {
     try {
-      setCambiandoEstado(true);
+      setCambiandoEstado(
+        true
+      );
 
-      setErrorEstado("");
+      setErrorEstado(
+        ""
+      );
 
 
       const buqueActualizado =
@@ -183,16 +256,26 @@ function DetalleBuquePage() {
       );
 
 
-      setMostrarModalEstado(false);
+      setMostrarModalEstado(
+        false
+      );
+
     } catch (error) {
       setErrorEstado(
         error.message
       );
+
     } finally {
-      setCambiandoEstado(false);
+      setCambiandoEstado(
+        false
+      );
     }
   }
 
+
+  /* ======================================
+     CARGANDO
+  ====================================== */
 
   if (cargando) {
     return (
@@ -216,7 +299,14 @@ function DetalleBuquePage() {
   }
 
 
-  if (error || !buque) {
+  /* ======================================
+     ERROR
+  ====================================== */
+
+  if (
+    error ||
+    !buque
+  ) {
     return (
       <section className="pagina-detalle-buque">
 
@@ -224,12 +314,16 @@ function DetalleBuquePage() {
           type="button"
           className="boton-volver-detalle"
           onClick={() =>
-            navigate("/buques")
+            navigate(
+              "/buques"
+            )
           }
         >
+
           <ArrowLeft size={18} />
 
           Volver a Buques
+
         </button>
 
 
@@ -242,8 +336,10 @@ function DetalleBuquePage() {
           </h2>
 
           <p>
-            {error ||
-              "La información solicitada no está disponible."}
+            {
+              error ||
+              "La información solicitada no está disponible."
+            }
           </p>
 
         </div>
@@ -256,22 +352,31 @@ function DetalleBuquePage() {
   return (
     <section className="pagina-detalle-buque">
 
-      {/* VOLVER */}
+
+      {/* ==================================
+          VOLVER
+      ================================== */}
 
       <button
         type="button"
         className="boton-volver-detalle"
         onClick={() =>
-          navigate("/buques")
+          navigate(
+            "/buques"
+          )
         }
       >
+
         <ArrowLeft size={18} />
 
         Volver a Buques
+
       </button>
 
 
-      {/* ENCABEZADO */}
+      {/* ==================================
+          ENCABEZADO
+      ================================== */}
 
       <div className="encabezado-detalle-buque">
 
@@ -298,11 +403,15 @@ function DetalleBuquePage() {
                     : "estado-detalle-buque inactivo"
                 }
               >
+
                 <i />
 
-                {buque.activo
-                  ? "Activo"
-                  : "Inactivo"}
+                {
+                  buque.activo
+                    ? "Activo"
+                    : "Inactivo"
+                }
+
               </span>
 
             </div>
@@ -319,54 +428,74 @@ function DetalleBuquePage() {
         </div>
 
 
-        <div className="acciones-encabezado-detalle">
+        {/* ==================================
+            ACCIONES
+        ================================== */}
 
-          <button
-            type="button"
-            className="boton-editar-detalle"
-            onClick={() =>
-              navigate(
-                `/buques/${buque.id_buque}/editar`
-              )
-            }
-          >
-            <Edit3 size={18} />
+        {puedeGestionar && (
 
-            Editar buque
-          </button>
+          <div className="acciones-encabezado-detalle">
+
+            <button
+              type="button"
+              className="boton-editar-detalle"
+              onClick={() =>
+                navigate(
+                  `/buques/${buque.id_buque}/editar`
+                )
+              }
+            >
+
+              <Edit3 size={18} />
+
+              Editar buque
+
+            </button>
 
 
-          <button
-            type="button"
-            className={
-              buque.activo
-                ? "boton-estado-detalle desactivar"
-                : "boton-estado-detalle reactivar"
-            }
-            onClick={() => {
-              setErrorEstado("");
+            <button
+              type="button"
+              className={
+                buque.activo
+                  ? "boton-estado-detalle desactivar"
+                  : "boton-estado-detalle reactivar"
+              }
+              onClick={() => {
+                setErrorEstado(
+                  ""
+                );
 
-              setMostrarModalEstado(true);
-            }}
-          >
-            <Power size={18} />
+                setMostrarModalEstado(
+                  true
+                );
+              }}
+            >
 
-            {buque.activo
-              ? "Desactivar"
-              : "Reactivar"}
-          </button>
+              <Power size={18} />
 
-        </div>
+              {
+                buque.activo
+                  ? "Desactivar"
+                  : "Reactivar"
+              }
+
+            </button>
+
+          </div>
+
+        )}
 
       </div>
 
 
-      {/* INFORMACION */}
+      {/* ==================================
+          INFORMACIÓN
+      ================================== */}
 
       <div className="rejilla-detalle-buque">
 
 
-        {/* INFORMACION GENERAL */}
+        {/* INFORMACIÓN GENERAL */}
 
         <article className="glass-card tarjeta-detalle-buque">
 
@@ -424,9 +553,11 @@ function DetalleBuquePage() {
 
 
                 {buque.pais_empresa && (
+
                   <small>
                     {buque.pais_empresa}
                   </small>
+
                 )}
 
               </div>
@@ -470,8 +601,10 @@ function DetalleBuquePage() {
                 </span>
 
                 <strong>
-                  {buque.bandera ||
-                    "No registrada"}
+                  {
+                    buque.bandera ||
+                    "No registrada"
+                  }
                 </strong>
 
               </div>
@@ -483,7 +616,7 @@ function DetalleBuquePage() {
         </article>
 
 
-        {/* CARACTERISTICAS FISICAS */}
+        {/* CARACTERÍSTICAS FÍSICAS */}
 
         <article className="glass-card tarjeta-detalle-buque">
 
@@ -507,9 +640,11 @@ function DetalleBuquePage() {
               </span>
 
               <strong>
-                {formatearMedida(
-                  buque.eslora_m
-                )}
+                {
+                  formatearMedida(
+                    buque.eslora_m
+                  )
+                }
               </strong>
 
               <small>
@@ -526,9 +661,11 @@ function DetalleBuquePage() {
               </span>
 
               <strong>
-                {formatearMedida(
-                  buque.manga_m
-                )}
+                {
+                  formatearMedida(
+                    buque.manga_m
+                  )
+                }
               </strong>
 
               <small>
@@ -545,9 +682,11 @@ function DetalleBuquePage() {
               </span>
 
               <strong>
-                {formatearMedida(
-                  buque.calado_m
-                )}
+                {
+                  formatearMedida(
+                    buque.calado_m
+                  )
+                }
               </strong>
 
               <small>
@@ -576,7 +715,9 @@ function DetalleBuquePage() {
       </div>
 
 
-      {/* INFORMACION DEL REGISTRO */}
+      {/* ==================================
+          INFORMACIÓN DEL REGISTRO
+      ================================== */}
 
       <article className="glass-card tarjeta-registro-buque">
 
@@ -600,9 +741,11 @@ function DetalleBuquePage() {
             </span>
 
             <strong>
-              {formatearFecha(
-                buque.fecha_creacion
-              )}
+              {
+                formatearFecha(
+                  buque.fecha_creacion
+                )
+              }
             </strong>
 
           </div>
@@ -615,9 +758,11 @@ function DetalleBuquePage() {
             </span>
 
             <strong>
-              {formatearFecha(
-                buque.fecha_actualizacion
-              )}
+              {
+                formatearFecha(
+                  buque.fecha_actualizacion
+                )
+              }
             </strong>
 
           </div>
@@ -630,9 +775,11 @@ function DetalleBuquePage() {
             </span>
 
             <strong>
-              {buque.activo
-                ? "Activo"
-                : "Inactivo"}
+              {
+                buque.activo
+                  ? "Activo"
+                  : "Inactivo"
+              }
             </strong>
 
           </div>
@@ -642,7 +789,9 @@ function DetalleBuquePage() {
       </article>
 
 
-      {/* OPERACIONES */}
+      {/* ==================================
+          OPERACIONES
+      ================================== */}
 
       <article className="glass-card tarjeta-operaciones-buque">
 
@@ -663,252 +812,315 @@ function DetalleBuquePage() {
             {operaciones.length}
             {" "}
             operación
-            {operaciones.length !== 1
-              ? "es"
-              : ""}
+            {
+              operaciones.length !==
+              1
+                ? "es"
+                : ""
+            }
           </span>
 
         </div>
 
 
-        {operaciones.length === 0 ? (
+        {
+          operaciones.length ===
+          0
 
-          <div className="sin-operaciones-buque">
+            ? (
 
-            <Ship size={30} />
+              <div className="sin-operaciones-buque">
 
-            <strong>
-              Sin operaciones registradas
-            </strong>
+                <Ship size={30} />
 
-            <p>
-              Este buque todavía no posee
-              operaciones portuarias asociadas.
-            </p>
+                <strong>
+                  Sin operaciones registradas
+                </strong>
 
-          </div>
+                <p>
+                  Este buque todavía no posee
+                  operaciones portuarias asociadas.
+                </p>
 
-        ) : (
+              </div>
 
-          <div className="contenedor-tabla-operaciones-buque">
+            )
 
-            <table className="tabla-operaciones-buque">
+            : (
 
-              <thead>
+              <div className="contenedor-tabla-operaciones-buque">
 
-                <tr>
-                  <th>Código</th>
-                  <th>Carga</th>
-                  <th>Ruta</th>
-                  <th>Llegada estimada</th>
-                  <th>Muelle</th>
-                  <th>Estado</th>
-                </tr>
+                <table className="tabla-operaciones-buque">
 
-              </thead>
+                  <thead>
 
-
-              <tbody>
-
-                {operaciones.map(
-                  (operacion) => (
-
-                    <tr
-                      key={
-                        operacion.id_operacion
-                      }
-                    >
-
-                      <td>
-                        <strong>
-                          {operacion.codigo}
-                        </strong>
-                      </td>
-
-
-                      <td>
-                        {operacion.tipo_carga}
-                      </td>
-
-
-                      <td>
-
-                        <div className="ruta-operacion-buque">
-
-                          <MapPin size={14} />
-
-                          <span>
-                            {operacion.procedencia}
-                            {" → "}
-                            {operacion.destino}
-                          </span>
-
-                        </div>
-
-                      </td>
-
-
-                      <td>
-                        {formatearFechaHora(
-                          operacion.llegada_estimada
-                        )}
-                      </td>
-
-
-                      <td>
-                        {operacion.codigo_muelle ||
-                          "Sin asignar"}
-                      </td>
-
-
-                      <td>
-
-                        <span className="estado-operacion-buque">
-                          {operacion.estado}
-                        </span>
-
-                      </td>
-
+                    <tr>
+                      <th>Código</th>
+                      <th>Carga</th>
+                      <th>Ruta</th>
+                      <th>Llegada estimada</th>
+                      <th>Muelle</th>
+                      <th>Estado</th>
                     </tr>
 
-                  )
-                )}
+                  </thead>
 
-              </tbody>
 
-            </table>
+                  <tbody>
 
-          </div>
+                    {
+                      operaciones.map(
+                        (operacion) => (
 
-        )}
+                          <tr
+                            key={
+                              operacion.id_operacion
+                            }
+                          >
+
+                            <td>
+
+                              <strong>
+                                {
+                                  operacion.codigo
+                                }
+                              </strong>
+
+                            </td>
+
+
+                            <td>
+                              {
+                                operacion.tipo_carga
+                              }
+                            </td>
+
+
+                            <td>
+
+                              <div className="ruta-operacion-buque">
+
+                                <MapPin size={14} />
+
+                                <span>
+                                  {
+                                    operacion.procedencia
+                                  }
+
+                                  {" → "}
+
+                                  {
+                                    operacion.destino
+                                  }
+                                </span>
+
+                              </div>
+
+                            </td>
+
+
+                            <td>
+                              {
+                                formatearFechaHora(
+                                  operacion.llegada_estimada
+                                )
+                              }
+                            </td>
+
+
+                            <td>
+                              {
+                                operacion.codigo_muelle ||
+                                "Sin asignar"
+                              }
+                            </td>
+
+
+                            <td>
+
+                              <span className="estado-operacion-buque">
+                                {
+                                  operacion.estado
+                                }
+                              </span>
+
+                            </td>
+
+                          </tr>
+
+                        )
+                      )
+                    }
+
+                  </tbody>
+
+                </table>
+
+              </div>
+
+            )
+        }
 
       </article>
 
 
-      {/* MODAL DESACTIVAR / REACTIVAR */}
+      {/* ==================================
+          MODAL DESACTIVAR / REACTIVAR
+      ================================== */}
 
-      {mostrarModalEstado && (
+      {
+        puedeGestionar &&
+        mostrarModalEstado && (
 
-        <div className="fondo-modal-buque">
+          <div className="fondo-modal-buque">
 
-          <div className="modal-estado-buque">
+            <div className="modal-estado-buque">
 
-
-            <button
-              type="button"
-              className="cerrar-modal-buque"
-              onClick={() =>
-                setMostrarModalEstado(false)
-              }
-              disabled={cambiandoEstado}
-              aria-label="Cerrar"
-            >
-              <X size={18} />
-            </button>
-
-
-            <div
-              className={
-                buque.activo
-                  ? "icono-modal-estado desactivar"
-                  : "icono-modal-estado reactivar"
-              }
-            >
-              <Power size={27} />
-            </div>
-
-
-            <h2>
-              {buque.activo
-                ? "¿Desactivar buque?"
-                : "¿Reactivar buque?"}
-            </h2>
-
-
-            <p>
-              {buque.activo
-                ? `El buque ${buque.nombre} quedará marcado como inactivo en TALASSA.`
-                : `El buque ${buque.nombre} volverá a estar disponible como registro activo.`}
-            </p>
-
-
-            <div className="resumen-modal-buque">
-
-              <span>
-                {buque.identificacion}
-              </span>
-
-              <strong>
-                {buque.nombre}
-              </strong>
-
-            </div>
-
-
-            {errorEstado && (
-
-              <div className="mensaje-error-modal-buque">
-                {errorEstado}
-              </div>
-
-            )}
-
-
-            <div className="acciones-modal-buque">
 
               <button
                 type="button"
-                className="boton-cancelar-modal"
+                className="cerrar-modal-buque"
                 onClick={() =>
-                  setMostrarModalEstado(false)
+                  setMostrarModalEstado(
+                    false
+                  )
                 }
-                disabled={cambiandoEstado}
+                disabled={
+                  cambiandoEstado
+                }
+                aria-label="Cerrar"
               >
-                Cancelar
+
+                <X size={18} />
+
               </button>
 
 
-              <button
-                type="button"
+              <div
                 className={
                   buque.activo
-                    ? "boton-confirmar-estado desactivar"
-                    : "boton-confirmar-estado reactivar"
+                    ? "icono-modal-estado desactivar"
+                    : "icono-modal-estado reactivar"
                 }
-                onClick={
-                  confirmarCambioEstado
-                }
-                disabled={cambiandoEstado}
               >
 
-                {cambiandoEstado ? (
-                  <>
-                    <LoaderCircle
-                      size={17}
-                      className="icono-cargando-detalle"
-                    />
+                <Power size={27} />
 
-                    Procesando...
-                  </>
-                ) : (
-                  <>
-                    <Power size={17} />
+              </div>
 
-                    {buque.activo
-                      ? "Sí, desactivar"
-                      : "Sí, reactivar"}
-                  </>
-                )}
 
-              </button>
+              <h2>
+                {
+                  buque.activo
+                    ? "¿Desactivar buque?"
+                    : "¿Reactivar buque?"
+                }
+              </h2>
+
+
+              <p>
+                {
+                  buque.activo
+                    ? `El buque ${buque.nombre} quedará marcado como inactivo en TALASSA.`
+                    : `El buque ${buque.nombre} volverá a estar disponible como registro activo.`
+                }
+              </p>
+
+
+              <div className="resumen-modal-buque">
+
+                <span>
+                  {buque.identificacion}
+                </span>
+
+                <strong>
+                  {buque.nombre}
+                </strong>
+
+              </div>
+
+
+              {errorEstado && (
+
+                <div className="mensaje-error-modal-buque">
+                  {errorEstado}
+                </div>
+
+              )}
+
+
+              <div className="acciones-modal-buque">
+
+                <button
+                  type="button"
+                  className="boton-cancelar-modal"
+                  onClick={() =>
+                    setMostrarModalEstado(
+                      false
+                    )
+                  }
+                  disabled={
+                    cambiandoEstado
+                  }
+                >
+                  Cancelar
+                </button>
+
+
+                <button
+                  type="button"
+                  className={
+                    buque.activo
+                      ? "boton-confirmar-estado desactivar"
+                      : "boton-confirmar-estado reactivar"
+                  }
+                  onClick={
+                    confirmarCambioEstado
+                  }
+                  disabled={
+                    cambiandoEstado
+                  }
+                >
+
+                  {
+                    cambiandoEstado
+                      ? (
+                        <>
+
+                          <LoaderCircle
+                            size={17}
+                            className="icono-cargando-detalle"
+                          />
+
+                          Procesando...
+
+                        </>
+                      )
+                      : (
+                        <>
+
+                          <Power size={17} />
+
+                          {
+                            buque.activo
+                              ? "Sí, desactivar"
+                              : "Sí, reactivar"
+                          }
+
+                        </>
+                      )
+                  }
+
+                </button>
+
+              </div>
 
             </div>
 
           </div>
 
-        </div>
-
-      )}
+        )
+      }
 
     </section>
   );

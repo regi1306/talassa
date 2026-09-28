@@ -29,6 +29,7 @@ function normalizarIncidencia(fila) {
 
   return {
     ...fila,
+
     evidencias:
       convertirEvidencias(
         fila.evidencias
@@ -232,7 +233,9 @@ export async function obtenerSeguimientoPorIncidencia(
 export async function generarCodigoIncidencia() {
   const consulta = `
     SELECT codigo
+
     FROM incidencias
+
     WHERE codigo ~ '^INC-[0-9]+$'
 
     ORDER BY
@@ -299,11 +302,14 @@ export async function insertarIncidencia(
       resolucion,
       evidencias
     )
+
     VALUES (
       $1, $2, $3, $4, $5, $6, $7,
       $8, $9, $10, $11, $12, $13
     )
-    RETURNING id_incidencia;
+
+    RETURNING
+      id_incidencia;
   `;
 
   const resultado =
@@ -353,13 +359,15 @@ export async function actualizarIncidenciaPorId(
       id_tipo_incidencia = $7,
       prioridad = $8,
       descripcion = $9,
-      estado = $10,
+
+      estado = $10::VARCHAR,
+
       resolucion = $11,
       evidencias = $12,
 
       fecha_resolucion =
         CASE
-          WHEN $10 = 'Resuelta'
+          WHEN $10::VARCHAR = 'Resuelta'
           THEN COALESCE(
             fecha_resolucion,
             NOW()
@@ -369,7 +377,7 @@ export async function actualizarIncidenciaPorId(
 
       fecha_cierre =
         CASE
-          WHEN $10 = 'Cerrada'
+          WHEN $10::VARCHAR = 'Cerrada'
           THEN COALESCE(
             fecha_cierre,
             NOW()
@@ -427,11 +435,11 @@ export async function actualizarEstadoIncidenciaPorId(
     UPDATE incidencias
 
     SET
-      estado = $1,
+      estado = $1::VARCHAR,
 
       fecha_resolucion =
         CASE
-          WHEN $1 = 'Resuelta'
+          WHEN $1::VARCHAR = 'Resuelta'
           THEN COALESCE(
             fecha_resolucion,
             NOW()
@@ -441,7 +449,7 @@ export async function actualizarEstadoIncidenciaPorId(
 
       fecha_cierre =
         CASE
-          WHEN $1 = 'Cerrada'
+          WHEN $1::VARCHAR = 'Cerrada'
           THEN COALESCE(
             fecha_cierre,
             NOW()
@@ -490,10 +498,13 @@ export async function insertarSeguimiento(
       estado_nuevo,
       comentario
     )
+
     VALUES (
       $1, $2, $3, $4, $5, $6
     )
-    RETURNING id_seguimiento;
+
+    RETURNING
+      id_seguimiento;
   `;
 
   const resultado =
@@ -548,13 +559,17 @@ export async function eliminarIncidenciaPorId(
    EXISTENCIAS
 ====================================== */
 
-export async function existeOperacion(id) {
+export async function existeOperacion(
+  id
+) {
   const resultado =
     await pool.query(
       `
         SELECT EXISTS (
           SELECT 1
+
           FROM operaciones_portuarias
+
           WHERE id_operacion = $1
         ) AS existe;
       `,
@@ -565,13 +580,17 @@ export async function existeOperacion(id) {
 }
 
 
-export async function existeInspeccion(id) {
+export async function existeInspeccion(
+  id
+) {
   const resultado =
     await pool.query(
       `
         SELECT EXISTS (
           SELECT 1
+
           FROM inspecciones
+
           WHERE id_inspeccion = $1
         ) AS existe;
       `,
@@ -591,7 +610,9 @@ export async function inspeccionPerteneceOperacion(
       `
         SELECT EXISTS (
           SELECT 1
+
           FROM inspecciones
+
           WHERE id_inspeccion = $1
             AND id_operacion = $2
         ) AS pertenece;
@@ -606,13 +627,17 @@ export async function inspeccionPerteneceOperacion(
 }
 
 
-export async function existeContenedor(id) {
+export async function existeContenedor(
+  id
+) {
   const resultado =
     await pool.query(
       `
         SELECT EXISTS (
           SELECT 1
+
           FROM contenedores
+
           WHERE id_contenedor = $1
         ) AS existe;
       `,
@@ -632,7 +657,9 @@ export async function contenedorPerteneceOperacion(
       `
         SELECT EXISTS (
           SELECT 1
+
           FROM contenedores
+
           WHERE id_contenedor = $1
             AND id_operacion = $2
         ) AS pertenece;
@@ -647,13 +674,17 @@ export async function contenedorPerteneceOperacion(
 }
 
 
-export async function existeMuelle(id) {
+export async function existeMuelle(
+  id
+) {
   const resultado =
     await pool.query(
       `
         SELECT EXISTS (
           SELECT 1
+
           FROM muelles
+
           WHERE id_muelle = $1
         ) AS existe;
       `,
@@ -664,13 +695,17 @@ export async function existeMuelle(id) {
 }
 
 
-export async function existeUsuario(id) {
+export async function existeUsuario(
+  id
+) {
   const resultado =
     await pool.query(
       `
         SELECT EXISTS (
           SELECT 1
+
           FROM usuarios
+
           WHERE id_usuario = $1
         ) AS existe;
       `,
@@ -681,13 +716,17 @@ export async function existeUsuario(id) {
 }
 
 
-export async function existeTipoIncidencia(id) {
+export async function existeTipoIncidencia(
+  id
+) {
   const resultado =
     await pool.query(
       `
         SELECT EXISTS (
           SELECT 1
+
           FROM tipos_incidencia
+
           WHERE id_tipo_incidencia = $1
         ) AS existe;
       `,
@@ -819,10 +858,12 @@ export async function obtenerOpcionesIncidencia() {
               ),
               ''
             ),
+
             to_jsonb(u)->>'nombre_completo',
             to_jsonb(u)->>'usuario',
             to_jsonb(u)->>'username',
             to_jsonb(u)->>'correo',
+
             CONCAT(
               'Usuario ',
               u.id_usuario
@@ -857,6 +898,7 @@ export async function obtenerOpcionesIncidencia() {
             to_jsonb(t)->>'nombre',
             to_jsonb(t)->>'descripcion',
             to_jsonb(t)->>'codigo',
+
             CONCAT(
               'Tipo ',
               id_tipo_incidencia

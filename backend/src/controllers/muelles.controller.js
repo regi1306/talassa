@@ -92,13 +92,11 @@ export async function obtenerMuelles(
       });
 
   } catch (error) {
-
     return responderErrorMuelle(
       error,
       res,
       "No fue posible obtener los muelles."
     );
-
   }
 }
 
@@ -128,13 +126,11 @@ export async function obtenerMuelle(
       });
 
   } catch (error) {
-
     return responderErrorMuelle(
       error,
       res,
       "No fue posible obtener el detalle del muelle."
     );
-
   }
 }
 
@@ -150,7 +146,8 @@ export async function crearMuelle(
   try {
     const muelle =
       await registrarMuelle(
-        req.body
+        req.body,
+        req.usuario?.id_usuario
       );
 
 
@@ -167,13 +164,11 @@ export async function crearMuelle(
       });
 
   } catch (error) {
-
     return responderErrorMuelle(
       error,
       res,
       "No fue posible registrar el muelle."
     );
-
   }
 }
 
@@ -190,7 +185,8 @@ export async function actualizarMuelle(
     const muelle =
       await editarMuelle(
         req.params.id,
-        req.body
+        req.body,
+        req.usuario?.id_usuario
       );
 
 
@@ -207,13 +203,11 @@ export async function actualizarMuelle(
       });
 
   } catch (error) {
-
     return responderErrorMuelle(
       error,
       res,
       "No fue posible actualizar el muelle."
     );
-
   }
 }
 
@@ -229,7 +223,8 @@ export async function borrarMuelle(
   try {
     const muelle =
       await eliminarMuelle(
-        req.params.id
+        req.params.id,
+        req.usuario?.id_usuario
       );
 
 
@@ -246,12 +241,10 @@ export async function borrarMuelle(
       });
 
   } catch (error) {
-
     return responderErrorMuelle(
       error,
       res,
       "No fue posible eliminar el muelle."
     );
-
   }
 }

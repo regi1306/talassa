@@ -11,26 +11,45 @@ import {
   existeCodigoContenedorEnOtroRegistro,
 } from "../repositories/contenedores.repository.js";
 
+import {
+  registrarEventoAuditoria,
+} from "./auditoria.service.js";
+
+
+/* ======================================
+   ERROR CONTROLADO
+====================================== */
 
 function crearError(
   mensaje,
   estadoHttp
 ) {
   const error =
-    new Error(mensaje);
+    new Error(
+      mensaje
+    );
+
 
   error.estadoHttp =
     estadoHttp;
+
 
   return error;
 }
 
 
+/* ======================================
+   VALIDAR ID
+====================================== */
+
 function validarIdContenedor(
   idContenedor
 ) {
   const id =
-    Number(idContenedor);
+    Number(
+      idContenedor
+    );
+
 
   if (
     !Number.isInteger(id) ||
@@ -42,14 +61,23 @@ function validarIdContenedor(
     );
   }
 
+
   return id;
 }
 
+
+/* ======================================
+   LISTAR
+====================================== */
 
 export async function listarContenedores() {
   return await obtenerTodosLosContenedores();
 }
 
+
+/* ======================================
+   DETALLE
+====================================== */
 
 export async function obtenerDetalleContenedor(
   idContenedor
@@ -59,10 +87,12 @@ export async function obtenerDetalleContenedor(
       idContenedor
     );
 
+
   const contenedor =
     await obtenerContenedorPorId(
       id
     );
+
 
   if (!contenedor) {
     throw crearError(
@@ -71,46 +101,64 @@ export async function obtenerDetalleContenedor(
     );
   }
 
+
   return contenedor;
 }
 
+
+/* ======================================
+   OPCIONES DEL FORMULARIO
+====================================== */
 
 export async function obtenerOpcionesFormularioContenedor() {
   return await consultarOpcionesFormularioContenedor();
 }
 
+
+/* ======================================
+   REGISTRAR CONTENEDOR
+====================================== */
+
 export async function registrarContenedor(
-  datos = {}
+  datos = {},
+  idUsuario = null
 ) {
   const codigo =
-    typeof datos.codigo === "string"
+    typeof datos.codigo ===
+    "string"
       ? datos.codigo
           .trim()
           .toUpperCase()
       : "";
+
 
   const idOperacion =
     Number(
       datos.id_operacion
     );
 
+
   const idTipoContenedor =
     Number(
       datos.id_tipo_contenedor
     );
+
 
   const idTipoCarga =
     Number(
       datos.id_tipo_carga
     );
 
+
   const pesoKg =
     Number(
       datos.peso_kg
     );
 
+
   const observaciones =
-    typeof datos.observaciones === "string" &&
+    typeof datos.observaciones ===
+      "string" &&
     datos.observaciones.trim()
       ? datos.observaciones.trim()
       : null;
@@ -125,7 +173,9 @@ export async function registrarContenedor(
 
 
   if (
-    !Number.isInteger(idOperacion) ||
+    !Number.isInteger(
+      idOperacion
+    ) ||
     idOperacion <= 0
   ) {
     throw crearError(
@@ -162,7 +212,9 @@ export async function registrarContenedor(
 
 
   if (
-    !Number.isFinite(pesoKg) ||
+    !Number.isFinite(
+      pesoKg
+    ) ||
     pesoKg <= 0
   ) {
     throw crearError(
@@ -177,23 +229,24 @@ export async function registrarContenedor(
     operacion,
     tipoContenedorValido,
     tipoCargaValido,
-  ] = await Promise.all([
-    existeCodigoContenedor(
-      codigo
-    ),
+  ] =
+    await Promise.all([
+      existeCodigoContenedor(
+        codigo
+      ),
 
-    obtenerOperacionHabilitadaParaContenedor(
-      idOperacion
-    ),
+      obtenerOperacionHabilitadaParaContenedor(
+        idOperacion
+      ),
 
-    existeTipoContenedorActivo(
-      idTipoContenedor
-    ),
+      existeTipoContenedorActivo(
+        idTipoContenedor
+      ),
 
-    existeTipoCarga(
-      idTipoCarga
-    ),
-  ]);
+      existeTipoCarga(
+        idTipoCarga
+      ),
+    ]);
 
 
   if (codigoDuplicado) {
@@ -248,14 +301,54 @@ export async function registrarContenedor(
     });
 
 
-  return await obtenerContenedorPorId(
-    contenedorCreado.id_contenedor
-  );
+  const contenedor =
+    await obtenerContenedorPorId(
+      contenedorCreado.id_contenedor
+    );
+
+
+  /* ======================================
+     AUDITORÍA
+  ====================================== */
+
+  await registrarEventoAuditoria({
+    idUsuario,
+
+    accion:
+      "CREAR",
+
+    modulo:
+      "Contenedores",
+
+    entidad:
+      "contenedores",
+
+    idRegistroAfectado:
+      contenedor.id_contenedor,
+
+    valoresAnteriores:
+      null,
+
+    valoresNuevos:
+      contenedor,
+
+    descripcion:
+      `Se registró el contenedor ${contenedor.codigo} en la operación ${contenedor.codigo_operacion}.`,
+  });
+
+
+  return contenedor;
 }
+
+
+/* ======================================
+   EDITAR CONTENEDOR
+====================================== */
 
 export async function editarContenedor(
   idContenedor,
-  datos = {}
+  datos = {},
+  idUsuario = null
 ) {
   const id =
     validarIdContenedor(
@@ -289,7 +382,8 @@ export async function editarContenedor(
 
 
   const codigo =
-    typeof datos.codigo === "string"
+    typeof datos.codigo ===
+    "string"
       ? datos.codigo
           .trim()
           .toUpperCase()
@@ -315,7 +409,8 @@ export async function editarContenedor(
 
 
   const observaciones =
-    typeof datos.observaciones === "string" &&
+    typeof datos.observaciones ===
+      "string" &&
     datos.observaciones.trim()
       ? datos.observaciones.trim()
       : null;
@@ -372,20 +467,21 @@ export async function editarContenedor(
     codigoDuplicado,
     tipoContenedorValido,
     tipoCargaValido,
-  ] = await Promise.all([
-    existeCodigoContenedorEnOtroRegistro(
-      codigo,
-      id
-    ),
+  ] =
+    await Promise.all([
+      existeCodigoContenedorEnOtroRegistro(
+        codigo,
+        id
+      ),
 
-    existeTipoContenedorActivo(
-      idTipoContenedor
-    ),
+      existeTipoContenedorActivo(
+        idTipoContenedor
+      ),
 
-    existeTipoCarga(
-      idTipoCarga
-    ),
-  ]);
+      existeTipoCarga(
+        idTipoCarga
+      ),
+    ]);
 
 
   if (codigoDuplicado) {
@@ -431,7 +527,41 @@ export async function editarContenedor(
   );
 
 
-  return await obtenerContenedorPorId(
-    id
-  );
+  const contenedorActualizado =
+    await obtenerContenedorPorId(
+      id
+    );
+
+
+  /* ======================================
+     AUDITORÍA
+  ====================================== */
+
+  await registrarEventoAuditoria({
+    idUsuario,
+
+    accion:
+      "EDITAR",
+
+    modulo:
+      "Contenedores",
+
+    entidad:
+      "contenedores",
+
+    idRegistroAfectado:
+      id,
+
+    valoresAnteriores:
+      contenedorActual,
+
+    valoresNuevos:
+      contenedorActualizado,
+
+    descripcion:
+      `Se actualizó el contenedor ${contenedorActualizado.codigo}.`,
+  });
+
+
+  return contenedorActualizado;
 }

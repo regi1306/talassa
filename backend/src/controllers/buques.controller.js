@@ -38,9 +38,12 @@ function responderErrorBuque(
 
 
   return res
-    .status(error.estadoHttp || 500)
+    .status(
+      error.estadoHttp || 500
+    )
     .json({
       ok: false,
+
       mensaje:
         error.estadoHttp
           ? error.message
@@ -48,6 +51,10 @@ function responderErrorBuque(
     });
 }
 
+
+/* ======================================
+   LISTAR BUQUES
+====================================== */
 
 export async function obtenerBuques(
   req,
@@ -57,11 +64,17 @@ export async function obtenerBuques(
     const buques =
       await listarBuques();
 
+
     return res.status(200).json({
       ok: true,
-      total: buques.length,
-      datos: buques,
+
+      total:
+        buques.length,
+
+      datos:
+        buques,
     });
+
   } catch (error) {
     return responderErrorBuque(
       error,
@@ -71,6 +84,10 @@ export async function obtenerBuques(
   }
 }
 
+
+/* ======================================
+   DETALLE
+====================================== */
 
 export async function obtenerBuque(
   req,
@@ -82,10 +99,14 @@ export async function obtenerBuque(
         req.params.id
       );
 
+
     return res.status(200).json({
       ok: true,
-      datos: resultado,
+
+      datos:
+        resultado,
     });
+
   } catch (error) {
     return responderErrorBuque(
       error,
@@ -96,6 +117,10 @@ export async function obtenerBuque(
 }
 
 
+/* ======================================
+   OPCIONES DEL FORMULARIO
+====================================== */
+
 export async function obtenerOpcionesBuque(
   req,
   res
@@ -104,10 +129,14 @@ export async function obtenerOpcionesBuque(
     const opciones =
       await obtenerOpcionesFormulario();
 
+
     return res.status(200).json({
       ok: true,
-      datos: opciones,
+
+      datos:
+        opciones,
     });
+
   } catch (error) {
     return responderErrorBuque(
       error,
@@ -118,20 +147,32 @@ export async function obtenerOpcionesBuque(
 }
 
 
+/* ======================================
+   CREAR
+====================================== */
+
 export async function crearBuque(
   req,
   res
 ) {
   try {
     const buque =
-      await registrarBuque(req.body);
+      await registrarBuque(
+        req.body,
+        req.usuario?.id_usuario
+      );
+
 
     return res.status(201).json({
       ok: true,
+
       mensaje:
         "Buque registrado correctamente.",
-      datos: buque,
+
+      datos:
+        buque,
     });
+
   } catch (error) {
     return responderErrorBuque(
       error,
@@ -142,6 +183,10 @@ export async function crearBuque(
 }
 
 
+/* ======================================
+   EDITAR
+====================================== */
+
 export async function actualizarBuque(
   req,
   res
@@ -150,15 +195,21 @@ export async function actualizarBuque(
     const buque =
       await editarBuque(
         req.params.id,
-        req.body
+        req.body,
+        req.usuario?.id_usuario
       );
+
 
     return res.status(200).json({
       ok: true,
+
       mensaje:
         "Buque actualizado correctamente.",
-      datos: buque,
+
+      datos:
+        buque,
     });
+
   } catch (error) {
     return responderErrorBuque(
       error,
@@ -169,6 +220,10 @@ export async function actualizarBuque(
 }
 
 
+/* ======================================
+   CAMBIAR ESTADO
+====================================== */
+
 export async function actualizarEstadoBuque(
   req,
   res
@@ -177,16 +232,23 @@ export async function actualizarEstadoBuque(
     const buque =
       await cambiarEstadoBuque(
         req.params.id,
-        req.body.activo
+        req.body.activo,
+        req.usuario?.id_usuario
       );
+
 
     return res.status(200).json({
       ok: true,
-      mensaje: buque.activo
-        ? "Buque reactivado correctamente."
-        : "Buque desactivado correctamente.",
-      datos: buque,
+
+      mensaje:
+        buque.activo
+          ? "Buque reactivado correctamente."
+          : "Buque desactivado correctamente.",
+
+      datos:
+        buque,
     });
+
   } catch (error) {
     return responderErrorBuque(
       error,

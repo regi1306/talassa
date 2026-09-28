@@ -13,10 +13,27 @@ import {
   obtenerOpcionesFormulario,
 } from "../controllers/incidencias.controller.js";
 
+import {
+  verificarToken,
+} from "../middlewares/auth.middleware.js";
+
 
 const router =
   Router();
 
+
+/* ======================================
+   TODAS LAS RUTAS REQUIEREN JWT
+====================================== */
+
+router.use(
+  verificarToken
+);
+
+
+/* ======================================
+   OPCIONES
+====================================== */
 
 router.get(
   "/opciones-formulario",
@@ -24,11 +41,19 @@ router.get(
 );
 
 
+/* ======================================
+   LISTAR
+====================================== */
+
 router.get(
   "/",
   obtenerIncidencias
 );
 
+
+/* ======================================
+   CREAR
+====================================== */
 
 router.post(
   "/",
@@ -36,11 +61,19 @@ router.post(
 );
 
 
+/* ======================================
+   CAMBIAR ESTADO
+====================================== */
+
 router.patch(
   "/:id/estado",
   actualizarEstado
 );
 
+
+/* ======================================
+   AGREGAR SEGUIMIENTO
+====================================== */
 
 router.post(
   "/:id/seguimiento",
@@ -48,17 +81,29 @@ router.post(
 );
 
 
+/* ======================================
+   DETALLE
+====================================== */
+
 router.get(
   "/:id",
   obtenerIncidencia
 );
 
 
+/* ======================================
+   EDITAR
+====================================== */
+
 router.put(
   "/:id",
   actualizarIncidencia
 );
 
+
+/* ======================================
+   ELIMINAR
+====================================== */
 
 router.delete(
   "/:id",

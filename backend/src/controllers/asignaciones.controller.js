@@ -4,6 +4,10 @@ import {
 } from "../services/asignaciones.service.js";
 
 
+/* =========================================================
+   RESPUESTA DE ERRORES
+========================================================= */
+
 function responderError(
   res,
   error
@@ -95,6 +99,7 @@ export async function evaluarMuelles(
       datos,
     });
 
+
   } catch (error) {
     return responderError(
       res,
@@ -113,22 +118,52 @@ export async function confirmar(
   res
 ) {
   try {
-    /*
-     * Si posteriormente tu middleware
-     * de autenticación pone el usuario
-     * en req.usuario o req.user,
-     * esto ya lo soporta.
-     */
+
+    /* ======================================
+       USUARIO AUTENTICADO
+
+       El usuario responsable se obtiene
+       únicamente del JWT validado por
+       verificarToken.
+
+       Nunca se confía en un ID enviado
+       desde el frontend.
+    ====================================== */
 
     const idUsuarioResponsable =
-      req.usuario?.id_usuario ??
-      req.user?.id_usuario ??
-      req.body.id_usuario_responsable;
+      req.usuario?.id_usuario;
+
+
+    if (!idUsuarioResponsable) {
+      return res
+        .status(401)
+        .json({
+          ok: false,
+
+          mensaje:
+            "No fue posible identificar al usuario autenticado.",
+        });
+    }
+
+
+    /* ======================================
+       DATOS DE LA ASIGNACIÓN
+    ====================================== */
+
+    const {
+      id_operacion,
+      id_muelle,
+      observaciones,
+    } = req.body;
 
 
     const datos =
       await confirmarAsignacion({
-        ...req.body,
+        id_operacion,
+
+        id_muelle,
+
+        observaciones,
 
         id_usuario_responsable:
           idUsuarioResponsable,
@@ -145,6 +180,7 @@ export async function confirmar(
 
         datos,
       });
+
 
   } catch (error) {
     return responderError(

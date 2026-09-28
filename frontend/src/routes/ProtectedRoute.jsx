@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 
 import {
+  actualizarUsuarioGuardado,
   cerrarSesion,
   obtenerPerfil,
   obtenerToken,
@@ -19,7 +20,9 @@ function ProtectedRoute() {
   const [
     estado,
     setEstado,
-  ] = useState("verificando");
+  ] = useState(
+    "verificando"
+  );
 
 
   useEffect(() => {
@@ -31,11 +34,9 @@ function ProtectedRoute() {
         obtenerToken();
 
 
-      /*
-        Si no existe ningún token,
-        significa que el usuario
-        no ha iniciado sesión.
-      */
+      /* ======================================
+         SIN TOKEN
+      ====================================== */
 
       if (!token) {
         if (activo) {
@@ -49,15 +50,33 @@ function ProtectedRoute() {
 
 
       try {
-        /*
-          No basta solamente con que exista
-          un token en el navegador.
 
-          Consultamos /api/auth/me para
-          comprobar que el backend lo acepta.
-        */
+        /* ======================================
+           VALIDAR TOKEN Y OBTENER INFORMACIÓN
+           ACTUAL DEL USUARIO
+        ====================================== */
 
-        await obtenerPerfil();
+        const respuesta =
+          await obtenerPerfil();
+
+
+        if (
+          !respuesta?.ok ||
+          !respuesta?.data
+        ) {
+          throw new Error(
+            "No fue posible validar la sesión."
+          );
+        }
+
+
+        /* ======================================
+           SINCRONIZAR USUARIO Y PERMISOS
+        ====================================== */
+
+        actualizarUsuarioGuardado(
+          respuesta.data
+        );
 
 
         if (activo) {
@@ -72,12 +91,6 @@ function ProtectedRoute() {
           error
         );
 
-
-        /*
-          Si el JWT expiró, fue modificado
-          o ya no es válido, eliminamos
-          la sesión almacenada.
-        */
 
         cerrarSesion();
 
@@ -97,6 +110,7 @@ function ProtectedRoute() {
     return () => {
       activo = false;
     };
+
   }, []);
 
 
@@ -105,7 +119,8 @@ function ProtectedRoute() {
   ====================================== */
 
   if (
-    estado === "verificando"
+    estado ===
+    "verificando"
   ) {
     return (
       <div
@@ -113,7 +128,8 @@ function ProtectedRoute() {
           minHeight: "100vh",
           display: "grid",
           placeItems: "center",
-          fontFamily: "DM Sans, sans-serif",
+          fontFamily:
+            "DM Sans, sans-serif",
           color: "#082d69",
           background: "#dcebf6",
         }}
@@ -129,7 +145,8 @@ function ProtectedRoute() {
   ====================================== */
 
   if (
-    estado === "no-autenticado"
+    estado ===
+    "no-autenticado"
   ) {
     return (
       <Navigate

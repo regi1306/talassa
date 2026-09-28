@@ -29,6 +29,10 @@ import {
   obtenerOpcionesInspeccion,
 } from "../../services/inspeccionesService.js";
 
+import {
+  tienePermiso,
+} from "../../services/auth.service.js";
+
 import "../../styles/inspecciones.css";
 
 
@@ -40,9 +44,11 @@ function obtenerFechaActual() {
   const fecha =
     new Date();
 
+
   const compensacion =
     fecha.getTimezoneOffset() *
     60000;
+
 
   return new Date(
     fecha.getTime() -
@@ -69,7 +75,9 @@ function convertirFechaInput(
 
 
   const fecha =
-    new Date(valor);
+    new Date(
+      valor
+    );
 
 
   if (
@@ -109,8 +117,10 @@ const estadoInicial = {
   id_tipo_inspeccion: "",
   fecha_hora:
     obtenerFechaActual(),
-  resultado: "Conforme",
-  estado: "Pendiente",
+  resultado:
+    "Conforme",
+  estado:
+    "Pendiente",
   observaciones: "",
 };
 
@@ -119,11 +129,23 @@ function InspeccionFormPage() {
   const navigate =
     useNavigate();
 
+
   const location =
     useLocation();
 
+
   const { id } =
     useParams();
+
+
+  /* ======================================
+     PERMISOS
+  ====================================== */
+
+  const puedeGestionarIncidencias =
+    tienePermiso(
+      "INC_GESTIONAR"
+    );
 
 
   /* ======================================
@@ -137,12 +159,18 @@ function InspeccionFormPage() {
 
 
   const soloLectura =
-    parametros.get("modo") ===
-    "ver";
+    location.pathname.endsWith(
+      "/ver"
+    )
+    ||
+    parametros.get(
+      "modo"
+    ) === "ver";
 
 
   const editando =
-    Boolean(id) &&
+    Boolean(id)
+    &&
     !soloLectura;
 
 
@@ -219,12 +247,15 @@ function InspeccionFormPage() {
   ====================================== */
 
   useEffect(() => {
-
     async function cargarPantalla() {
       try {
-        setCargando(true);
+        setCargando(
+          true
+        );
 
-        setError("");
+        setError(
+          ""
+        );
 
 
         const respuestaOpciones =
@@ -235,34 +266,42 @@ function InspeccionFormPage() {
           !respuestaOpciones.ok
         ) {
           throw new Error(
-            respuestaOpciones.mensaje ||
+            respuestaOpciones.mensaje
+            ||
+            respuestaOpciones.message
+            ||
             "No fue posible cargar las opciones del formulario."
           );
         }
 
 
         const opciones =
-          respuestaOpciones.datos ||
+          respuestaOpciones.datos
+          ||
           {};
 
 
         const operacionesApi =
-          opciones.operaciones ||
+          opciones.operaciones
+          ||
           [];
 
 
         const contenedoresApi =
-          opciones.contenedores ||
+          opciones.contenedores
+          ||
           [];
 
 
         const inspectoresApi =
-          opciones.inspectores ||
+          opciones.inspectores
+          ||
           [];
 
 
         const tiposApi =
-          opciones.tipos_inspeccion ||
+          opciones.tipos_inspeccion
+          ||
           [];
 
 
@@ -290,7 +329,9 @@ function InspeccionFormPage() {
            EDITAR O VER
         ================================== */
 
-        if (tieneId) {
+        if (
+          tieneId
+        ) {
           const respuestaInspeccion =
             await obtenerInspeccionPorId(
               id
@@ -301,7 +342,10 @@ function InspeccionFormPage() {
             !respuestaInspeccion.ok
           ) {
             throw new Error(
-              respuestaInspeccion.mensaje ||
+              respuestaInspeccion.mensaje
+              ||
+              respuestaInspeccion.message
+              ||
               "No fue posible cargar la inspección."
             );
           }
@@ -314,7 +358,8 @@ function InspeccionFormPage() {
           setFormulario({
             id_operacion:
               String(
-                inspeccion.id_operacion ||
+                inspeccion.id_operacion
+                ||
                 ""
               ),
 
@@ -327,32 +372,38 @@ function InspeccionFormPage() {
 
             id_inspector:
               String(
-                inspeccion.id_inspector ||
+                inspeccion.id_inspector
+                ||
                 ""
               ),
 
             id_tipo_inspeccion:
               String(
-                inspeccion.id_tipo_inspeccion ||
+                inspeccion.id_tipo_inspeccion
+                ||
                 ""
               ),
 
             fecha_hora:
               convertirFechaInput(
-                inspeccion.fecha_inspeccion ||
+                inspeccion.fecha_inspeccion
+                ||
                 inspeccion.fecha_hora
               ),
 
             resultado:
-              inspeccion.resultado ||
+              inspeccion.resultado
+              ||
               "Conforme",
 
             estado:
-              inspeccion.estado ||
+              inspeccion.estado
+              ||
               "Pendiente",
 
             observaciones:
-              inspeccion.observaciones ||
+              inspeccion.observaciones
+              ||
               "",
           });
         }
@@ -397,6 +448,7 @@ function InspeccionFormPage() {
           );
         }
 
+
       } catch (error) {
         console.error(
           "Error al cargar formulario:",
@@ -405,13 +457,20 @@ function InspeccionFormPage() {
 
 
         setError(
-          error.response?.data?.mensaje ||
-          error.message ||
+          error.response?.data?.mensaje
+          ||
+          error.response?.data?.message
+          ||
+          error.message
+          ||
           "No fue posible cargar el formulario."
         );
 
+
       } finally {
-        setCargando(false);
+        setCargando(
+          false
+        );
       }
     }
 
@@ -430,16 +489,19 @@ function InspeccionFormPage() {
 
   const operacionSeleccionada =
     useMemo(() => {
-
-      return operaciones.find(
-        (operacion) =>
-          String(
-            operacion.id_operacion
-          ) ===
-          String(
-            formulario.id_operacion
-          )
-      ) || null;
+      return (
+        operaciones.find(
+          (operacion) =>
+            String(
+              operacion.id_operacion
+            ) ===
+            String(
+              formulario.id_operacion
+            )
+        )
+        ||
+        null
+      );
 
     }, [
       operaciones,
@@ -453,16 +515,19 @@ function InspeccionFormPage() {
 
   const inspectorSeleccionado =
     useMemo(() => {
-
-      return inspectores.find(
-        (inspector) =>
-          String(
-            inspector.id_inspector
-          ) ===
-          String(
-            formulario.id_inspector
-          )
-      ) || null;
+      return (
+        inspectores.find(
+          (inspector) =>
+            String(
+              inspector.id_inspector
+            ) ===
+            String(
+              formulario.id_inspector
+            )
+        )
+        ||
+        null
+      );
 
     }, [
       inspectores,
@@ -476,16 +541,19 @@ function InspeccionFormPage() {
 
   const tipoSeleccionado =
     useMemo(() => {
-
-      return tiposInspeccion.find(
-        (tipo) =>
-          String(
-            tipo.id_tipo_inspeccion
-          ) ===
-          String(
-            formulario.id_tipo_inspeccion
-          )
-      ) || null;
+      return (
+        tiposInspeccion.find(
+          (tipo) =>
+            String(
+              tipo.id_tipo_inspeccion
+            ) ===
+            String(
+              formulario.id_tipo_inspeccion
+            )
+        )
+        ||
+        null
+      );
 
     }, [
       tiposInspeccion,
@@ -499,7 +567,6 @@ function InspeccionFormPage() {
 
   const contenedoresOperacion =
     useMemo(() => {
-
       return contenedores.filter(
         (contenedor) =>
           String(
@@ -522,16 +589,19 @@ function InspeccionFormPage() {
 
   const contenedorSeleccionado =
     useMemo(() => {
-
-      return contenedores.find(
-        (contenedor) =>
-          String(
-            contenedor.id_contenedor
-          ) ===
-          String(
-            formulario.id_contenedor
-          )
-      ) || null;
+      return (
+        contenedores.find(
+          (contenedor) =>
+            String(
+              contenedor.id_contenedor
+            ) ===
+            String(
+              formulario.id_contenedor
+            )
+        )
+        ||
+        null
+      );
 
     }, [
       contenedores,
@@ -547,7 +617,9 @@ function InspeccionFormPage() {
     campo,
     valor
   ) {
-    if (soloLectura) {
+    if (
+      soloLectura
+    ) {
       return;
     }
 
@@ -562,9 +634,14 @@ function InspeccionFormPage() {
     );
 
 
-    setError("");
+    setError(
+      ""
+    );
 
-    setMensaje("");
+
+    setMensaje(
+      ""
+    );
   }
 
 
@@ -575,7 +652,9 @@ function InspeccionFormPage() {
   function cambiarOperacion(
     valor
   ) {
-    if (soloLectura) {
+    if (
+      soloLectura
+    ) {
       return;
     }
 
@@ -593,9 +672,14 @@ function InspeccionFormPage() {
     );
 
 
-    setError("");
+    setError(
+      ""
+    );
 
-    setMensaje("");
+
+    setMensaje(
+      ""
+    );
   }
 
 
@@ -668,7 +752,9 @@ function InspeccionFormPage() {
     event.preventDefault();
 
 
-    if (soloLectura) {
+    if (
+      soloLectura
+    ) {
       return;
     }
 
@@ -677,7 +763,9 @@ function InspeccionFormPage() {
       validarFormulario();
 
 
-    if (errorValidacion) {
+    if (
+      errorValidacion
+    ) {
       setError(
         errorValidacion
       );
@@ -687,11 +775,17 @@ function InspeccionFormPage() {
 
 
     try {
-      setGuardando(true);
+      setGuardando(
+        true
+      );
 
-      setError("");
+      setError(
+        ""
+      );
 
-      setMensaje("");
+      setMensaje(
+        ""
+      );
 
 
       const fechaISO =
@@ -741,12 +835,15 @@ function InspeccionFormPage() {
       let respuesta;
 
 
-      if (editando) {
+      if (
+        editando
+      ) {
         respuesta =
           await actualizarInspeccion(
             id,
             datosInspeccion
           );
+
       } else {
         respuesta =
           await crearInspeccion(
@@ -755,16 +852,24 @@ function InspeccionFormPage() {
       }
 
 
-      if (!respuesta.ok) {
+      if (
+        !respuesta.ok
+      ) {
         throw new Error(
-          respuesta.mensaje ||
+          respuesta.mensaje
+          ||
+          respuesta.message
+          ||
           "No fue posible guardar la inspección."
         );
       }
 
 
       setMensaje(
-        respuesta.mensaje ||
+        respuesta.mensaje
+        ||
+        respuesta.message
+        ||
         (
           editando
             ? "Inspección actualizada correctamente."
@@ -779,6 +884,7 @@ function InspeccionFormPage() {
         );
       }, 700);
 
+
     } catch (error) {
       console.error(
         "Error al guardar inspección:",
@@ -787,13 +893,20 @@ function InspeccionFormPage() {
 
 
       setError(
-        error.response?.data?.mensaje ||
-        error.message ||
+        error.response?.data?.mensaje
+        ||
+        error.response?.data?.message
+        ||
+        error.message
+        ||
         "No fue posible guardar la inspección."
       );
 
+
     } finally {
-      setGuardando(false);
+      setGuardando(
+        false
+      );
     }
   }
 
@@ -802,7 +915,9 @@ function InspeccionFormPage() {
      CARGANDO
   ====================================== */
 
-  if (cargando) {
+  if (
+    cargando
+  ) {
     return (
       <section className="inspection-form-page">
 
@@ -822,7 +937,6 @@ function InspeccionFormPage() {
   return (
     <section className="inspection-form-page">
 
-
       {/* ==================================
           VOLVER
       ================================== */}
@@ -836,9 +950,13 @@ function InspeccionFormPage() {
           )
         }
       >
-        <ArrowLeft size={18} />
+
+        <ArrowLeft
+          size={18}
+        />
 
         Volver a inspecciones
+
       </button>
 
 
@@ -886,12 +1004,16 @@ function InspeccionFormPage() {
 
         <div
           style={{
-            marginBottom: "16px",
-            padding: "13px 16px",
-            borderRadius: "12px",
+            marginBottom:
+              "16px",
+            padding:
+              "13px 16px",
+            borderRadius:
+              "12px",
             background:
               "rgba(255, 226, 229, 0.95)",
-            color: "#b4232c",
+            color:
+              "#b4232c",
           }}
         >
           {error}
@@ -904,12 +1026,16 @@ function InspeccionFormPage() {
 
         <div
           style={{
-            marginBottom: "16px",
-            padding: "13px 16px",
-            borderRadius: "12px",
+            marginBottom:
+              "16px",
+            padding:
+              "13px 16px",
+            borderRadius:
+              "12px",
             background:
               "rgba(207, 248, 232, 0.95)",
-            color: "#08745d",
+            color:
+              "#08745d",
           }}
         >
           {mensaje}
@@ -924,12 +1050,13 @@ function InspeccionFormPage() {
 
       <div className="glass-card inspection-operation-summary">
 
-
         <div className="inspection-operation-main">
 
           <div className="inspection-operation-icon">
 
-            <Ship size={31} />
+            <Ship
+              size={31}
+            />
 
           </div>
 
@@ -944,7 +1071,8 @@ function InspeccionFormPage() {
 
                 {
                   operacionSeleccionada
-                    ?.codigo ||
+                    ?.codigo
+                  ||
                   "Sin seleccionar"
                 }
 
@@ -957,7 +1085,8 @@ function InspeccionFormPage() {
 
                 {
                   operacionSeleccionada
-                    ?.estado ||
+                    ?.estado
+                  ||
                   "Sin estado"
                 }
 
@@ -970,7 +1099,8 @@ function InspeccionFormPage() {
 
               {
                 operacionSeleccionada
-                  ?.buque ||
+                  ?.buque
+                ||
                 "Sin buque"
               }
 
@@ -983,7 +1113,9 @@ function InspeccionFormPage() {
 
         <div className="inspection-summary-item">
 
-          <Container size={24} />
+          <Container
+            size={24}
+          />
 
           <div>
 
@@ -995,7 +1127,8 @@ function InspeccionFormPage() {
 
               {
                 contenedorSeleccionado
-                  ?.codigo ||
+                  ?.codigo
+                ||
                 "Sin contenedor"
               }
 
@@ -1012,7 +1145,9 @@ function InspeccionFormPage() {
 
         <div className="inspection-summary-item">
 
-          <ClipboardCheck size={24} />
+          <ClipboardCheck
+            size={24}
+          />
 
           <div>
 
@@ -1024,7 +1159,8 @@ function InspeccionFormPage() {
 
               {
                 tipoSeleccionado
-                  ?.nombre ||
+                  ?.nombre
+                ||
                 "Sin seleccionar"
               }
 
@@ -1037,7 +1173,9 @@ function InspeccionFormPage() {
 
         <div className="inspection-summary-item">
 
-          <UserRound size={24} />
+          <UserRound
+            size={24}
+          />
 
           <div>
 
@@ -1049,7 +1187,8 @@ function InspeccionFormPage() {
 
               {
                 inspectorSeleccionado
-                  ?.nombre ||
+                  ?.nombre
+                ||
                 "Sin asignar"
               }
 
@@ -1073,13 +1212,13 @@ function InspeccionFormPage() {
         }
       >
 
-
         <div className="inspection-form-section-title">
-
 
           <div className="form-section-icon">
 
-            <ClipboardCheck size={24} />
+            <ClipboardCheck
+              size={24}
+            />
 
           </div>
 
@@ -1107,13 +1246,11 @@ function InspeccionFormPage() {
 
         <div className="form-grid">
 
-
           {/* OPERACIÓN */}
 
           <label>
 
             Operación *
-
 
             <select
               value={
@@ -1154,7 +1291,8 @@ function InspeccionFormPage() {
                     {" — "}
 
                     {
-                      operacion.buque ||
+                      operacion.buque
+                      ||
                       "Sin buque"
                     }
 
@@ -1179,23 +1317,25 @@ function InspeccionFormPage() {
 
             Inspector *
 
-
             <div className="inspection-readonly-input">
 
-              <UserRound size={18} />
-
+              <UserRound
+                size={18}
+              />
 
               <input
                 value={
                   inspectorSeleccionado
-                    ?.nombre ||
+                    ?.nombre
+                  ||
                   ""
                 }
                 readOnly
               />
 
-
-              <LockKeyhole size={17} />
+              <LockKeyhole
+                size={17}
+              />
 
             </div>
 
@@ -1212,7 +1352,6 @@ function InspeccionFormPage() {
           <label>
 
             Contenedor
-
 
             <select
               value={
@@ -1268,7 +1407,6 @@ function InspeccionFormPage() {
           <label>
 
             Tipo *
-
 
             <select
               value={
@@ -1327,7 +1465,6 @@ function InspeccionFormPage() {
 
             Fecha y hora *
 
-
             <div className="input-with-icon">
 
               <input
@@ -1347,7 +1484,6 @@ function InspeccionFormPage() {
                 required
               />
 
-
               <CalendarDays
                 size={18}
                 className="inspection-calendar-icon"
@@ -1363,7 +1499,6 @@ function InspeccionFormPage() {
           <label>
 
             Estado *
-
 
             <select
               value={
@@ -1404,7 +1539,6 @@ function InspeccionFormPage() {
 
             Resultado *
 
-
             <select
               value={
                 formulario.resultado
@@ -1444,7 +1578,6 @@ function InspeccionFormPage() {
 
             Observaciones *
 
-
             <textarea
               value={
                 formulario.observaciones
@@ -1472,7 +1605,6 @@ function InspeccionFormPage() {
                 observaciones o recomendaciones.
               </small>
 
-
               <span>
 
                 {
@@ -1497,7 +1629,6 @@ function InspeccionFormPage() {
 
         <div className="inspection-form-actions">
 
-
           {soloLectura ? (
 
             <button
@@ -1509,9 +1640,13 @@ function InspeccionFormPage() {
                 )
               }
             >
-              <ArrowLeft size={18} />
+
+              <ArrowLeft
+                size={18}
+              />
 
               Volver al listado
+
             </button>
 
           ) : (
@@ -1534,37 +1669,52 @@ function InspeccionFormPage() {
               </button>
 
 
-              <button
-                type="button"
-                className="button inspection-incident-button"
-                onClick={() =>
-                  navigate(
-                    "/incidencias/nueva",
-                    {
-                      state: {
-                        operacion:
-                          operacionSeleccionada
-                            ?.codigo ||
-                          "",
+              {/* ==================================
+                  REGISTRAR INCIDENCIA
 
-                        contenedor:
-                          contenedorSeleccionado
-                            ?.codigo ||
-                          "",
-                      },
-                    }
-                  )
-                }
-                disabled={
-                  guardando
-                }
-              >
+                  Solo aparece si el usuario tiene
+                  INC_GESTIONAR.
+              ================================== */}
 
-                <AlertTriangle size={19} />
+              {puedeGestionarIncidencias && (
 
-                Registrar incidencia
+                <button
+                  type="button"
+                  className="button inspection-incident-button"
+                  onClick={() =>
+                    navigate(
+                      "/incidencias/nueva",
+                      {
+                        state: {
+                          operacion:
+                            operacionSeleccionada
+                              ?.codigo
+                            ||
+                            "",
 
-              </button>
+                          contenedor:
+                            contenedorSeleccionado
+                              ?.codigo
+                            ||
+                            "",
+                        },
+                      }
+                    )
+                  }
+                  disabled={
+                    guardando
+                  }
+                >
+
+                  <AlertTriangle
+                    size={19}
+                  />
+
+                  Registrar incidencia
+
+                </button>
+
+              )}
 
 
               <button
@@ -1575,7 +1725,9 @@ function InspeccionFormPage() {
                 }
               >
 
-                <Save size={18} />
+                <Save
+                  size={18}
+                />
 
 
                 {

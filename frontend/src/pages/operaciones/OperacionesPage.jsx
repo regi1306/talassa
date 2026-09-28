@@ -27,6 +27,10 @@ import {
   obtenerOperaciones,
 } from "../../services/operacionesService.js";
 
+import {
+  tienePermiso,
+} from "../../services/auth.service.js";
+
 import "../../styles/operaciones.css";
 
 
@@ -34,6 +38,20 @@ function OperacionesPage() {
   const navigate =
     useNavigate();
 
+
+  /* ======================================
+     PERMISOS
+  ====================================== */
+
+  const puedeGestionar =
+    tienePermiso(
+      "OPE_GESTIONAR"
+    );
+
+
+  /* ======================================
+     ESTADOS
+  ====================================== */
 
   const [
     operaciones,
@@ -71,18 +89,30 @@ function OperacionesPage() {
   ] = useState("");
 
 
+  /* ======================================
+     CARGAR OPERACIONES
+  ====================================== */
+
   async function cargarOperaciones() {
     try {
       setCargando(true);
 
       setError("");
 
+
       const datos =
         await obtenerOperaciones();
 
-      setOperaciones(datos);
+
+      setOperaciones(
+        datos
+      );
+
     } catch (error) {
-      setError(error.message);
+      setError(
+        error.message
+      );
+
     } finally {
       setCargando(false);
     }
@@ -93,6 +123,10 @@ function OperacionesPage() {
     cargarOperaciones();
   }, []);
 
+
+  /* ======================================
+     TIPOS DE CARGA
+  ====================================== */
 
   const tiposCarga =
     useMemo(() => {
@@ -106,8 +140,13 @@ function OperacionesPage() {
       ]
         .filter(Boolean)
         .sort();
+
     }, [operaciones]);
 
+
+  /* ======================================
+     FILTRAR
+  ====================================== */
 
   const operacionesFiltradas =
     useMemo(() => {
@@ -115,6 +154,7 @@ function OperacionesPage() {
         busqueda
           .trim()
           .toLowerCase();
+
 
       return operaciones.filter(
         (operacion) => {
@@ -156,6 +196,7 @@ function OperacionesPage() {
           );
         }
       );
+
     }, [
       operaciones,
       busqueda,
@@ -163,6 +204,10 @@ function OperacionesPage() {
       filtroCarga,
     ]);
 
+
+  /* ======================================
+     RESUMEN
+  ====================================== */
 
   const totalProgramadas =
     operaciones.filter(
@@ -193,12 +238,22 @@ function OperacionesPage() {
     ).length;
 
 
+  /* ======================================
+     LIMPIAR FILTROS
+  ====================================== */
+
   function limpiarFiltros() {
     setBusqueda("");
+
     setFiltroEstado("");
+
     setFiltroCarga("");
   }
 
+
+  /* ======================================
+     FORMATEAR FECHA
+  ====================================== */
 
   function formatearFechaHora(
     fecha
@@ -206,6 +261,7 @@ function OperacionesPage() {
     if (!fecha) {
       return "—";
     }
+
 
     return new Intl.DateTimeFormat(
       "es-SV",
@@ -221,6 +277,10 @@ function OperacionesPage() {
     );
   }
 
+
+  /* ======================================
+     CLASE DEL ESTADO
+  ====================================== */
 
   function obtenerClaseEstado(
     estado
@@ -253,11 +313,14 @@ function OperacionesPage() {
       <div className="fondo-operaciones" />
 
 
-      {/* ENCABEZADO */}
+      {/* ==================================
+          ENCABEZADO
+      ================================== */}
 
       <div className="encabezado-operaciones">
 
         <div>
+
           <h1>
             Operaciones portuarias
           </h1>
@@ -267,27 +330,36 @@ function OperacionesPage() {
             las visitas portuarias
             registradas en TALASSA.
           </p>
+
         </div>
 
 
-        <button
-          type="button"
-          className="boton-nueva-operacion"
-          onClick={() =>
-            navigate(
-              "/operaciones/nueva"
-            )
-          }
-        >
-          <Plus size={19} />
+        {puedeGestionar && (
 
-          Nueva operación
-        </button>
+          <button
+            type="button"
+            className="boton-nueva-operacion"
+            onClick={() =>
+              navigate(
+                "/operaciones/nueva"
+              )
+            }
+          >
+
+            <Plus size={19} />
+
+            Nueva operación
+
+          </button>
+
+        )}
 
       </div>
 
 
-      {/* RESUMEN */}
+      {/* ==================================
+          RESUMEN
+      ================================== */}
 
       <div className="resumen-operaciones">
 
@@ -298,6 +370,7 @@ function OperacionesPage() {
           </div>
 
           <div>
+
             <span>
               Total operaciones
             </span>
@@ -309,6 +382,7 @@ function OperacionesPage() {
             <small>
               Registros portuarios
             </small>
+
           </div>
 
         </article>
@@ -321,6 +395,7 @@ function OperacionesPage() {
           </div>
 
           <div>
+
             <span>
               Programadas
             </span>
@@ -332,6 +407,7 @@ function OperacionesPage() {
             <small>
               Próximas operaciones
             </small>
+
           </div>
 
         </article>
@@ -344,6 +420,7 @@ function OperacionesPage() {
           </div>
 
           <div>
+
             <span>
               En curso
             </span>
@@ -355,6 +432,7 @@ function OperacionesPage() {
             <small>
               Actividad portuaria
             </small>
+
           </div>
 
         </article>
@@ -367,6 +445,7 @@ function OperacionesPage() {
           </div>
 
           <div>
+
             <span>
               Finalizadas
             </span>
@@ -378,6 +457,7 @@ function OperacionesPage() {
             <small>
               Operaciones completadas
             </small>
+
           </div>
 
         </article>
@@ -385,13 +465,16 @@ function OperacionesPage() {
       </div>
 
 
-      {/* LISTADO */}
+      {/* ==================================
+          LISTADO
+      ================================== */}
 
       <article className="glass-card tarjeta-listado-operaciones">
 
         <div className="encabezado-listado-operaciones">
 
           <div>
+
             <h2>
               <Ship size={21} />
 
@@ -411,6 +494,7 @@ function OperacionesPage() {
                   : ""
               }
             </span>
+
           </div>
 
 
@@ -421,15 +505,19 @@ function OperacionesPage() {
               cargarOperaciones
             }
           >
+
             <RefreshCw size={17} />
 
             Actualizar
+
           </button>
 
         </div>
 
 
-        {/* FILTROS */}
+        {/* ==================================
+            FILTROS
+        ================================== */}
 
         <div className="filtros-operaciones">
 
@@ -510,12 +598,14 @@ function OperacionesPage() {
 
               {tiposCarga.map(
                 (tipoCarga) => (
+
                   <option
                     key={tipoCarga}
                     value={tipoCarga}
                   >
                     {tipoCarga}
                   </option>
+
                 )
               )}
 
@@ -537,14 +627,25 @@ function OperacionesPage() {
         </div>
 
 
+        {/* ==================================
+            ERROR
+        ================================== */}
+
         {error && (
+
           <div className="mensaje-error-operaciones">
             {error}
           </div>
+
         )}
 
 
+        {/* ==================================
+            CARGANDO
+        ================================== */}
+
         {cargando && (
+
           <div className="estado-carga-operaciones">
 
             <RefreshCw
@@ -557,8 +658,13 @@ function OperacionesPage() {
             </span>
 
           </div>
+
         )}
 
+
+        {/* ==================================
+            TABLA
+        ================================== */}
 
         {!cargando && !error && (
 
@@ -588,8 +694,11 @@ function OperacionesPage() {
                 {
                   operacionesFiltradas.length ===
                   0
+
                     ? (
+
                       <tr>
+
                         <td
                           colSpan="9"
                           className="tabla-sin-operaciones"
@@ -597,9 +706,13 @@ function OperacionesPage() {
                           No se encontraron
                           operaciones portuarias.
                         </td>
+
                       </tr>
+
                     )
+
                     : (
+
                       operacionesFiltradas.map(
                         (operacion) => (
 
@@ -610,11 +723,13 @@ function OperacionesPage() {
                           >
 
                             <td>
+
                               <span className="codigo-operacion">
                                 {
                                   operacion.codigo
                                 }
                               </span>
+
                             </td>
 
 
@@ -627,6 +742,7 @@ function OperacionesPage() {
                                 </div>
 
                                 <div>
+
                                   <strong>
                                     {
                                       operacion.buque
@@ -638,6 +754,7 @@ function OperacionesPage() {
                                       operacion.identificacion_buque
                                     }
                                   </small>
+
                                 </div>
 
                               </div>
@@ -662,7 +779,9 @@ function OperacionesPage() {
                                   {
                                     operacion.procedencia
                                   }
+
                                   {" → "}
+
                                   {
                                     operacion.destino
                                   }
@@ -692,11 +811,13 @@ function OperacionesPage() {
 
 
                             <td>
+
                               <span className="cantidad-contenedores">
                                 {
                                   operacion.total_contenedores
                                 }
                               </span>
+
                             </td>
 
 
@@ -709,11 +830,13 @@ function OperacionesPage() {
                                   )}`
                                 }
                               >
+
                                 <i />
 
                                 {
                                   operacion.estado
                                 }
+
                               </span>
 
                             </td>
@@ -722,6 +845,8 @@ function OperacionesPage() {
                             <td>
 
                               <div className="acciones-operacion">
+
+                                {/* VER */}
 
                                 <button
                                   type="button"
@@ -736,26 +861,32 @@ function OperacionesPage() {
                                 </button>
 
 
-                                <button
-                                  type="button"
-                                  title={
-                                    operacion.estado ===
-                                    "Finalizada"
-                                      ? "Las operaciones finalizadas no se editan"
-                                      : "Editar operación"
-                                  }
-                                  disabled={
-                                    operacion.estado ===
-                                    "Finalizada"
-                                  }
-                                  onClick={() =>
-                                    navigate(
-                                      `/operaciones/${operacion.id_operacion}/editar`
-                                    )
-                                  }
-                                >
-                                  <Pencil size={16} />
-                                </button>
+                                {/* EDITAR */}
+
+                                {puedeGestionar && (
+
+                                  <button
+                                    type="button"
+                                    title={
+                                      operacion.estado ===
+                                      "Finalizada"
+                                        ? "Las operaciones finalizadas no se editan"
+                                        : "Editar operación"
+                                    }
+                                    disabled={
+                                      operacion.estado ===
+                                      "Finalizada"
+                                    }
+                                    onClick={() =>
+                                      navigate(
+                                        `/operaciones/${operacion.id_operacion}/editar`
+                                      )
+                                    }
+                                  >
+                                    <Pencil size={16} />
+                                  </button>
+
+                                )}
 
                               </div>
 
@@ -765,6 +896,7 @@ function OperacionesPage() {
 
                         )
                       )
+
                     )
                 }
 

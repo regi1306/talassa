@@ -1,8 +1,36 @@
 import axios from "axios";
 
+import {
+  obtenerToken,
+} from "./auth.service.js";
+
 
 const API_URL =
   "http://localhost:3000/api/inspecciones";
+
+
+/* ======================================
+   CONFIGURACIÓN AUTENTICADA
+====================================== */
+
+function obtenerConfiguracion() {
+  const token =
+    obtenerToken();
+
+
+  const headers = {};
+
+
+  if (token) {
+    headers.Authorization =
+      `Bearer ${token}`;
+  }
+
+
+  return {
+    headers,
+  };
+}
 
 
 /* ======================================
@@ -12,8 +40,10 @@ const API_URL =
 export async function obtenerInspecciones() {
   const respuesta =
     await axios.get(
-      API_URL
+      API_URL,
+      obtenerConfiguracion()
     );
+
 
   return respuesta.data;
 }
@@ -28,8 +58,10 @@ export async function obtenerInspeccionPorId(
 ) {
   const respuesta =
     await axios.get(
-      `${API_URL}/${idInspeccion}`
+      `${API_URL}/${idInspeccion}`,
+      obtenerConfiguracion()
     );
+
 
   return respuesta.data;
 }
@@ -42,8 +74,10 @@ export async function obtenerInspeccionPorId(
 export async function obtenerOpcionesInspeccion() {
   const respuesta =
     await axios.get(
-      `${API_URL}/opciones-formulario`
+      `${API_URL}/opciones-formulario`,
+      obtenerConfiguracion()
     );
+
 
   return respuesta.data;
 }
@@ -59,8 +93,10 @@ export async function crearInspeccion(
   const respuesta =
     await axios.post(
       API_URL,
-      datosInspeccion
+      datosInspeccion,
+      obtenerConfiguracion()
     );
+
 
   return respuesta.data;
 }
@@ -77,8 +113,10 @@ export async function actualizarInspeccion(
   const respuesta =
     await axios.put(
       `${API_URL}/${idInspeccion}`,
-      datosInspeccion
+      datosInspeccion,
+      obtenerConfiguracion()
     );
+
 
   return respuesta.data;
 }
@@ -93,8 +131,10 @@ export async function eliminarInspeccion(
 ) {
   const respuesta =
     await axios.delete(
-      `${API_URL}/${idInspeccion}`
+      `${API_URL}/${idInspeccion}`,
+      obtenerConfiguracion()
     );
+
 
   return respuesta.data;
 }

@@ -10,26 +10,45 @@ import {
   registrarSalidaRealPorId,
 } from "../repositories/operaciones.repository.js";
 
+import {
+  registrarEventoAuditoria,
+} from "./auditoria.service.js";
+
+
+/* ======================================
+   ERROR CONTROLADO
+====================================== */
 
 function crearError(
   mensaje,
   estadoHttp
 ) {
   const error =
-    new Error(mensaje);
+    new Error(
+      mensaje
+    );
+
 
   error.estadoHttp =
     estadoHttp;
+
 
   return error;
 }
 
 
+/* ======================================
+   VALIDAR ID
+====================================== */
+
 function validarIdOperacion(
   idOperacion
 ) {
   const id =
-    Number(idOperacion);
+    Number(
+      idOperacion
+    );
+
 
   if (
     !Number.isInteger(id) ||
@@ -41,41 +60,56 @@ function validarIdOperacion(
     );
   }
 
+
   return id;
 }
 
+
+/* ======================================
+   PREPARAR DATOS
+====================================== */
 
 async function prepararDatosOperacion(
   datos = {}
 ) {
   const idBuque =
-    Number(datos.id_buque);
+    Number(
+      datos.id_buque
+    );
+
 
   const idTipoCarga =
-    Number(datos.id_tipo_carga);
+    Number(
+      datos.id_tipo_carga
+    );
 
 
   const procedencia =
-    typeof datos.procedencia === "string"
+    typeof datos.procedencia ===
+    "string"
       ? datos.procedencia.trim()
       : "";
 
 
   const destino =
-    typeof datos.destino === "string"
+    typeof datos.destino ===
+    "string"
       ? datos.destino.trim()
       : "";
 
 
   const observaciones =
-    typeof datos.observaciones === "string" &&
+    typeof datos.observaciones ===
+      "string" &&
     datos.observaciones.trim()
       ? datos.observaciones.trim()
       : null;
 
 
   if (
-    !Number.isInteger(idBuque) ||
+    !Number.isInteger(
+      idBuque
+    ) ||
     idBuque <= 0
   ) {
     throw crearError(
@@ -86,7 +120,9 @@ async function prepararDatosOperacion(
 
 
   if (
-    !Number.isInteger(idTipoCarga) ||
+    !Number.isInteger(
+      idTipoCarga
+    ) ||
     idTipoCarga <= 0
   ) {
     throw crearError(
@@ -178,15 +214,16 @@ async function prepararDatosOperacion(
   const [
     buqueValido,
     tipoCargaValido,
-  ] = await Promise.all([
-    existeBuqueActivo(
-      idBuque
-    ),
+  ] =
+    await Promise.all([
+      existeBuqueActivo(
+        idBuque
+      ),
 
-    existeTipoCarga(
-      idTipoCarga
-    ),
-  ]);
+      existeTipoCarga(
+        idTipoCarga
+      ),
+    ]);
 
 
   if (!buqueValido) {
@@ -227,10 +264,18 @@ async function prepararDatosOperacion(
 }
 
 
+/* ======================================
+   LISTAR
+====================================== */
+
 export async function listarOperaciones() {
   return await obtenerTodasLasOperaciones();
 }
 
+
+/* ======================================
+   DETALLE
+====================================== */
 
 export async function obtenerDetalleOperacion(
   idOperacion
@@ -242,7 +287,9 @@ export async function obtenerDetalleOperacion(
 
 
   const operacion =
-    await obtenerOperacionPorId(id);
+    await obtenerOperacionPorId(
+      id
+    );
 
 
   if (!operacion) {
@@ -257,13 +304,22 @@ export async function obtenerDetalleOperacion(
 }
 
 
+/* ======================================
+   OPCIONES DEL FORMULARIO
+====================================== */
+
 export async function obtenerOpcionesFormularioOperacion() {
   return await consultarOpcionesFormularioOperacion();
 }
 
 
+/* ======================================
+   REGISTRAR OPERACIÓN
+====================================== */
+
 export async function registrarOperacion(
-  datos = {}
+  datos = {},
+  idUsuario = null
 ) {
   const datosPreparados =
     await prepararDatosOperacion(
@@ -277,15 +333,50 @@ export async function registrarOperacion(
     );
 
 
-  return await obtenerOperacionPorId(
-    operacionCreada.id_operacion
-  );
+  const operacion =
+    await obtenerOperacionPorId(
+      operacionCreada.id_operacion
+    );
+
+
+  await registrarEventoAuditoria({
+    idUsuario,
+
+    accion:
+      "CREAR",
+
+    modulo:
+      "Operaciones",
+
+    entidad:
+      "operaciones_portuarias",
+
+    idRegistroAfectado:
+      operacion.id_operacion,
+
+    valoresAnteriores:
+      null,
+
+    valoresNuevos:
+      operacion,
+
+    descripcion:
+      `Se registró la operación ${operacion.codigo}.`,
+  });
+
+
+  return operacion;
 }
 
 
+/* ======================================
+   EDITAR OPERACIÓN
+====================================== */
+
 export async function editarOperacion(
   idOperacion,
-  datos = {}
+  datos = {},
+  idUsuario = null
 ) {
   const id =
     validarIdOperacion(
@@ -294,7 +385,9 @@ export async function editarOperacion(
 
 
   const operacionActual =
-    await obtenerOperacionPorId(id);
+    await obtenerOperacionPorId(
+      id
+    );
 
 
   if (!operacionActual) {
@@ -328,46 +421,56 @@ export async function editarOperacion(
   );
 
 
-  return await obtenerOperacionPorId(
-    id
-  );
-}
-
-export async function actualizarOperacion(
-  idOperacion,
-  datosOperacion
-) {
-  const respuesta =
-    await fetch(
-      `${URL_API}/operaciones/${idOperacion}`,
-      {
-        method: "PUT",
-
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
-
-        body: JSON.stringify(
-          datosOperacion
-        ),
-      }
+  const operacionActualizada =
+    await obtenerOperacionPorId(
+      id
     );
 
 
-  return await procesarRespuesta(
-    respuesta
-  );
+  await registrarEventoAuditoria({
+    idUsuario,
+
+    accion:
+      "EDITAR",
+
+    modulo:
+      "Operaciones",
+
+    entidad:
+      "operaciones_portuarias",
+
+    idRegistroAfectado:
+      id,
+
+    valoresAnteriores:
+      operacionActual,
+
+    valoresNuevos:
+      operacionActualizada,
+
+    descripcion:
+      `Se actualizó la operación ${operacionActualizada.codigo}.`,
+  });
+
+
+  return operacionActualizada;
 }
+
+
+/* ======================================
+   REGISTRAR LLEGADA REAL
+====================================== */
 
 export async function registrarLlegadaOperacion(
   idOperacion,
-  datos = {}
+  datos = {},
+  idUsuario = null
 ) {
   const id =
     validarIdOperacion(
       idOperacion
     );
+
 
   const operacion =
     await obtenerOperacionPorId(
@@ -456,20 +559,66 @@ export async function registrarLlegadaOperacion(
   }
 
 
-  return await obtenerOperacionPorId(
-    id
-  );
+  const operacionActualizada =
+    await obtenerOperacionPorId(
+      id
+    );
+
+
+  await registrarEventoAuditoria({
+    idUsuario,
+
+    accion:
+      "REGISTRAR_LLEGADA",
+
+    modulo:
+      "Operaciones",
+
+    entidad:
+      "operaciones_portuarias",
+
+    idRegistroAfectado:
+      id,
+
+    valoresAnteriores: {
+      llegada_real:
+        operacion.llegada_real,
+
+      estado:
+        operacion.estado,
+    },
+
+    valoresNuevos: {
+      llegada_real:
+        operacionActualizada.llegada_real,
+
+      estado:
+        operacionActualizada.estado,
+    },
+
+    descripcion:
+      `Se registró la llegada real de la operación ${operacionActualizada.codigo}.`,
+  });
+
+
+  return operacionActualizada;
 }
 
 
+/* ======================================
+   REGISTRAR SALIDA REAL
+====================================== */
+
 export async function registrarSalidaOperacion(
   idOperacion,
-  datos = {}
+  datos = {},
+  idUsuario = null
 ) {
   const id =
     validarIdOperacion(
       idOperacion
     );
+
 
   const operacion =
     await obtenerOperacionPorId(
@@ -589,7 +738,47 @@ export async function registrarSalidaOperacion(
   }
 
 
-  return await obtenerOperacionPorId(
-    id
-  );
+  const operacionActualizada =
+    await obtenerOperacionPorId(
+      id
+    );
+
+
+  await registrarEventoAuditoria({
+    idUsuario,
+
+    accion:
+      "REGISTRAR_SALIDA",
+
+    modulo:
+      "Operaciones",
+
+    entidad:
+      "operaciones_portuarias",
+
+    idRegistroAfectado:
+      id,
+
+    valoresAnteriores: {
+      salida_real:
+        operacion.salida_real,
+
+      estado:
+        operacion.estado,
+    },
+
+    valoresNuevos: {
+      salida_real:
+        operacionActualizada.salida_real,
+
+      estado:
+        operacionActualizada.estado,
+    },
+
+    descripcion:
+      `Se registró la salida real y se finalizó la operación ${operacionActualizada.codigo}.`,
+  });
+
+
+  return operacionActualizada;
 }

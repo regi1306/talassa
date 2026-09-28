@@ -7,6 +7,10 @@ import {
   obtenerTodosLosMuelles,
 } from "../repositories/muelles.repository.js";
 
+import {
+  registrarEventoAuditoria,
+} from "./auditoria.service.js";
+
 
 /* ======================================
    ERROR PERSONALIZADO
@@ -17,10 +21,14 @@ function crearError(
   estadoHttp
 ) {
   const error =
-    new Error(mensaje);
+    new Error(
+      mensaje
+    );
+
 
   error.estadoHttp =
     estadoHttp;
+
 
   return error;
 }
@@ -34,7 +42,10 @@ function validarIdMuelle(
   idMuelle
 ) {
   const id =
-    Number(idMuelle);
+    Number(
+      idMuelle
+    );
+
 
   if (
     !Number.isInteger(id) ||
@@ -45,6 +56,7 @@ function validarIdMuelle(
       400
     );
   }
+
 
   return id;
 }
@@ -64,20 +76,24 @@ function prepararDatosMuelle(
           .toUpperCase()
       : "";
 
+
   const nombre =
     typeof datos.nombre === "string"
       ? datos.nombre.trim()
       : "";
+
 
   const longitudMaxima =
     Number(
       datos.longitud_maxima
     );
 
+
   const caladoMaximo =
     Number(
       datos.calado_maximo
     );
+
 
   const estadoOperativo =
     typeof datos.estado_operativo ===
@@ -161,6 +177,7 @@ function prepararDatosMuelle(
 
   return {
     codigo,
+
     nombre,
 
     longitud_maxima:
@@ -196,10 +213,12 @@ export async function obtenerDetalleMuelle(
       idMuelle
     );
 
+
   const muelle =
     await obtenerMuellePorId(
       id
     );
+
 
   if (!muelle) {
     throw crearError(
@@ -207,6 +226,7 @@ export async function obtenerDetalleMuelle(
       404
     );
   }
+
 
   return muelle;
 }
@@ -217,21 +237,58 @@ export async function obtenerDetalleMuelle(
 ====================================== */
 
 export async function registrarMuelle(
-  datos = {}
+  datos = {},
+  idUsuario = null
 ) {
   const datosPreparados =
     prepararDatosMuelle(
       datos
     );
 
+
   const nuevoMuelle =
     await insertarMuelle(
       datosPreparados
     );
 
-  return await obtenerMuellePorId(
-    nuevoMuelle.id_muelle
-  );
+
+  const muelle =
+    await obtenerMuellePorId(
+      nuevoMuelle.id_muelle
+    );
+
+
+  /* ======================================
+     AUDITORÍA
+  ====================================== */
+
+  await registrarEventoAuditoria({
+    idUsuario,
+
+    accion:
+      "CREAR",
+
+    modulo:
+      "Muelles",
+
+    entidad:
+      "muelles",
+
+    idRegistroAfectado:
+      muelle.id_muelle,
+
+    valoresAnteriores:
+      null,
+
+    valoresNuevos:
+      muelle,
+
+    descripcion:
+      `Se registró el muelle ${muelle.codigo} - ${muelle.nombre}.`,
+  });
+
+
+  return muelle;
 }
 
 
@@ -241,17 +298,20 @@ export async function registrarMuelle(
 
 export async function editarMuelle(
   idMuelle,
-  datos = {}
+  datos = {},
+  idUsuario = null
 ) {
   const id =
     validarIdMuelle(
       idMuelle
     );
 
+
   const muelleActual =
     await obtenerMuellePorId(
       id
     );
+
 
   if (!muelleActual) {
     throw crearError(
@@ -273,18 +333,53 @@ export async function editarMuelle(
   );
 
 
-  return await obtenerMuellePorId(
-    id
-  );
+  const muelleActualizado =
+    await obtenerMuellePorId(
+      id
+    );
+
+
+  /* ======================================
+     AUDITORÍA
+  ====================================== */
+
+  await registrarEventoAuditoria({
+    idUsuario,
+
+    accion:
+      "EDITAR",
+
+    modulo:
+      "Muelles",
+
+    entidad:
+      "muelles",
+
+    idRegistroAfectado:
+      id,
+
+    valoresAnteriores:
+      muelleActual,
+
+    valoresNuevos:
+      muelleActualizado,
+
+    descripcion:
+      `Se actualizó el muelle ${muelleActualizado.codigo} - ${muelleActualizado.nombre}.`,
+  });
+
+
+  return muelleActualizado;
 }
 
 
 /* ======================================
-   ELIMINAR
+   ELIMINAR LÓGICAMENTE
 ====================================== */
 
 export async function eliminarMuelle(
-  idMuelle
+  idMuelle,
+  idUsuario = null
 ) {
   const id =
     validarIdMuelle(
@@ -334,10 +429,59 @@ export async function eliminarMuelle(
   }
 
 
+  /* ======================================
+     AUDITORÍA
+  ====================================== */
+
+  await registrarEventoAuditoria({
+    idUsuario,
+
+    accion:
+      "DESACTIVAR",
+
+    modulo:
+      "Muelles",
+
+    entidad:
+      "muelles",
+
+    idRegistroAfectado:
+      id,
+
+    valoresAnteriores: {
+      activo:
+        muelleActual.activo,
+
+      codigo:
+        muelleActual.codigo,
+
+      nombre:
+        muelleActual.nombre,
+    },
+
+    valoresNuevos: {
+      activo:
+        false,
+
+      codigo:
+        muelleActual.codigo,
+
+      nombre:
+        muelleActual.nombre,
+    },
+
+    descripcion:
+      `Se desactivó el muelle ${muelleActual.codigo} - ${muelleActual.nombre}.`,
+  });
+
+
   return {
-    id_muelle: id,
+    id_muelle:
+      id,
+
     codigo:
       muelleActual.codigo,
+
     nombre:
       muelleActual.nombre,
   };

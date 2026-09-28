@@ -53,6 +53,10 @@ function responderErrorOperacion(
 }
 
 
+/* ======================================
+   LISTAR OPERACIONES
+====================================== */
+
 export async function obtenerOperaciones(
   req,
   res
@@ -61,13 +65,17 @@ export async function obtenerOperaciones(
     const operaciones =
       await listarOperaciones();
 
+
     return res.status(200).json({
       ok: true,
+
       total:
         operaciones.length,
+
       datos:
         operaciones,
     });
+
   } catch (error) {
     return responderErrorOperacion(
       error,
@@ -77,6 +85,10 @@ export async function obtenerOperaciones(
   }
 }
 
+
+/* ======================================
+   DETALLE
+====================================== */
 
 export async function obtenerOperacion(
   req,
@@ -88,11 +100,14 @@ export async function obtenerOperacion(
         req.params.id
       );
 
+
     return res.status(200).json({
       ok: true,
+
       datos:
         operacion,
     });
+
   } catch (error) {
     return responderErrorOperacion(
       error,
@@ -103,6 +118,10 @@ export async function obtenerOperacion(
 }
 
 
+/* ======================================
+   OPCIONES DEL FORMULARIO
+====================================== */
+
 export async function obtenerOpcionesOperacion(
   req,
   res
@@ -111,11 +130,14 @@ export async function obtenerOpcionesOperacion(
     const opciones =
       await obtenerOpcionesFormularioOperacion();
 
+
     return res.status(200).json({
       ok: true,
+
       datos:
         opciones,
     });
+
   } catch (error) {
     return responderErrorOperacion(
       error,
@@ -126,6 +148,10 @@ export async function obtenerOpcionesOperacion(
 }
 
 
+/* ======================================
+   CREAR OPERACIÓN
+====================================== */
+
 export async function crearOperacion(
   req,
   res
@@ -133,8 +159,10 @@ export async function crearOperacion(
   try {
     const operacion =
       await registrarOperacion(
-        req.body
+        req.body,
+        req.usuario?.id_usuario
       );
+
 
     return res.status(201).json({
       ok: true,
@@ -145,6 +173,7 @@ export async function crearOperacion(
       datos:
         operacion,
     });
+
   } catch (error) {
     return responderErrorOperacion(
       error,
@@ -154,6 +183,11 @@ export async function crearOperacion(
   }
 }
 
+
+/* ======================================
+   EDITAR OPERACIÓN
+====================================== */
+
 export async function actualizarOperacion(
   req,
   res
@@ -162,7 +196,8 @@ export async function actualizarOperacion(
     const operacion =
       await editarOperacion(
         req.params.id,
-        req.body
+        req.body,
+        req.usuario?.id_usuario
       );
 
 
@@ -175,6 +210,7 @@ export async function actualizarOperacion(
       datos:
         operacion,
     });
+
   } catch (error) {
     return responderErrorOperacion(
       error,
@@ -184,6 +220,11 @@ export async function actualizarOperacion(
   }
 }
 
+
+/* ======================================
+   REGISTRAR LLEGADA
+====================================== */
+
 export async function actualizarLlegadaOperacion(
   req,
   res
@@ -192,8 +233,10 @@ export async function actualizarLlegadaOperacion(
     const operacion =
       await registrarLlegadaOperacion(
         req.params.id,
-        req.body
+        req.body,
+        req.usuario?.id_usuario
       );
+
 
     return res.status(200).json({
       ok: true,
@@ -204,6 +247,7 @@ export async function actualizarLlegadaOperacion(
       datos:
         operacion,
     });
+
   } catch (error) {
     return responderErrorOperacion(
       error,
@@ -214,6 +258,10 @@ export async function actualizarLlegadaOperacion(
 }
 
 
+/* ======================================
+   REGISTRAR SALIDA
+====================================== */
+
 export async function actualizarSalidaOperacion(
   req,
   res
@@ -222,8 +270,10 @@ export async function actualizarSalidaOperacion(
     const operacion =
       await registrarSalidaOperacion(
         req.params.id,
-        req.body
+        req.body,
+        req.usuario?.id_usuario
       );
+
 
     return res.status(200).json({
       ok: true,
@@ -234,6 +284,7 @@ export async function actualizarSalidaOperacion(
       datos:
         operacion,
     });
+
   } catch (error) {
     return responderErrorOperacion(
       error,

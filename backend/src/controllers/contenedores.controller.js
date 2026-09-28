@@ -17,6 +17,7 @@ function responderErrorContenedor(
     error
   );
 
+
   return res
     .status(
       error.estadoHttp || 500
@@ -32,6 +33,10 @@ function responderErrorContenedor(
 }
 
 
+/* ======================================
+   LISTAR CONTENEDORES
+====================================== */
+
 export async function obtenerContenedores(
   req,
   res
@@ -40,13 +45,17 @@ export async function obtenerContenedores(
     const contenedores =
       await listarContenedores();
 
+
     return res.status(200).json({
       ok: true,
+
       total:
         contenedores.length,
+
       datos:
         contenedores,
     });
+
   } catch (error) {
     return responderErrorContenedor(
       error,
@@ -56,6 +65,10 @@ export async function obtenerContenedores(
   }
 }
 
+
+/* ======================================
+   DETALLE
+====================================== */
 
 export async function obtenerContenedor(
   req,
@@ -67,11 +80,14 @@ export async function obtenerContenedor(
         req.params.id
       );
 
+
     return res.status(200).json({
       ok: true,
+
       datos:
         contenedor,
     });
+
   } catch (error) {
     return responderErrorContenedor(
       error,
@@ -82,6 +98,10 @@ export async function obtenerContenedor(
 }
 
 
+/* ======================================
+   OPCIONES DEL FORMULARIO
+====================================== */
+
 export async function obtenerOpcionesContenedor(
   req,
   res
@@ -90,11 +110,14 @@ export async function obtenerOpcionesContenedor(
     const opciones =
       await obtenerOpcionesFormularioContenedor();
 
+
     return res.status(200).json({
       ok: true,
+
       datos:
         opciones,
     });
+
   } catch (error) {
     return responderErrorContenedor(
       error,
@@ -104,6 +127,11 @@ export async function obtenerOpcionesContenedor(
   }
 }
 
+
+/* ======================================
+   CREAR CONTENEDOR
+====================================== */
+
 export async function crearContenedor(
   req,
   res
@@ -111,8 +139,10 @@ export async function crearContenedor(
   try {
     const contenedor =
       await registrarContenedor(
-        req.body
+        req.body,
+        req.usuario?.id_usuario
       );
+
 
     return res.status(201).json({
       ok: true,
@@ -123,20 +153,29 @@ export async function crearContenedor(
       datos:
         contenedor,
     });
+
   } catch (error) {
 
-    if (error.code === "23505") {
+    if (
+      error.code ===
+      "23505"
+    ) {
       return res.status(409).json({
         ok: false,
+
         mensaje:
           "Ya existe un contenedor con ese código.",
       });
     }
 
 
-    if (error.code === "23514") {
+    if (
+      error.code ===
+      "23514"
+    ) {
       return res.status(400).json({
         ok: false,
+
         mensaje:
           "El peso del contenedor debe ser mayor que cero.",
       });
@@ -151,6 +190,11 @@ export async function crearContenedor(
   }
 }
 
+
+/* ======================================
+   EDITAR CONTENEDOR
+====================================== */
+
 export async function actualizarContenedor(
   req,
   res
@@ -159,8 +203,10 @@ export async function actualizarContenedor(
     const contenedor =
       await editarContenedor(
         req.params.id,
-        req.body
+        req.body,
+        req.usuario?.id_usuario
       );
+
 
     return res.status(200).json({
       ok: true,
@@ -171,10 +217,12 @@ export async function actualizarContenedor(
       datos:
         contenedor,
     });
+
   } catch (error) {
 
     if (
-      error.code === "23505"
+      error.code ===
+      "23505"
     ) {
       return res.status(409).json({
         ok: false,
@@ -186,7 +234,8 @@ export async function actualizarContenedor(
 
 
     if (
-      error.code === "23514"
+      error.code ===
+      "23514"
     ) {
       return res.status(400).json({
         ok: false,

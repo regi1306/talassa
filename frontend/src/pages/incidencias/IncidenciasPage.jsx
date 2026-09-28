@@ -24,6 +24,10 @@ import {
   obtenerIncidencias,
 } from "../../services/incidenciasService.js";
 
+import {
+  tienePermiso,
+} from "../../services/auth.service.js";
+
 import ConfirmDeleteModal
   from "../../components/common/ConfirmDeleteModal.jsx";
 
@@ -81,8 +85,12 @@ function formatearFecha(
     };
   }
 
+
   const fecha =
-    new Date(valor);
+    new Date(
+      valor
+    );
+
 
   return {
     fecha:
@@ -107,6 +115,20 @@ function IncidenciasPage() {
   const navigate =
     useNavigate();
 
+
+  /* ======================================
+     PERMISOS
+  ====================================== */
+
+  const puedeGestionar =
+    tienePermiso(
+      "INC_GESTIONAR"
+    );
+
+
+  /* ======================================
+     ESTADOS
+  ====================================== */
 
   const [
     incidencias,
@@ -149,43 +171,68 @@ function IncidenciasPage() {
     setError,
   ] = useState("");
 
+
   const [
     incidenciaAEliminar,
     setIncidenciaAEliminar,
   ] = useState(null);
 
+
+  /* ======================================
+     CARGAR INCIDENCIAS
+  ====================================== */
+
   async function cargarIncidencias() {
     try {
-      setCargando(true);
+      setCargando(
+        true
+      );
 
-      setError("");
+      setError(
+        ""
+      );
 
 
       const respuesta =
         await obtenerIncidencias();
 
 
-      if (!respuesta.ok) {
+      if (
+        !respuesta.ok
+      ) {
         throw new Error(
           respuesta.mensaje
+          ||
+          respuesta.message
+          ||
+          "No fue posible cargar las incidencias."
         );
       }
 
 
       setIncidencias(
-        respuesta.datos ||
+        respuesta.datos
+        ||
         []
       );
 
+
     } catch (error) {
       setError(
-        error.response?.data?.mensaje ||
-        error.message ||
+        error.response?.data?.mensaje
+        ||
+        error.response?.data?.message
+        ||
+        error.message
+        ||
         "No fue posible cargar las incidencias."
       );
 
+
     } finally {
-      setCargando(false);
+      setCargando(
+        false
+      );
     }
   }
 
@@ -194,6 +241,10 @@ function IncidenciasPage() {
     cargarIncidencias();
   }, []);
 
+
+  /* ======================================
+     OPERACIONES PARA FILTRO
+  ====================================== */
 
   const operaciones =
     useMemo(
@@ -207,13 +258,18 @@ function IncidenciasPage() {
             .filter(Boolean)
         ),
       ],
-      [incidencias]
+      [
+        incidencias,
+      ]
     );
 
 
+  /* ======================================
+     FILTROS
+  ====================================== */
+
   const filtradas =
     useMemo(() => {
-
       const texto =
         busqueda
           .trim()
@@ -222,47 +278,49 @@ function IncidenciasPage() {
 
       return incidencias.filter(
         (item) => {
-
           const coincideTexto =
             (item.codigo || "")
               .toLowerCase()
-              .includes(texto) ||
-
+              .includes(texto)
+            ||
             (item.operacion || "")
               .toLowerCase()
-              .includes(texto) ||
-
+              .includes(texto)
+            ||
             (item.descripcion || "")
               .toLowerCase()
-              .includes(texto) ||
-
+              .includes(texto)
+            ||
             (item.responsable || "")
               .toLowerCase()
               .includes(texto);
 
 
           return (
-            coincideTexto &&
-
+            coincideTexto
+            &&
             (
               filtroOperacion ===
-              "Todas" ||
+                "Todas"
+              ||
               item.operacion ===
-              filtroOperacion
-            ) &&
-
+                filtroOperacion
+            )
+            &&
             (
               filtroPrioridad ===
-              "Todas" ||
+                "Todas"
+              ||
               item.prioridad ===
-              filtroPrioridad
-            ) &&
-
+                filtroPrioridad
+            )
+            &&
             (
               filtroEstado ===
-              "Todos" ||
+                "Todos"
+              ||
               item.estado ===
-              filtroEstado
+                filtroEstado
             )
           );
         }
@@ -276,6 +334,10 @@ function IncidenciasPage() {
       filtroEstado,
     ]);
 
+
+  /* ======================================
+     CONTADORES
+  ====================================== */
 
   const abiertas =
     incidencias.filter(
@@ -301,8 +363,14 @@ function IncidenciasPage() {
     ).length;
 
 
+  /* ======================================
+     ELIMINAR
+  ====================================== */
+
   async function confirmarEliminarIncidencia() {
-    if (!incidenciaAEliminar) {
+    if (
+      !incidenciaAEliminar
+    ) {
       return;
     }
 
@@ -314,9 +382,14 @@ function IncidenciasPage() {
         );
 
 
-      if (!respuesta.ok) {
+      if (
+        !respuesta.ok
+      ) {
         throw new Error(
-          respuesta.mensaje ||
+          respuesta.mensaje
+          ||
+          respuesta.message
+          ||
           "No fue posible eliminar la incidencia."
         );
       }
@@ -337,22 +410,36 @@ function IncidenciasPage() {
       );
 
 
-      setError("");
+      setError(
+        ""
+      );
+
 
     } catch (error) {
-
-      throw new Error(
-        error.response?.data?.mensaje ||
-        error.message ||
+      setError(
+        error.response?.data?.mensaje
+        ||
+        error.response?.data?.message
+        ||
+        error.message
+        ||
         "No fue posible eliminar la incidencia."
       );
 
+
+      setIncidenciaAEliminar(
+        null
+      );
     }
   }
 
 
   return (
     <section className="incidencias-page">
+
+      {/* ==================================
+          ENCABEZADO
+      ================================== */}
 
       <div className="page-heading">
 
@@ -371,28 +458,45 @@ function IncidenciasPage() {
         </div>
 
 
-        <button
-          className="button button-primary"
-          type="button"
-          onClick={() =>
-            navigate(
-              "/incidencias/nueva"
-            )
-          }
-        >
-          <Plus size={19} />
-          Nueva incidencia
-        </button>
+        {puedeGestionar && (
+
+          <button
+            className="button button-primary"
+            type="button"
+            onClick={() =>
+              navigate(
+                "/incidencias/nueva"
+              )
+            }
+          >
+
+            <Plus
+              size={19}
+            />
+
+            Nueva incidencia
+
+          </button>
+
+        )}
 
       </div>
 
 
+      {/* ==================================
+          ESTADÍSTICAS
+      ================================== */}
+
       <div className="incident-stats-grid">
 
         <article className="stat-card">
-          <AlertTriangle size={28} />
+
+          <AlertTriangle
+            size={28}
+          />
 
           <div>
+
             <span>
               Total de incidencias
             </span>
@@ -404,15 +508,23 @@ function IncidenciasPage() {
             <small>
               Registros encontrados
             </small>
+
           </div>
+
         </article>
 
 
         <article className="stat-card">
-          <AlertTriangle size={28} />
+
+          <AlertTriangle
+            size={28}
+          />
 
           <div>
-            <span>Abiertas</span>
+
+            <span>
+              Abiertas
+            </span>
 
             <strong>
               {abiertas}
@@ -421,14 +533,20 @@ function IncidenciasPage() {
             <small>
               Requieren atención
             </small>
+
           </div>
+
         </article>
 
 
         <article className="stat-card">
-          <Clock3 size={28} />
+
+          <Clock3
+            size={28}
+          />
 
           <div>
+
             <span>
               En revisión
             </span>
@@ -440,14 +558,20 @@ function IncidenciasPage() {
             <small>
               En seguimiento
             </small>
+
           </div>
+
         </article>
 
 
         <article className="stat-card">
-          <CheckCircle2 size={28} />
+
+          <CheckCircle2
+            size={28}
+          />
 
           <div>
+
             <span>
               Resueltas
             </span>
@@ -459,64 +583,90 @@ function IncidenciasPage() {
             <small>
               Con solución registrada
             </small>
+
           </div>
+
         </article>
 
       </div>
 
+
+      {/* ==================================
+          TABLA
+      ================================== */}
 
       <div className="glass-card table-card">
 
         <div className="incident-filters">
 
           <div className="search-control">
-            <Search size={18} />
+
+            <Search
+              size={18}
+            />
 
             <input
               placeholder="Buscar incidencia..."
-              value={busqueda}
-              onChange={(e) =>
+              value={
+                busqueda
+              }
+              onChange={(event) =>
                 setBusqueda(
-                  e.target.value
+                  event.target.value
                 )
               }
             />
+
           </div>
 
 
           <select
-            value={filtroOperacion}
-            onChange={(e) =>
+            value={
+              filtroOperacion
+            }
+            onChange={(event) =>
               setFiltroOperacion(
-                e.target.value
+                event.target.value
               )
             }
           >
+
             <option value="Todas">
               Todas las operaciones
             </option>
 
+
             {operaciones.map(
               (operacion) => (
+
                 <option
-                  key={operacion}
-                  value={operacion}
+                  key={
+                    operacion
+                  }
+                  value={
+                    operacion
+                  }
                 >
                   {operacion}
                 </option>
+
               )
             )}
+
           </select>
 
 
           <select
-            value={filtroPrioridad}
-            onChange={(e) =>
+            value={
+              filtroPrioridad
+            }
+            onChange={(event) =>
               setFiltroPrioridad(
-                e.target.value
+                event.target.value
               )
             }
           >
+
             <option value="Todas">
               Todas las prioridades
             </option>
@@ -532,17 +682,21 @@ function IncidenciasPage() {
             <option value="Baja">
               Baja
             </option>
+
           </select>
 
 
           <select
-            value={filtroEstado}
-            onChange={(e) =>
+            value={
+              filtroEstado
+            }
+            onChange={(event) =>
               setFiltroEstado(
-                e.target.value
+                event.target.value
               )
             }
           >
+
             <option value="Todos">
               Todos los estados
             </option>
@@ -562,15 +716,20 @@ function IncidenciasPage() {
             <option value="Cerrada">
               Cerrada
             </option>
+
           </select>
 
         </div>
 
 
+        {/* ERROR */}
+
         {error && (
+
           <div className="form-error">
             {error}
           </div>
+
         )}
 
 
@@ -579,37 +738,71 @@ function IncidenciasPage() {
           <table className="talassa-table">
 
             <thead>
+
               <tr>
-                <th>Código</th>
-                <th>Operación</th>
-                <th>Prioridad</th>
-                <th>Estado</th>
-                <th>Fecha</th>
-                <th>Responsable</th>
-                <th>Acciones</th>
+
+                <th>
+                  Código
+                </th>
+
+                <th>
+                  Operación
+                </th>
+
+                <th>
+                  Prioridad
+                </th>
+
+                <th>
+                  Estado
+                </th>
+
+                <th>
+                  Fecha
+                </th>
+
+                <th>
+                  Responsable
+                </th>
+
+                <th>
+                  Acciones
+                </th>
+
               </tr>
+
             </thead>
 
 
             <tbody>
 
+              {/* CARGANDO */}
+
               {cargando && (
+
                 <tr>
-                  <td colSpan="7">
+
+                  <td
+                    colSpan="7"
+                  >
                     Cargando incidencias...
                   </td>
+
                 </tr>
+
               )}
 
+
+              {/* REGISTROS */}
 
               {!cargando &&
                 filtradas.map(
                   (item) => {
-
                     const fecha =
                       formatearFecha(
                         item.fecha_reporte
                       );
+
 
                     return (
                       <tr
@@ -619,44 +812,66 @@ function IncidenciasPage() {
                       >
 
                         <td>
+
                           <strong>
                             {item.codigo}
                           </strong>
+
                         </td>
 
 
                         <td>
-                          {item.operacion}
+                          {
+                            item.operacion
+                          }
                         </td>
 
 
                         <td>
+
                           <span
                             className={`status-pill ${clasePrioridad(
                               item.prioridad
                             )}`}
                           >
+
                             <span />
-                            {item.prioridad}
+
+                            {
+                              item.prioridad
+                            }
+
                           </span>
+
                         </td>
 
 
                         <td>
+
                           <span
                             className={`status-pill ${claseEstado(
                               item.estado
                             )}`}
                           >
+
                             <span />
-                            {item.estado}
+
+                            {
+                              item.estado
+                            }
+
                           </span>
+
                         </td>
 
 
                         <td>
+
                           <div>
-                            {fecha.fecha}
+
+                            {
+                              fecha.fecha
+                            }
 
                             <small
                               style={{
@@ -664,15 +879,24 @@ function IncidenciasPage() {
                                   "block",
                               }}
                             >
-                              {fecha.hora}
+                              {
+                                fecha.hora
+                              }
                             </small>
+
                           </div>
+
                         </td>
 
 
                         <td>
-                          {item.responsable ||
-                            "Sin responsable"}
+
+                          {
+                            item.responsable
+                            ||
+                            "Sin responsable"
+                          }
+
                         </td>
 
 
@@ -680,7 +904,7 @@ function IncidenciasPage() {
 
                           <div className="action-buttons">
 
-                            {/* OJO = SOLO VER */}
+                            {/* VER */}
 
                             <button
                               type="button"
@@ -691,35 +915,61 @@ function IncidenciasPage() {
                                 )
                               }
                             >
-                              <Eye size={17} />
+
+                              <Eye
+                                size={17}
+                              />
+
                             </button>
 
 
-                            {/* LÁPIZ = EDITAR */}
+                            {/* ==================================
+                                ACCIONES DE GESTIÓN
+                            ================================== */}
 
-                            <button
-                              type="button"
-                              title="Editar incidencia"
-                              onClick={() =>
-                                navigate(
-                                  `/incidencias/${item.id_incidencia}/editar`
-                                )
-                              }
-                            >
-                              <Edit3 size={17} />
-                            </button>
+                            {puedeGestionar && (
+                              <>
+
+                                {/* EDITAR */}
+
+                                <button
+                                  type="button"
+                                  title="Editar incidencia"
+                                  onClick={() =>
+                                    navigate(
+                                      `/incidencias/${item.id_incidencia}/editar`
+                                    )
+                                  }
+                                >
+
+                                  <Edit3
+                                    size={17}
+                                  />
+
+                                </button>
 
 
-                            <button
-                              type="button"
-                              title="Eliminar incidencia"
-                              className="action-delete"
-                              onClick={() =>
-                                setIncidenciaAEliminar(item)
-                              }
-                            >
-                              <Trash2 size={17} />
-                            </button>
+                                {/* ELIMINAR */}
+
+                                <button
+                                  type="button"
+                                  title="Eliminar incidencia"
+                                  className="action-delete"
+                                  onClick={() =>
+                                    setIncidenciaAEliminar(
+                                      item
+                                    )
+                                  }
+                                >
+
+                                  <Trash2
+                                    size={17}
+                                  />
+
+                                </button>
+
+                              </>
+                            )}
 
                           </div>
 
@@ -730,6 +980,25 @@ function IncidenciasPage() {
                   }
                 )}
 
+
+              {/* SIN RESULTADOS */}
+
+              {!cargando &&
+                filtradas.length ===
+                  0 && (
+
+                <tr>
+
+                  <td
+                    colSpan="7"
+                  >
+                    No se encontraron incidencias.
+                  </td>
+
+                </tr>
+
+              )}
+
             </tbody>
 
           </table>
@@ -738,34 +1007,53 @@ function IncidenciasPage() {
 
 
         <div className="table-footer">
-          Mostrando {filtradas.length} de{" "}
-          {incidencias.length} registros
+
+          Mostrando{" "}
+          {
+            filtradas.length
+          }
+          {" "}de{" "}
+          {
+            incidencias.length
+          }
+          {" "}registros
+
         </div>
 
       </div>
 
-      <ConfirmDeleteModal
-        abierto={
-          Boolean(
+
+      {/* ==================================
+          MODAL DE ELIMINACIÓN
+      ================================== */}
+
+      {puedeGestionar && (
+
+        <ConfirmDeleteModal
+          abierto={
+            Boolean(
+              incidenciaAEliminar
+            )
+          }
+          titulo="Eliminar incidencia"
+          mensaje="¿Confirmas que deseas eliminar esta incidencia?"
+          nombre={
             incidenciaAEliminar
-          )
-        }
-        titulo="Eliminar incidencia"
-        mensaje="¿Confirmas que deseas eliminar esta incidencia?"
-        nombre={
-          incidenciaAEliminar
-            ? incidenciaAEliminar.codigo
-            : ""
-        }
-        onCancelar={() =>
-          setIncidenciaAEliminar(
-            null
-          )
-        }
-        onConfirmar={
-          confirmarEliminarIncidencia
-        }
-      />
+              ? incidenciaAEliminar.codigo
+              : ""
+          }
+          onCancelar={() =>
+            setIncidenciaAEliminar(
+              null
+            )
+          }
+          onConfirmar={
+            confirmarEliminarIncidencia
+          }
+        />
+
+      )}
+
     </section>
   );
 }

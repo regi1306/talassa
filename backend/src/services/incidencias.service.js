@@ -19,30 +19,51 @@ import {
   obtenerTodasLasIncidencias,
 } from "../repositories/incidencias.repository.js";
 
+import {
+  registrarEventoAuditoria,
+} from "./auditoria.service.js";
+
+
+/* ======================================
+   ERROR PERSONALIZADO
+====================================== */
 
 function crearError(
   mensaje,
   estadoHttp
 ) {
   const error =
-    new Error(mensaje);
+    new Error(
+      mensaje
+    );
+
 
   error.estadoHttp =
     estadoHttp;
 
+
   return error;
 }
 
+
+/* ======================================
+   ID OBLIGATORIO
+====================================== */
 
 function idObligatorio(
   valor,
   nombre
 ) {
   const numero =
-    Number(valor);
+    Number(
+      valor
+    );
+
 
   if (
-    !Number.isInteger(numero) ||
+    !Number.isInteger(
+      numero
+    ) ||
     numero <= 0
   ) {
     throw crearError(
@@ -51,11 +72,18 @@ function idObligatorio(
     );
   }
 
+
   return numero;
 }
 
 
-function idOpcional(valor) {
+/* ======================================
+   ID OPCIONAL
+====================================== */
+
+function idOpcional(
+  valor
+) {
   if (
     valor === "" ||
     valor === null ||
@@ -64,11 +92,17 @@ function idOpcional(valor) {
     return null;
   }
 
+
   const numero =
-    Number(valor);
+    Number(
+      valor
+    );
+
 
   if (
-    !Number.isInteger(numero) ||
+    !Number.isInteger(
+      numero
+    ) ||
     numero <= 0
   ) {
     throw crearError(
@@ -76,6 +110,7 @@ function idOpcional(valor) {
       400
     );
   }
+
 
   return numero;
 }
@@ -88,25 +123,35 @@ function idOpcional(valor) {
 function validarEvidencias(
   evidencias
 ) {
-  if (!Array.isArray(evidencias)) {
+  if (
+    !Array.isArray(
+      evidencias
+    )
+  ) {
     return [];
   }
 
-  if (evidencias.length > 4) {
+
+  if (
+    evidencias.length > 4
+  ) {
     throw crearError(
       "Solo se permiten hasta 4 imágenes por incidencia.",
       400
     );
   }
 
-  return evidencias.map(
-    (evidencia) => {
 
+  return evidencias.map(
+    (
+      evidencia
+    ) => {
       const dataUrl =
         String(
           evidencia.dataUrl ||
           ""
         );
+
 
       if (
         !dataUrl.startsWith(
@@ -119,6 +164,7 @@ function validarEvidencias(
         );
       }
 
+
       if (
         dataUrl.length >
         3_000_000
@@ -128,6 +174,7 @@ function validarEvidencias(
           400
         );
       }
+
 
       return {
         nombre:
@@ -156,15 +203,18 @@ function validarEvidencias(
 
 
 /* ======================================
-   PREPARAR
+   PREPARAR DATOS
 ====================================== */
 
-function prepararDatos(datos) {
+function prepararDatos(
+  datos
+) {
   const prioridad =
     String(
       datos.prioridad ||
       ""
     ).trim();
+
 
   const estado =
     String(
@@ -172,11 +222,13 @@ function prepararDatos(datos) {
       "Abierta"
     ).trim();
 
+
   const descripcion =
     String(
       datos.descripcion ||
       ""
     ).trim();
+
 
   const resolucion =
     datos.resolucion
@@ -219,7 +271,9 @@ function prepararDatos(datos) {
   }
 
 
-  if (!descripcion) {
+  if (
+    !descripcion
+  ) {
     throw crearError(
       "La descripción de la incidencia es obligatoria.",
       400
@@ -267,8 +321,11 @@ function prepararDatos(datos) {
       ),
 
     prioridad,
+
     descripcion,
+
     estado,
+
     resolucion,
 
     evidencias:
@@ -281,7 +338,63 @@ function prepararDatos(datos) {
 
 
 /* ======================================
-   RELACIONES
+   PREPARAR DATOS PARA AUDITORÍA
+
+   IMPORTANTE:
+   No almacenamos dataUrl/base64 de las
+   imágenes dentro de auditoria.
+====================================== */
+
+function prepararIncidenciaParaAuditoria(
+  incidencia
+) {
+  if (!incidencia) {
+    return null;
+  }
+
+
+  const {
+    seguimiento,
+    evidencias,
+    ...datosIncidencia
+  } = incidencia;
+
+
+  const evidenciasAuditoria =
+    Array.isArray(
+      evidencias
+    )
+      ? evidencias.map(
+          (
+            evidencia
+          ) => ({
+            nombre:
+              evidencia.nombre ||
+              null,
+
+            tipo:
+              evidencia.tipo ||
+              null,
+
+            categoria:
+              evidencia.categoria ||
+              null,
+          })
+        )
+      : [];
+
+
+  return {
+    ...datosIncidencia,
+
+    evidencias:
+      evidenciasAuditoria,
+  };
+}
+
+
+/* ======================================
+   VALIDAR RELACIONES
 ====================================== */
 
 async function validarRelaciones(
@@ -300,7 +413,8 @@ async function validarRelaciones(
 
 
   if (
-    datos.id_inspeccion !== null
+    datos.id_inspeccion !==
+    null
   ) {
     if (
       !await existeInspeccion(
@@ -312,6 +426,7 @@ async function validarRelaciones(
         404
       );
     }
+
 
     if (
       !await inspeccionPerteneceOperacion(
@@ -328,7 +443,8 @@ async function validarRelaciones(
 
 
   if (
-    datos.id_contenedor !== null
+    datos.id_contenedor !==
+    null
   ) {
     if (
       !await existeContenedor(
@@ -340,6 +456,7 @@ async function validarRelaciones(
         404
       );
     }
+
 
     if (
       !await contenedorPerteneceOperacion(
@@ -381,7 +498,8 @@ async function validarRelaciones(
 
 
   if (
-    datos.id_usuario_responsable !== null &&
+    datos.id_usuario_responsable !==
+      null &&
     !await existeUsuario(
       datos.id_usuario_responsable
     )
@@ -428,25 +546,32 @@ export async function obtenerDetalleIncidencia(
       "La incidencia"
     );
 
+
   const incidencia =
     await obtenerIncidenciaPorId(
       idIncidencia
     );
 
-  if (!incidencia) {
+
+  if (
+    !incidencia
+  ) {
     throw crearError(
       "La incidencia no existe.",
       404
     );
   }
 
+
   const seguimiento =
     await obtenerSeguimientoPorIncidencia(
       idIncidencia
     );
 
+
   return {
     ...incidencia,
+
     seguimiento,
   };
 }
@@ -466,32 +591,66 @@ export async function listarOpcionesIncidencia() {
 ====================================== */
 
 export async function registrarIncidencia(
-  datos
+  datos,
+  idUsuarioAutenticado
 ) {
+  /*
+   * El usuario que reporta la incidencia
+   * se obtiene del JWT.
+   *
+   * No se confía en el
+   * id_usuario_reportante enviado
+   * por el navegador.
+   */
+
+  const idUsuario =
+    idObligatorio(
+      idUsuarioAutenticado,
+      "El usuario autenticado"
+    );
+
+
+  const datosSeguros = {
+    ...datos,
+
+    id_usuario_reportante:
+      idUsuario,
+  };
+
+
   const preparados =
-    prepararDatos(datos);
+    prepararDatos(
+      datosSeguros
+    );
+
 
   await validarRelaciones(
     preparados
   );
 
+
   const codigo =
     await generarCodigoIncidencia();
+
 
   const nueva =
     await insertarIncidencia({
       ...preparados,
+
       codigo,
     });
 
+
+  /*
+   * Historial interno de la incidencia.
+   */
 
   await insertarSeguimiento({
     id_incidencia:
       nueva.id_incidencia,
 
     id_usuario:
-      preparados
-        .id_usuario_reportante,
+      idUsuario,
 
     tipo_evento:
       "Registro",
@@ -507,9 +666,45 @@ export async function registrarIncidencia(
   });
 
 
-  return await obtenerDetalleIncidencia(
-    nueva.id_incidencia
-  );
+  const incidencia =
+    await obtenerDetalleIncidencia(
+      nueva.id_incidencia
+    );
+
+
+  /*
+   * Auditoría global de TALASSA.
+   */
+
+  await registrarEventoAuditoria({
+    idUsuario,
+
+    accion:
+      "CREAR",
+
+    modulo:
+      "Incidencias",
+
+    entidad:
+      "incidencias",
+
+    idRegistroAfectado:
+      nueva.id_incidencia,
+
+    valoresAnteriores:
+      null,
+
+    valoresNuevos:
+      prepararIncidenciaParaAuditoria(
+        incidencia
+      ),
+
+    descripcion:
+      `Se registró la incidencia ${incidencia.codigo}.`,
+  });
+
+
+  return incidencia;
 }
 
 
@@ -519,7 +714,8 @@ export async function registrarIncidencia(
 
 export async function editarIncidencia(
   id,
-  datos
+  datos,
+  idUsuarioAutenticado
 ) {
   const idIncidencia =
     idObligatorio(
@@ -527,20 +723,52 @@ export async function editarIncidencia(
       "La incidencia"
     );
 
+
+  const idUsuario =
+    idObligatorio(
+      idUsuarioAutenticado,
+      "El usuario autenticado"
+    );
+
+
   const actual =
     await obtenerIncidenciaPorId(
       idIncidencia
     );
 
-  if (!actual) {
+
+  if (
+    !actual
+  ) {
     throw crearError(
       "La incidencia no existe.",
       404
     );
   }
 
+
+  /*
+   * El usuario reportante original
+   * se conserva.
+   *
+   * Aunque el navegador envíe otro
+   * id_usuario_reportante, el backend
+   * lo ignora.
+   */
+
+  const datosSeguros = {
+    ...datos,
+
+    id_usuario_reportante:
+      actual.id_usuario_reportante,
+  };
+
+
   const preparados =
-    prepararDatos(datos);
+    prepararDatos(
+      datosSeguros
+    );
+
 
   await validarRelaciones(
     preparados
@@ -553,6 +781,12 @@ export async function editarIncidencia(
   );
 
 
+  /*
+   * Si durante la edición cambia
+   * el estado, se mantiene también
+   * el historial interno.
+   */
+
   if (
     actual.estado !==
     preparados.estado
@@ -562,8 +796,7 @@ export async function editarIncidencia(
         idIncidencia,
 
       id_usuario:
-        preparados
-          .id_usuario_reportante,
+        idUsuario,
 
       tipo_evento:
         "Cambio de estado",
@@ -580,9 +813,47 @@ export async function editarIncidencia(
   }
 
 
-  return await obtenerDetalleIncidencia(
-    idIncidencia
-  );
+  const actualizada =
+    await obtenerDetalleIncidencia(
+      idIncidencia
+    );
+
+
+  /*
+   * Auditoría global.
+   */
+
+  await registrarEventoAuditoria({
+    idUsuario,
+
+    accion:
+      "EDITAR",
+
+    modulo:
+      "Incidencias",
+
+    entidad:
+      "incidencias",
+
+    idRegistroAfectado:
+      idIncidencia,
+
+    valoresAnteriores:
+      prepararIncidenciaParaAuditoria(
+        actual
+      ),
+
+    valoresNuevos:
+      prepararIncidenciaParaAuditoria(
+        actualizada
+      ),
+
+    descripcion:
+      `Se actualizó la incidencia ${actualizada.codigo}.`,
+  });
+
+
+  return actualizada;
 }
 
 
@@ -592,7 +863,8 @@ export async function editarIncidencia(
 
 export async function cambiarEstadoIncidencia(
   id,
-  datos
+  datos,
+  idUsuarioAutenticado
 ) {
   const idIncidencia =
     idObligatorio(
@@ -600,12 +872,23 @@ export async function cambiarEstadoIncidencia(
       "La incidencia"
     );
 
+
+  const idUsuario =
+    idObligatorio(
+      idUsuarioAutenticado,
+      "El usuario autenticado"
+    );
+
+
   const actual =
     await obtenerIncidenciaPorId(
       idIncidencia
     );
 
-  if (!actual) {
+
+  if (
+    !actual
+  ) {
     throw crearError(
       "La incidencia no existe.",
       404
@@ -647,14 +930,20 @@ export async function cambiarEstadoIncidencia(
     actual.estado !==
     nuevoEstado
   ) {
+    /*
+     * Historial interno.
+     */
+
     await insertarSeguimiento({
       id_incidencia:
         idIncidencia,
 
+      /*
+       * Usuario obtenido del JWT.
+       */
+
       id_usuario:
-        idOpcional(
-          datos.id_usuario
-        ),
+        idUsuario,
 
       tipo_evento:
         "Cambio de estado",
@@ -672,9 +961,69 @@ export async function cambiarEstadoIncidencia(
   }
 
 
-  return await obtenerDetalleIncidencia(
-    idIncidencia
-  );
+  const actualizada =
+    await obtenerDetalleIncidencia(
+      idIncidencia
+    );
+
+
+  /*
+   * Solo registramos CAMBIAR_ESTADO
+   * si realmente cambió.
+   */
+
+  if (
+    actual.estado !==
+    nuevoEstado
+  ) {
+    await registrarEventoAuditoria({
+      idUsuario,
+
+      accion:
+        "CAMBIAR_ESTADO",
+
+      modulo:
+        "Incidencias",
+
+      entidad:
+        "incidencias",
+
+      idRegistroAfectado:
+        idIncidencia,
+
+      valoresAnteriores: {
+        estado:
+          actual.estado,
+
+        fecha_resolucion:
+          actual.fecha_resolucion ||
+          null,
+
+        fecha_cierre:
+          actual.fecha_cierre ||
+          null,
+      },
+
+      valoresNuevos: {
+        estado:
+          actualizada.estado,
+
+        fecha_resolucion:
+          actualizada.fecha_resolucion ||
+          null,
+
+        fecha_cierre:
+          actualizada.fecha_cierre ||
+          null,
+      },
+
+      descripcion:
+        `Se cambió el estado de la incidencia ${actual.codigo} de ${actual.estado} a ${nuevoEstado}.`,
+    });
+  }
+
+
+  return actualizada;
 }
 
 
@@ -684,7 +1033,8 @@ export async function cambiarEstadoIncidencia(
 
 export async function registrarSeguimiento(
   id,
-  datos
+  datos,
+  idUsuarioAutenticado
 ) {
   const idIncidencia =
     idObligatorio(
@@ -692,12 +1042,23 @@ export async function registrarSeguimiento(
       "La incidencia"
     );
 
+
+  const idUsuario =
+    idObligatorio(
+      idUsuarioAutenticado,
+      "El usuario autenticado"
+    );
+
+
   const actual =
     await obtenerIncidenciaPorId(
       idIncidencia
     );
 
-  if (!actual) {
+
+  if (
+    !actual
+  ) {
     throw crearError(
       "La incidencia no existe.",
       404
@@ -712,7 +1073,9 @@ export async function registrarSeguimiento(
     ).trim();
 
 
-  if (!comentario) {
+  if (
+    !comentario
+  ) {
     throw crearError(
       "El comentario es obligatorio.",
       400
@@ -720,25 +1083,70 @@ export async function registrarSeguimiento(
   }
 
 
-  await insertarSeguimiento({
-    id_incidencia:
-      idIncidencia,
+  /*
+   * Historial interno.
+   */
 
-    id_usuario:
-      idOpcional(
-        datos.id_usuario
-      ),
+  const seguimiento =
+    await insertarSeguimiento({
+      id_incidencia:
+        idIncidencia,
 
-    tipo_evento:
-      "Comentario",
+      /*
+       * Siempre se registra como autor
+       * al usuario del JWT.
+       */
 
-    estado_anterior:
+      id_usuario:
+        idUsuario,
+
+      tipo_evento:
+        "Comentario",
+
+      estado_anterior:
+        null,
+
+      estado_nuevo:
+        null,
+
+      comentario,
+    });
+
+
+  /*
+   * Auditoría global.
+   */
+
+  await registrarEventoAuditoria({
+    idUsuario,
+
+    accion:
+      "AGREGAR_SEGUIMIENTO",
+
+    modulo:
+      "Incidencias",
+
+    entidad:
+      "incidencia_seguimiento",
+
+    idRegistroAfectado:
+      seguimiento.id_seguimiento,
+
+    valoresAnteriores:
       null,
 
-    estado_nuevo:
-      null,
+    valoresNuevos: {
+      id_incidencia:
+        idIncidencia,
 
-    comentario,
+      tipo_evento:
+        "Comentario",
+
+      comentario,
+    },
+
+    descripcion:
+      `Se agregó seguimiento a la incidencia ${actual.codigo}.`,
   });
 
 
@@ -753,7 +1161,8 @@ export async function registrarSeguimiento(
 ====================================== */
 
 export async function eliminarIncidencia(
-  id
+  id,
+  idUsuarioAutenticado
 ) {
   const idIncidencia =
     idObligatorio(
@@ -761,19 +1170,77 @@ export async function eliminarIncidencia(
       "La incidencia"
     );
 
+
+  const idUsuario =
+    idObligatorio(
+      idUsuarioAutenticado,
+      "El usuario autenticado"
+    );
+
+
   const actual =
     await obtenerIncidenciaPorId(
       idIncidencia
     );
 
-  if (!actual) {
+
+  if (
+    !actual
+  ) {
     throw crearError(
       "La incidencia no existe.",
       404
     );
   }
 
-  return await eliminarIncidenciaPorId(
-    idIncidencia
-  );
+
+  const eliminada =
+    await eliminarIncidenciaPorId(
+      idIncidencia
+    );
+
+
+  if (
+    !eliminada
+  ) {
+    throw crearError(
+      "No fue posible eliminar la incidencia.",
+      500
+    );
+  }
+
+
+  /*
+   * Auditoría global.
+   */
+
+  await registrarEventoAuditoria({
+    idUsuario,
+
+    accion:
+      "ELIMINAR",
+
+    modulo:
+      "Incidencias",
+
+    entidad:
+      "incidencias",
+
+    idRegistroAfectado:
+      idIncidencia,
+
+    valoresAnteriores:
+      prepararIncidenciaParaAuditoria(
+        actual
+      ),
+
+    valoresNuevos:
+      null,
+
+    descripcion:
+      `Se eliminó la incidencia ${actual.codigo}.`,
+  });
+
+
+  return eliminada;
 }

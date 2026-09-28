@@ -10,21 +10,45 @@ import {
   obtenerTodosLosBuques,
 } from "../repositories/buques.repository.js";
 
+import {
+  registrarEventoAuditoria,
+} from "./auditoria.service.js";
+
+
+/* ======================================
+   ERROR CONTROLADO
+====================================== */
 
 function crearError(
   mensaje,
   estadoHttp
 ) {
-  const error = new Error(mensaje);
+  const error =
+    new Error(
+      mensaje
+    );
 
-  error.estadoHttp = estadoHttp;
+
+  error.estadoHttp =
+    estadoHttp;
+
 
   return error;
 }
 
 
-function validarIdBuque(idBuque) {
-  const id = Number(idBuque);
+/* ======================================
+   VALIDAR ID
+====================================== */
+
+function validarIdBuque(
+  idBuque
+) {
+  const id =
+    Number(
+      idBuque
+    );
+
 
   if (
     !Number.isInteger(id) ||
@@ -36,47 +60,72 @@ function validarIdBuque(idBuque) {
     );
   }
 
+
   return id;
 }
 
+
+/* ======================================
+   PREPARAR DATOS
+====================================== */
 
 async function prepararDatosBuque(
   datos = {}
 ) {
   const nombre =
-    typeof datos.nombre === "string"
+    typeof datos.nombre ===
+    "string"
       ? datos.nombre.trim()
       : "";
 
+
   const identificacion =
-    typeof datos.identificacion === "string"
+    typeof datos.identificacion ===
+    "string"
       ? datos.identificacion.trim()
       : "";
 
+
   const bandera =
-    typeof datos.bandera === "string" &&
+    typeof datos.bandera ===
+      "string" &&
     datos.bandera.trim()
       ? datos.bandera.trim()
       : null;
 
+
   const idEmpresa =
-    Number(datos.id_empresa);
+    Number(
+      datos.id_empresa
+    );
+
 
   const idTipoBuque =
-    Number(datos.id_tipo_buque);
+    Number(
+      datos.id_tipo_buque
+    );
+
 
   const eslora =
-    Number(datos.eslora_m);
+    Number(
+      datos.eslora_m
+    );
+
 
   const calado =
-    Number(datos.calado_m);
+    Number(
+      datos.calado_m
+    );
+
 
   const manga =
     datos.manga_m === null ||
     datos.manga_m === undefined ||
     datos.manga_m === ""
       ? null
-      : Number(datos.manga_m);
+      : Number(
+          datos.manga_m
+        );
 
 
   if (!nombre) {
@@ -96,7 +145,9 @@ async function prepararDatosBuque(
 
 
   if (
-    !Number.isInteger(idEmpresa) ||
+    !Number.isInteger(
+      idEmpresa
+    ) ||
     idEmpresa <= 0
   ) {
     throw crearError(
@@ -107,7 +158,9 @@ async function prepararDatosBuque(
 
 
   if (
-    !Number.isInteger(idTipoBuque) ||
+    !Number.isInteger(
+      idTipoBuque
+    ) ||
     idTipoBuque <= 0
   ) {
     throw crearError(
@@ -118,7 +171,9 @@ async function prepararDatosBuque(
 
 
   if (
-    !Number.isFinite(eslora) ||
+    !Number.isFinite(
+      eslora
+    ) ||
     eslora <= 0
   ) {
     throw crearError(
@@ -131,7 +186,9 @@ async function prepararDatosBuque(
   if (
     manga !== null &&
     (
-      !Number.isFinite(manga) ||
+      !Number.isFinite(
+        manga
+      ) ||
       manga <= 0
     )
   ) {
@@ -143,7 +200,9 @@ async function prepararDatosBuque(
 
 
   if (
-    !Number.isFinite(calado) ||
+    !Number.isFinite(
+      calado
+    ) ||
     calado <= 0
   ) {
     throw crearError(
@@ -156,10 +215,16 @@ async function prepararDatosBuque(
   const [
     empresaValida,
     tipoBuqueValido,
-  ] = await Promise.all([
-    existeEmpresaActiva(idEmpresa),
-    existeTipoBuqueActivo(idTipoBuque),
-  ]);
+  ] =
+    await Promise.all([
+      existeEmpresaActiva(
+        idEmpresa
+      ),
+
+      existeTipoBuqueActivo(
+        idTipoBuque
+      ),
+    ]);
 
 
   if (!empresaValida) {
@@ -180,30 +245,55 @@ async function prepararDatosBuque(
 
   return {
     nombre,
+
     identificacion,
-    id_empresa: idEmpresa,
-    id_tipo_buque: idTipoBuque,
+
+    id_empresa:
+      idEmpresa,
+
+    id_tipo_buque:
+      idTipoBuque,
+
     bandera,
-    eslora_m: eslora,
-    manga_m: manga,
-    calado_m: calado,
+
+    eslora_m:
+      eslora,
+
+    manga_m:
+      manga,
+
+    calado_m:
+      calado,
   };
 }
 
+
+/* ======================================
+   LISTAR
+====================================== */
 
 export async function listarBuques() {
   return await obtenerTodosLosBuques();
 }
 
 
+/* ======================================
+   DETALLE
+====================================== */
+
 export async function obtenerDetalleBuque(
   idBuque
 ) {
   const id =
-    validarIdBuque(idBuque);
+    validarIdBuque(
+      idBuque
+    );
+
 
   const buque =
-    await obtenerBuquePorId(id);
+    await obtenerBuquePorId(
+      id
+    );
 
 
   if (!buque) {
@@ -215,7 +305,9 @@ export async function obtenerDetalleBuque(
 
 
   const operaciones =
-    await obtenerOperacionesPorBuque(id);
+    await obtenerOperacionesPorBuque(
+      id
+    );
 
 
   return {
@@ -225,33 +317,84 @@ export async function obtenerDetalleBuque(
 }
 
 
+/* ======================================
+   OPCIONES DEL FORMULARIO
+====================================== */
+
 export async function obtenerOpcionesFormulario() {
   return await consultarOpcionesFormularioBuque();
 }
 
 
+/* ======================================
+   REGISTRAR BUQUE
+====================================== */
+
 export async function registrarBuque(
-  datos = {}
+  datos = {},
+  idUsuario = null
 ) {
   const datosPreparados =
-    await prepararDatosBuque(datos);
+    await prepararDatosBuque(
+      datos
+    );
 
-  return await insertarBuque(
-    datosPreparados
-  );
+
+  const buqueCreado =
+    await insertarBuque(
+      datosPreparados
+    );
+
+
+  await registrarEventoAuditoria({
+    idUsuario,
+
+    accion:
+      "CREAR",
+
+    modulo:
+      "Buques",
+
+    entidad:
+      "buques",
+
+    idRegistroAfectado:
+      buqueCreado.id_buque,
+
+    valoresAnteriores:
+      null,
+
+    valoresNuevos:
+      buqueCreado,
+
+    descripcion:
+      `Se registró el buque ${buqueCreado.nombre} (${buqueCreado.identificacion}).`,
+  });
+
+
+  return buqueCreado;
 }
 
 
+/* ======================================
+   EDITAR BUQUE
+====================================== */
+
 export async function editarBuque(
   idBuque,
-  datos = {}
+  datos = {},
+  idUsuario = null
 ) {
   const id =
-    validarIdBuque(idBuque);
+    validarIdBuque(
+      idBuque
+    );
 
 
   const buqueActual =
-    await obtenerBuquePorId(id);
+    await obtenerBuquePorId(
+      id
+    );
 
 
   if (!buqueActual) {
@@ -263,7 +406,9 @@ export async function editarBuque(
 
 
   const datosPreparados =
-    await prepararDatosBuque(datos);
+    await prepararDatosBuque(
+      datos
+    );
 
 
   await actualizarBuquePorId(
@@ -272,19 +417,61 @@ export async function editarBuque(
   );
 
 
-  return await obtenerBuquePorId(id);
+  const buqueActualizado =
+    await obtenerBuquePorId(
+      id
+    );
+
+
+  await registrarEventoAuditoria({
+    idUsuario,
+
+    accion:
+      "EDITAR",
+
+    modulo:
+      "Buques",
+
+    entidad:
+      "buques",
+
+    idRegistroAfectado:
+      id,
+
+    valoresAnteriores:
+      buqueActual,
+
+    valoresNuevos:
+      buqueActualizado,
+
+    descripcion:
+      `Se actualizó la información del buque ${buqueActualizado.nombre} (${buqueActualizado.identificacion}).`,
+  });
+
+
+  return buqueActualizado;
 }
 
 
+/* ======================================
+   CAMBIAR ESTADO
+====================================== */
+
 export async function cambiarEstadoBuque(
   idBuque,
-  activo
+  activo,
+  idUsuario = null
 ) {
   const id =
-    validarIdBuque(idBuque);
+    validarIdBuque(
+      idBuque
+    );
 
 
-  if (typeof activo !== "boolean") {
+  if (
+    typeof activo !==
+    "boolean"
+  ) {
     throw crearError(
       "El estado enviado no es válido.",
       400
@@ -293,7 +480,9 @@ export async function cambiarEstadoBuque(
 
 
   const buqueActual =
-    await obtenerBuquePorId(id);
+    await obtenerBuquePorId(
+      id
+    );
 
 
   if (!buqueActual) {
@@ -310,5 +499,45 @@ export async function cambiarEstadoBuque(
   );
 
 
-  return await obtenerBuquePorId(id);
+  const buqueActualizado =
+    await obtenerBuquePorId(
+      id
+    );
+
+
+  await registrarEventoAuditoria({
+    idUsuario,
+
+    accion:
+      activo
+        ? "REACTIVAR"
+        : "DESACTIVAR",
+
+    modulo:
+      "Buques",
+
+    entidad:
+      "buques",
+
+    idRegistroAfectado:
+      id,
+
+    valoresAnteriores: {
+      activo:
+        buqueActual.activo,
+    },
+
+    valoresNuevos: {
+      activo:
+        buqueActualizado.activo,
+    },
+
+    descripcion:
+      activo
+        ? `Se reactivó el buque ${buqueActualizado.nombre} (${buqueActualizado.identificacion}).`
+        : `Se desactivó el buque ${buqueActualizado.nombre} (${buqueActualizado.identificacion}).`,
+  });
+
+
+  return buqueActualizado;
 }

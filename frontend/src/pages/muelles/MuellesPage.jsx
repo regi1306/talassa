@@ -14,7 +14,6 @@ import {
   Eye,
   Plus,
   Search,
-  Ship,
   Trash2,
   Wrench,
 } from "lucide-react";
@@ -24,9 +23,13 @@ import {
   obtenerMuelles,
 } from "../../services/muellesService.js";
 
+import {
+  obtenerUsuarioGuardado,
+} from "../../services/auth.service.js";
 
 import ConfirmDeleteModal
   from "../../components/common/ConfirmDeleteModal.jsx";
+
 import "../../styles/muelles.css";
 
 
@@ -40,7 +43,6 @@ function obtenerClaseEstado(
   switch (estado) {
     case "Disponible":
       return "muelle-status-disponible";
-
 
     case "Mantenimiento":
       return "muelle-status-mantenimiento";
@@ -57,6 +59,24 @@ function obtenerClaseEstado(
 function MuellesPage() {
   const navigate =
     useNavigate();
+
+
+  /* ======================================
+     PERMISOS
+  ====================================== */
+
+  const usuario =
+    obtenerUsuarioGuardado();
+
+
+  const permisos =
+    usuario?.permisos || [];
+
+
+  const puedeGestionar =
+    permisos.includes(
+      "MUE_GESTIONAR"
+    );
 
 
   /* ======================================
@@ -98,6 +118,7 @@ function MuellesPage() {
     setMuelleAEliminar,
   ] = useState(null);
 
+
   /* ======================================
      CARGAR MUELLES
   ====================================== */
@@ -115,7 +136,8 @@ function MuellesPage() {
 
       if (!respuesta.ok) {
         throw new Error(
-          respuesta.mensaje ||
+          respuesta.mensaje
+          ||
           "No fue posible cargar los muelles."
         );
       }
@@ -125,6 +147,7 @@ function MuellesPage() {
         respuesta.datos || []
       );
 
+
     } catch (error) {
       console.error(
         "Error al cargar muelles:",
@@ -133,20 +156,19 @@ function MuellesPage() {
 
 
       setError(
-        error.response?.data?.mensaje ||
-        error.message ||
+        error.response?.data?.mensaje
+        ||
+        error.message
+        ||
         "No fue posible cargar los muelles."
       );
+
 
     } finally {
       setCargando(false);
     }
   }
 
-
-  /* ======================================
-     CARGA INICIAL
-  ====================================== */
 
   useEffect(() => {
     cargarMuelles();
@@ -159,10 +181,8 @@ function MuellesPage() {
 
   const muellesFiltrados =
     useMemo(() => {
-
       return muelles.filter(
         (muelle) => {
-
           const texto =
             busqueda
               .trim()
@@ -172,29 +192,31 @@ function MuellesPage() {
           const coincideBusqueda =
             muelle.codigo
               ?.toLowerCase()
-              .includes(texto) ||
-
+              .includes(texto)
+            ||
             muelle.nombre
               ?.toLowerCase()
-              .includes(texto) ||
-
+              .includes(texto)
+            ||
             (muelle.operacion || "")
               .toLowerCase()
-              .includes(texto) ||
-
+              .includes(texto)
+            ||
             (muelle.buque || "")
               .toLowerCase()
               .includes(texto);
 
 
           const coincideEstado =
-            filtroEstado === "Todos" ||
+            filtroEstado === "Todos"
+            ||
             muelle.estado_operativo ===
-            filtroEstado;
+              filtroEstado;
 
 
           return (
-            coincideBusqueda &&
+            coincideBusqueda
+            &&
             coincideEstado
           );
         }
@@ -221,8 +243,6 @@ function MuellesPage() {
         muelle.estado_operativo ===
         "Disponible"
     ).length;
-
-
 
 
   const mantenimiento =
@@ -278,7 +298,8 @@ function MuellesPage() {
 
       if (!respuesta.ok) {
         throw new Error(
-          respuesta.mensaje ||
+          respuesta.mensaje
+          ||
           "No fue posible eliminar el muelle."
         );
       }
@@ -301,21 +322,21 @@ function MuellesPage() {
 
       setError("");
 
-    } catch (error) {
 
+    } catch (error) {
       throw new Error(
-        error.response?.data?.mensaje ||
-        error.message ||
+        error.response?.data?.mensaje
+        ||
+        error.message
+        ||
         "No fue posible eliminar el muelle."
       );
-
     }
   }
 
 
   return (
     <section className="muelles-page">
-
 
       {/* ==================================
           ENCABEZADO
@@ -338,19 +359,27 @@ function MuellesPage() {
         </div>
 
 
-        <button
-          type="button"
-          className="button button-primary"
-          onClick={() =>
-            navigate(
-              "/muelles/nuevo"
-            )
-          }
-        >
-          <Plus size={20} />
+        {puedeGestionar && (
 
-          Registrar muelle
-        </button>
+          <button
+            type="button"
+            className="button button-primary"
+            onClick={() =>
+              navigate(
+                "/muelles/nuevo"
+              )
+            }
+          >
+
+            <Plus
+              size={20}
+            />
+
+            Registrar muelle
+
+          </button>
+
+        )}
 
       </div>
 
@@ -361,11 +390,14 @@ function MuellesPage() {
 
       <div className="muelle-stats-grid">
 
-
         <article className="stat-card">
 
           <div className="stat-icon stat-blue">
-            <Anchor size={27} />
+
+            <Anchor
+              size={27}
+            />
+
           </div>
 
           <div>
@@ -390,7 +422,11 @@ function MuellesPage() {
         <article className="stat-card">
 
           <div className="stat-icon stat-green">
-            <Anchor size={27} />
+
+            <Anchor
+              size={27}
+            />
+
           </div>
 
           <div>
@@ -412,13 +448,14 @@ function MuellesPage() {
         </article>
 
 
-
-
-
         <article className="stat-card">
 
           <div className="stat-icon stat-amber">
-            <Wrench size={27} />
+
+            <Wrench
+              size={27}
+            />
+
           </div>
 
           <div>
@@ -454,26 +491,28 @@ function MuellesPage() {
         "
       >
 
-
         {/* TOOLBAR */}
 
         <div className="table-toolbar">
 
           <h2>
-            <Anchor size={22} />
+
+            <Anchor
+              size={22}
+            />
 
             Listado de muelles
+
           </h2>
 
 
           <div className="table-filters">
 
-
-            {/* BUSCAR */}
-
             <div className="search-control">
 
-              <Search size={18} />
+              <Search
+                size={18}
+              />
 
               <input
                 type="text"
@@ -488,8 +527,6 @@ function MuellesPage() {
 
             </div>
 
-
-            {/* FILTRO */}
 
             <select
               value={filtroEstado}
@@ -508,8 +545,6 @@ function MuellesPage() {
                 Disponible
               </option>
 
-
-
               <option value="Mantenimiento">
                 Mantenimiento
               </option>
@@ -525,9 +560,7 @@ function MuellesPage() {
         </div>
 
 
-        {/* ==================================
-            ERROR
-        ================================== */}
+        {/* ERROR */}
 
         {error && (
 
@@ -542,15 +575,15 @@ function MuellesPage() {
               fontSize: "13px",
             }}
           >
+
             {error}
+
           </div>
 
         )}
 
 
-        {/* ==================================
-            TABLA
-        ================================== */}
+        {/* TABLA */}
 
         <div className="table-responsive">
 
@@ -595,7 +628,6 @@ function MuellesPage() {
 
             <tbody>
 
-
               {/* CARGANDO */}
 
               {cargando && (
@@ -626,7 +658,6 @@ function MuellesPage() {
                       }
                     >
 
-
                       {/* CÓDIGO */}
 
                       <td>
@@ -640,7 +671,6 @@ function MuellesPage() {
                             />
 
                           </div>
-
 
                           <strong>
                             {muelle.codigo}
@@ -656,9 +686,7 @@ function MuellesPage() {
                       <td>
 
                         <strong className="muelle-name">
-
                           {muelle.nombre}
-
                         </strong>
 
                       </td>
@@ -672,8 +700,8 @@ function MuellesPage() {
                           className={`
                             status-pill
                             ${obtenerClaseEstado(
-                            muelle.estado_operativo
-                          )}
+                              muelle.estado_operativo
+                            )}
                           `}
                         >
 
@@ -729,10 +757,13 @@ function MuellesPage() {
                             </strong>
 
                             <span>
+
                               {
-                                muelle.buque ||
+                                muelle.buque
+                                ||
                                 "Buque no disponible"
                               }
+
                             </span>
 
                           </div>
@@ -740,9 +771,7 @@ function MuellesPage() {
                         ) : (
 
                           <span className="muelle-no-operation">
-
                             No asignado
-
                           </span>
 
                         )}
@@ -756,7 +785,6 @@ function MuellesPage() {
 
                         <div className="action-buttons">
 
-
                           {/* VER */}
 
                           <button
@@ -768,39 +796,59 @@ function MuellesPage() {
                               )
                             }
                           >
-                            <Eye size={17} />
+
+                            <Eye
+                              size={17}
+                            />
+
                           </button>
 
 
-                          {/* EDITAR */}
+                          {/* GESTIÓN */}
 
-                          <button
-                            type="button"
-                            title="Editar muelle"
-                            onClick={() =>
-                              editarMuelle(
-                                muelle
-                              )
-                            }
-                          >
-                            <Edit3 size={17} />
-                          </button>
+                          {puedeGestionar && (
+                            <>
+
+                              {/* EDITAR */}
+
+                              <button
+                                type="button"
+                                title="Editar muelle"
+                                onClick={() =>
+                                  editarMuelle(
+                                    muelle
+                                  )
+                                }
+                              >
+
+                                <Edit3
+                                  size={17}
+                                />
+
+                              </button>
 
 
-                          {/* ELIMINAR */}
+                              {/* ELIMINAR */}
 
-                          <button
-                            type="button"
-                            title="Eliminar muelle"
-                            className="action-delete"
-                            onClick={() =>
-                              setMuelleAEliminar(
-                                muelle
-                              )
-                            }
-                          >
-                            <Trash2 size={17} />
-                          </button>
+                              <button
+                                type="button"
+                                title="Eliminar muelle"
+                                className="action-delete"
+                                onClick={() =>
+                                  setMuelleAEliminar(
+                                    muelle
+                                  )
+                                }
+                              >
+
+                                <Trash2
+                                  size={17}
+                                />
+
+                              </button>
+
+                            </>
+                          )}
 
                         </div>
 
@@ -816,21 +864,23 @@ function MuellesPage() {
 
               {!cargando &&
                 muellesFiltrados.length ===
-                0 && (
+                  0 && (
 
-                  <tr>
+                <tr>
 
-                    <td
-                      colSpan="7"
-                      className="muelle-empty-table"
-                    >
-                      No se encontraron muelles
-                      con los filtros seleccionados.
-                    </td>
+                  <td
+                    colSpan="7"
+                    className="muelle-empty-table"
+                  >
 
-                  </tr>
+                    No se encontraron muelles
+                    con los filtros seleccionados.
 
-                )}
+                  </td>
+
+                </tr>
+
+              )}
 
             </tbody>
 
@@ -839,9 +889,7 @@ function MuellesPage() {
         </div>
 
 
-        {/* ==================================
-            FOOTER
-        ================================== */}
+        {/* FOOTER */}
 
         <div className="table-footer">
 
@@ -849,15 +897,11 @@ function MuellesPage() {
 
             Mostrando{" "}
 
-            {
-              muellesFiltrados.length
-            }
+            {muellesFiltrados.length}
 
             {" "}de{" "}
 
-            {
-              totalMuelles
-            }
+            {totalMuelles}
 
             {" "}muelles
 
@@ -876,28 +920,38 @@ function MuellesPage() {
 
       </div>
 
-      <ConfirmDeleteModal
-        abierto={
-          Boolean(
+
+      {/* ==================================
+          MODAL DE ELIMINACIÓN
+      ================================== */}
+
+      {puedeGestionar && (
+
+        <ConfirmDeleteModal
+          abierto={
+            Boolean(
+              muelleAEliminar
+            )
+          }
+          titulo="Eliminar muelle"
+          mensaje="¿Confirmas que deseas eliminar este muelle del sistema?"
+          nombre={
             muelleAEliminar
-          )
-        }
-        titulo="Eliminar muelle"
-        mensaje="¿Confirmas que deseas eliminar este muelle del sistema?"
-        nombre={
-          muelleAEliminar
-            ? `${muelleAEliminar.codigo} — ${muelleAEliminar.nombre}`
-            : ""
-        }
-        onCancelar={() =>
-          setMuelleAEliminar(
-            null
-          )
-        }
-        onConfirmar={
-          confirmarEliminarMuelle
-        }
-      />
+              ? `${muelleAEliminar.codigo} — ${muelleAEliminar.nombre}`
+              : ""
+          }
+          onCancelar={() =>
+            setMuelleAEliminar(
+              null
+            )
+          }
+          onConfirmar={
+            confirmarEliminarMuelle
+          }
+        />
+
+      )}
+
     </section>
   );
 }

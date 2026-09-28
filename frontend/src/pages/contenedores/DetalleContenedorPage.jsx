@@ -24,6 +24,10 @@ import {
   obtenerContenedorPorId,
 } from "../../services/contenedoresService.js";
 
+import {
+  obtenerUsuarioGuardado,
+} from "../../services/auth.service.js";
+
 import "../../styles/detalleContenedor.css";
 
 
@@ -31,9 +35,40 @@ function DetalleContenedorPage() {
   const navigate =
     useNavigate();
 
-  const { id } =
+
+  const {
+    id,
+  } =
     useParams();
 
+
+  /* ======================================
+     PERMISOS
+  ====================================== */
+
+  const usuario =
+    obtenerUsuarioGuardado();
+
+
+  const permisos =
+    usuario?.permisos || [];
+
+
+  const puedeGestionar =
+    permisos.includes(
+      "CONT_GESTIONAR"
+    );
+
+
+  const puedeVerOperaciones =
+    permisos.includes(
+      "OPE_VER"
+    );
+
+
+  /* ======================================
+     ESTADOS
+  ====================================== */
 
   const [
     contenedor,
@@ -53,6 +88,10 @@ function DetalleContenedorPage() {
   ] = useState("");
 
 
+  /* ======================================
+     CARGAR CONTENEDOR
+  ====================================== */
+
   useEffect(() => {
     async function cargarContenedor() {
       try {
@@ -60,16 +99,24 @@ function DetalleContenedorPage() {
 
         setError("");
 
+
         const datos =
           await obtenerContenedorPorId(
             id
           );
 
-        setContenedor(datos);
+
+        setContenedor(
+          datos
+        );
+
+
       } catch (error) {
         setError(
           error.message
         );
+
+
       } finally {
         setCargando(false);
       }
@@ -77,18 +124,27 @@ function DetalleContenedorPage() {
 
 
     cargarContenedor();
-  }, [id]);
 
+  }, [
+    id,
+  ]);
+
+
+  /* ======================================
+     FORMATEAR PESO
+  ====================================== */
 
   function formatearPeso(
     peso
   ) {
     if (
-      peso === null ||
+      peso === null
+      ||
       peso === undefined
     ) {
       return "—";
     }
+
 
     return new Intl.NumberFormat(
       "es-SV",
@@ -101,12 +157,17 @@ function DetalleContenedorPage() {
   }
 
 
+  /* ======================================
+     FORMATEAR FECHA Y HORA
+  ====================================== */
+
   function formatearFechaHora(
     fecha
   ) {
     if (!fecha) {
       return "—";
     }
+
 
     return new Intl.DateTimeFormat(
       "es-SV",
@@ -122,6 +183,10 @@ function DetalleContenedorPage() {
     );
   }
 
+
+  /* ======================================
+     CARGANDO
+  ====================================== */
 
   if (cargando) {
     return (
@@ -145,8 +210,13 @@ function DetalleContenedorPage() {
   }
 
 
+  /* ======================================
+     ERROR
+  ====================================== */
+
   if (
-    error ||
+    error
+    ||
     !contenedor
   ) {
     return (
@@ -161,15 +231,21 @@ function DetalleContenedorPage() {
             )
           }
         >
-          <ArrowLeft size={18} />
+
+          <ArrowLeft
+            size={18}
+          />
 
           Volver a Contenedores
+
         </button>
 
 
         <div className="error-detalle-contenedor">
 
-          <Boxes size={38} />
+          <Boxes
+            size={38}
+          />
 
           <h2>
             No fue posible mostrar
@@ -177,7 +253,8 @@ function DetalleContenedorPage() {
           </h2>
 
           <p>
-            {error ||
+            {error
+              ||
               "El contenedor solicitado no está disponible."}
           </p>
 
@@ -191,7 +268,9 @@ function DetalleContenedorPage() {
   return (
     <section className="pagina-detalle-contenedor">
 
-      {/* VOLVER */}
+      {/* ======================================
+          VOLVER
+      ====================================== */}
 
       <button
         type="button"
@@ -202,20 +281,30 @@ function DetalleContenedorPage() {
           )
         }
       >
-        <ArrowLeft size={18} />
+
+        <ArrowLeft
+          size={18}
+        />
 
         Volver a Contenedores
+
       </button>
 
 
-      {/* ENCABEZADO */}
+      {/* ======================================
+          ENCABEZADO
+      ====================================== */}
 
       <div className="encabezado-detalle-contenedor">
 
         <div className="identidad-detalle-contenedor">
 
           <div className="icono-principal-contenedor">
-            <Boxes size={31} />
+
+            <Boxes
+              size={31}
+            />
+
           </div>
 
 
@@ -229,18 +318,24 @@ function DetalleContenedorPage() {
 
 
               <span className="estado-detalle-contenedor">
+
                 <i />
 
                 {contenedor.estado}
+
               </span>
 
             </div>
 
 
             <p>
+
               {contenedor.tipo_contenedor}
+
               {" · "}
+
               {contenedor.tipo_carga}
+
             </p>
 
           </div>
@@ -248,43 +343,77 @@ function DetalleContenedorPage() {
         </div>
 
 
-        <div className="acciones-detalle-contenedor">
+        {/* ======================================
+            ACCIONES SEGÚN PERMISOS
+        ====================================== */}
 
-          <button
-            type="button"
-            className="boton-ver-operacion-contenedor"
-            onClick={() =>
-              navigate(
-                `/operaciones/${contenedor.id_operacion}`
-              )
-            }
-          >
-            <Ship size={18} />
+        {(
+          puedeVerOperaciones
+          ||
+          puedeGestionar
+        ) && (
 
-            Ver operación
-          </button>
+          <div className="acciones-detalle-contenedor">
+
+            {/* VER OPERACIÓN */}
+
+            {puedeVerOperaciones && (
+
+              <button
+                type="button"
+                className="boton-ver-operacion-contenedor"
+                onClick={() =>
+                  navigate(
+                    `/operaciones/${contenedor.id_operacion}`
+                  )
+                }
+              >
+
+                <Ship
+                  size={18}
+                />
+
+                Ver operación
+
+              </button>
+
+            )}
 
 
-          <button
-            type="button"
-            className="boton-editar-contenedor"
-            onClick={() =>
-              navigate(
-                `/contenedores/${contenedor.id_contenedor}/editar`
-              )
-            }
-          >
-            <Pencil size={17} />
+            {/* EDITAR CONTENEDOR */}
 
-            Editar contenedor
-          </button>
+            {puedeGestionar && (
 
-        </div>
+              <button
+                type="button"
+                className="boton-editar-contenedor"
+                onClick={() =>
+                  navigate(
+                    `/contenedores/${contenedor.id_contenedor}/editar`
+                  )
+                }
+              >
+
+                <Pencil
+                  size={17}
+                />
+
+                Editar contenedor
+
+              </button>
+
+            )}
+
+          </div>
+
+        )}
 
       </div>
 
 
-      {/* TARJETA PRINCIPAL */}
+      {/* ======================================
+          TARJETA PRINCIPAL
+      ====================================== */}
 
       <article className="glass-card tarjeta-principal-detalle-contenedor">
 
@@ -292,7 +421,9 @@ function DetalleContenedorPage() {
 
           <div className="caja-icono-contenedor">
 
-            <Package size={58} />
+            <Package
+              size={58}
+            />
 
           </div>
 
@@ -356,10 +487,13 @@ function DetalleContenedorPage() {
             </span>
 
             <strong>
+
               {formatearPeso(
                 contenedor.peso_kg
               )}
+
               {" kg"}
+
             </strong>
 
           </div>
@@ -369,13 +503,17 @@ function DetalleContenedorPage() {
       </article>
 
 
-      {/* ESPECIFICACIONES */}
+      {/* ======================================
+          ESPECIFICACIONES
+      ====================================== */}
 
       <article className="glass-card tarjeta-especificaciones-contenedor">
 
         <div className="titulo-seccion-contenedor">
 
-          <Package size={20} />
+          <Package
+            size={20}
+          />
 
           <div>
 
@@ -398,7 +536,11 @@ function DetalleContenedorPage() {
           <div className="especificacion-contenedor">
 
             <div>
-              <Boxes size={22} />
+
+              <Boxes
+                size={22}
+              />
+
             </div>
 
             <span>
@@ -417,7 +559,11 @@ function DetalleContenedorPage() {
           <div className="especificacion-contenedor">
 
             <div>
-              <Package size={22} />
+
+              <Package
+                size={22}
+              />
+
             </div>
 
             <span>
@@ -436,7 +582,11 @@ function DetalleContenedorPage() {
           <div className="especificacion-contenedor">
 
             <div>
-              <Weight size={22} />
+
+              <Weight
+                size={22}
+              />
+
             </div>
 
             <span>
@@ -444,10 +594,13 @@ function DetalleContenedorPage() {
             </span>
 
             <strong>
+
               {formatearPeso(
                 contenedor.peso_kg
               )}
+
               {" kg"}
+
             </strong>
 
           </div>
@@ -456,7 +609,11 @@ function DetalleContenedorPage() {
           <div className="especificacion-contenedor">
 
             <div>
-              <Package size={22} />
+
+              <Package
+                size={22}
+              />
+
             </div>
 
             <span>
@@ -495,13 +652,17 @@ function DetalleContenedorPage() {
       </article>
 
 
-      {/* OPERACION ASOCIADA */}
+      {/* ======================================
+          OPERACIÓN ASOCIADA
+      ====================================== */}
 
       <article className="glass-card tarjeta-operacion-contenedor">
 
         <div className="titulo-seccion-contenedor">
 
-          <Ship size={20} />
+          <Ship
+            size={20}
+          />
 
           <div>
 
@@ -564,10 +725,13 @@ function DetalleContenedorPage() {
             </span>
 
             <strong>
+
               {
-                contenedor.bandera_buque ||
+                contenedor.bandera_buque
+                ||
                 "No registrada"
               }
+
             </strong>
 
           </div>
@@ -592,13 +756,17 @@ function DetalleContenedorPage() {
       </article>
 
 
-      {/* OBSERVACIONES */}
+      {/* ======================================
+          OBSERVACIONES
+      ====================================== */}
 
       <article className="glass-card tarjeta-observaciones-contenedor">
 
         <div className="titulo-seccion-contenedor">
 
-          <FileText size={20} />
+          <FileText
+            size={20}
+          />
 
           <div>
 
@@ -618,30 +786,39 @@ function DetalleContenedorPage() {
 
         <div className="texto-observaciones-contenedor">
 
-          {contenedor.observaciones ||
-            "No se registraron observaciones para este contenedor."}
+          {
+            contenedor.observaciones
+            ||
+            "No se registraron observaciones para este contenedor."
+          }
 
         </div>
 
       </article>
 
 
-      {/* FECHAS */}
+      {/* ======================================
+          FECHAS
+      ====================================== */}
 
       <article className="glass-card tarjeta-registro-detalle-contenedor">
 
         <div>
 
-          <CalendarDays size={18} />
+          <CalendarDays
+            size={18}
+          />
 
           <span>
             Registrado
           </span>
 
           <strong>
+
             {formatearFechaHora(
               contenedor.fecha_registro
             )}
+
           </strong>
 
         </div>
@@ -649,16 +826,20 @@ function DetalleContenedorPage() {
 
         <div>
 
-          <RefreshCw size={18} />
+          <RefreshCw
+            size={18}
+          />
 
           <span>
             Última actualización
           </span>
 
           <strong>
+
             {formatearFechaHora(
               contenedor.fecha_actualizacion
             )}
+
           </strong>
 
         </div>
@@ -666,17 +847,22 @@ function DetalleContenedorPage() {
 
         <div>
 
-          <Boxes size={18} />
+          <Boxes
+            size={18}
+          />
 
           <span>
             Identificador interno
           </span>
 
           <strong>
+
             #
+
             {
               contenedor.id_contenedor
             }
+
           </strong>
 
         </div>

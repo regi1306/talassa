@@ -25,6 +25,10 @@ import {
   obtenerInspecciones,
 } from "../../services/inspeccionesService.js";
 
+import {
+  tienePermiso,
+} from "../../services/auth.service.js";
+
 import ConfirmDeleteModal
   from "../../components/common/ConfirmDeleteModal.jsx";
 
@@ -65,8 +69,12 @@ function obtenerFecha(
     return "-";
   }
 
+
   const fecha =
-    new Date(fechaHora);
+    new Date(
+      fechaHora
+    );
+
 
   if (
     Number.isNaN(
@@ -75,6 +83,7 @@ function obtenerFecha(
   ) {
     return "-";
   }
+
 
   return fecha.toLocaleDateString(
     "es-SV",
@@ -87,6 +96,10 @@ function obtenerFecha(
 }
 
 
+/* ======================================
+   FORMATEAR HORA
+====================================== */
+
 function obtenerHora(
   fechaHora
 ) {
@@ -94,8 +107,12 @@ function obtenerHora(
     return "";
   }
 
+
   const fecha =
-    new Date(fechaHora);
+    new Date(
+      fechaHora
+    );
+
 
   if (
     Number.isNaN(
@@ -104,6 +121,7 @@ function obtenerHora(
   ) {
     return "";
   }
+
 
   return fecha.toLocaleTimeString(
     "es-SV",
@@ -119,6 +137,16 @@ function obtenerHora(
 function InspeccionesPage() {
   const navigate =
     useNavigate();
+
+
+  /* ======================================
+     PERMISOS
+  ====================================== */
+
+  const puedeGestionar =
+    tienePermiso(
+      "INS_GESTIONAR"
+    );
 
 
   /* ======================================
@@ -166,10 +194,12 @@ function InspeccionesPage() {
     setError,
   ] = useState("");
 
+
   const [
     inspeccionAEliminar,
     setInspeccionAEliminar,
   ] = useState(null);
+
 
   /* ======================================
      CARGAR DESDE POSTGRESQL
@@ -188,7 +218,8 @@ function InspeccionesPage() {
 
       if (!respuesta.ok) {
         throw new Error(
-          respuesta.mensaje ||
+          respuesta.mensaje
+          ||
           "No fue posible cargar las inspecciones."
         );
       }
@@ -198,6 +229,7 @@ function InspeccionesPage() {
         respuesta.datos || []
       );
 
+
     } catch (error) {
       console.error(
         "Error al cargar inspecciones:",
@@ -206,16 +238,25 @@ function InspeccionesPage() {
 
 
       setError(
-        error.response?.data?.mensaje ||
-        error.message ||
+        error.response?.data?.mensaje
+        ||
+        error.response?.data?.message
+        ||
+        error.message
+        ||
         "No fue posible cargar las inspecciones."
       );
+
 
     } finally {
       setCargando(false);
     }
   }
 
+
+  /* ======================================
+     CARGA INICIAL
+  ====================================== */
 
   useEffect(() => {
     cargarInspecciones();
@@ -228,7 +269,6 @@ function InspeccionesPage() {
 
   const operacionesDisponibles =
     useMemo(() => {
-
       return [
         ...new Set(
           inspecciones
@@ -251,7 +291,6 @@ function InspeccionesPage() {
 
   const inspectoresDisponibles =
     useMemo(() => {
-
       return [
         ...new Set(
           inspecciones
@@ -274,10 +313,8 @@ function InspeccionesPage() {
 
   const inspeccionesFiltradas =
     useMemo(() => {
-
       return inspecciones.filter(
         (inspeccion) => {
-
           const texto =
             busqueda
               .trim()
@@ -287,43 +324,49 @@ function InspeccionesPage() {
           const coincideBusqueda =
             (inspeccion.codigo || "")
               .toLowerCase()
-              .includes(texto) ||
-
+              .includes(texto)
+            ||
             (inspeccion.operacion || "")
               .toLowerCase()
-              .includes(texto) ||
-
+              .includes(texto)
+            ||
             (inspeccion.contenedor || "")
               .toLowerCase()
-              .includes(texto) ||
-
+              .includes(texto)
+            ||
             (inspeccion.inspector || "")
               .toLowerCase()
               .includes(texto);
 
 
           const coincideEstado =
-            estadoActivo === "Todos" ||
+            estadoActivo === "Todos"
+            ||
             inspeccion.estado ===
-            estadoActivo;
+              estadoActivo;
 
 
           const coincideOperacion =
-            filtroOperacion === "Todas" ||
+            filtroOperacion === "Todas"
+            ||
             inspeccion.operacion ===
-            filtroOperacion;
+              filtroOperacion;
 
 
           const coincideInspector =
-            filtroInspector === "Todos" ||
+            filtroInspector === "Todos"
+            ||
             inspeccion.inspector ===
-            filtroInspector;
+              filtroInspector;
 
 
           return (
-            coincideBusqueda &&
-            coincideEstado &&
-            coincideOperacion &&
+            coincideBusqueda
+            &&
+            coincideEstado
+            &&
+            coincideOperacion
+            &&
             coincideInspector
           );
         }
@@ -367,14 +410,14 @@ function InspeccionesPage() {
 
 
   /* ======================================
-     VER - SOLO LECTURA
+     VER
   ====================================== */
 
   function verInspeccion(
     inspeccion
   ) {
     navigate(
-      `/inspecciones/${inspeccion.id_inspeccion}/editar?modo=ver`
+      `/inspecciones/${inspeccion.id_inspeccion}/ver`
     );
   }
 
@@ -411,7 +454,8 @@ function InspeccionesPage() {
 
       if (!respuesta.ok) {
         throw new Error(
-          respuesta.mensaje ||
+          respuesta.mensaje
+          ||
           "No fue posible eliminar la inspección."
         );
       }
@@ -434,21 +478,27 @@ function InspeccionesPage() {
 
       setError("");
 
-    } catch (error) {
 
-      throw new Error(
-        error.response?.data?.mensaje ||
-        error.message ||
+    } catch (error) {
+      setError(
+        error.response?.data?.mensaje
+        ||
+        error.response?.data?.message
+        ||
+        error.message
+        ||
         "No fue posible eliminar la inspección."
       );
 
+      setInspeccionAEliminar(
+        null
+      );
     }
   }
 
 
   return (
     <section className="inspections-page">
-
 
       {/* ==================================
           ENCABEZADO
@@ -470,19 +520,27 @@ function InspeccionesPage() {
         </div>
 
 
-        <button
-          type="button"
-          className="button button-primary"
-          onClick={() =>
-            navigate(
-              "/inspecciones/nueva"
-            )
-          }
-        >
-          <Plus size={20} />
+        {puedeGestionar && (
 
-          Registrar inspección
-        </button>
+          <button
+            type="button"
+            className="button button-primary"
+            onClick={() =>
+              navigate(
+                "/inspecciones/nueva"
+              )
+            }
+          >
+
+            <Plus
+              size={20}
+            />
+
+            Registrar inspección
+
+          </button>
+
+        )}
 
       </div>
 
@@ -493,12 +551,13 @@ function InspeccionesPage() {
 
       <div className="inspection-stats-grid">
 
-
         <article className="stat-card">
 
           <div className="stat-icon inspection-stat-pending">
 
-            <Timer size={27} />
+            <Timer
+              size={27}
+            />
 
           </div>
 
@@ -526,7 +585,9 @@ function InspeccionesPage() {
 
           <div className="stat-icon inspection-stat-process">
 
-            <RefreshCw size={27} />
+            <RefreshCw
+              size={27}
+            />
 
           </div>
 
@@ -554,7 +615,9 @@ function InspeccionesPage() {
 
           <div className="stat-icon inspection-stat-finished">
 
-            <CheckCircle2 size={27} />
+            <CheckCircle2
+              size={27}
+            />
 
           </div>
 
@@ -586,16 +649,13 @@ function InspeccionesPage() {
 
       <div className="glass-card table-card inspections-table-card">
 
-
         <div className="inspection-toolbar">
-
 
           {/* ==================================
               TABS
           ================================== */}
 
           <div className="inspection-tabs">
-
 
             <button
               type="button"
@@ -627,9 +687,13 @@ function InspeccionesPage() {
                 )
               }
             >
-              <Timer size={17} />
+
+              <Timer
+                size={17}
+              />
 
               Pendientes
+
             </button>
 
 
@@ -646,9 +710,13 @@ function InspeccionesPage() {
                 )
               }
             >
-              <RefreshCw size={17} />
+
+              <RefreshCw
+                size={17}
+              />
 
               En proceso
+
             </button>
 
 
@@ -665,9 +733,13 @@ function InspeccionesPage() {
                 )
               }
             >
-              <CheckCircle2 size={17} />
+
+              <CheckCircle2
+                size={17}
+              />
 
               Finalizadas
+
             </button>
 
           </div>
@@ -679,11 +751,11 @@ function InspeccionesPage() {
 
           <div className="inspection-filters">
 
-
             <div className="search-control">
 
-              <Search size={18} />
-
+              <Search
+                size={18}
+              />
 
               <input
                 value={busqueda}
@@ -782,7 +854,9 @@ function InspeccionesPage() {
               color: "#b4232c",
             }}
           >
+
             {error}
+
           </div>
 
         )}
@@ -794,7 +868,9 @@ function InspeccionesPage() {
 
         <div className="inspection-table-title">
 
-          <ClipboardList size={23} />
+          <ClipboardList
+            size={23}
+          />
 
           <h2>
             Listado de inspecciones
@@ -850,6 +926,7 @@ function InspeccionesPage() {
 
             <tbody>
 
+              {/* CARGANDO */}
 
               {cargando && (
 
@@ -867,6 +944,8 @@ function InspeccionesPage() {
               )}
 
 
+              {/* REGISTROS */}
+
               {!cargando &&
                 inspeccionesFiltradas.map(
                   (inspeccion) => (
@@ -877,6 +956,7 @@ function InspeccionesPage() {
                       }
                     >
 
+                      {/* CÓDIGO */}
 
                       <td>
 
@@ -891,25 +971,33 @@ function InspeccionesPage() {
                       </td>
 
 
+                      {/* OPERACIÓN */}
+
                       <td>
 
                         {
-                          inspeccion.operacion ||
+                          inspeccion.operacion
+                          ||
                           "-"
                         }
 
                       </td>
 
 
+                      {/* CONTENEDOR */}
+
                       <td>
 
                         {
-                          inspeccion.contenedor ||
+                          inspeccion.contenedor
+                          ||
                           "-"
                         }
 
                       </td>
 
+
+                      {/* FECHA */}
 
                       <td>
 
@@ -919,7 +1007,8 @@ function InspeccionesPage() {
 
                             {
                               obtenerFecha(
-                                inspeccion.fecha_inspeccion ||
+                                inspeccion.fecha_inspeccion
+                                ||
                                 inspeccion.fecha_hora
                               )
                             }
@@ -931,7 +1020,8 @@ function InspeccionesPage() {
 
                             {
                               obtenerHora(
-                                inspeccion.fecha_inspeccion ||
+                                inspeccion.fecha_inspeccion
+                                ||
                                 inspeccion.fecha_hora
                               )
                             }
@@ -943,15 +1033,20 @@ function InspeccionesPage() {
                       </td>
 
 
+                      {/* INSPECTOR */}
+
                       <td>
 
                         {
-                          inspeccion.inspector ||
+                          inspeccion.inspector
+                          ||
                           "-"
                         }
 
                       </td>
 
+
+                      {/* ESTADO */}
 
                       <td>
 
@@ -959,8 +1054,8 @@ function InspeccionesPage() {
                           className={`
                             status-pill
                             ${obtenerClaseInspeccion(
-                            inspeccion.estado
-                          )}
+                              inspeccion.estado
+                            )}
                           `}
                         >
 
@@ -975,10 +1070,11 @@ function InspeccionesPage() {
                       </td>
 
 
+                      {/* ACCIONES */}
+
                       <td>
 
                         <div className="action-buttons">
-
 
                           {/* VER */}
 
@@ -991,39 +1087,59 @@ function InspeccionesPage() {
                               )
                             }
                           >
-                            <Eye size={17} />
+
+                            <Eye
+                              size={17}
+                            />
+
                           </button>
 
 
-                          {/* EDITAR */}
+                          {/* ACCIONES DE GESTIÓN */}
 
-                          <button
-                            type="button"
-                            title="Editar inspección"
-                            onClick={() =>
-                              editarInspeccion(
-                                inspeccion
-                              )
-                            }
-                          >
-                            <Edit3 size={17} />
-                          </button>
+                          {puedeGestionar && (
+                            <>
+
+                              {/* EDITAR */}
+
+                              <button
+                                type="button"
+                                title="Editar inspección"
+                                onClick={() =>
+                                  editarInspeccion(
+                                    inspeccion
+                                  )
+                                }
+                              >
+
+                                <Edit3
+                                  size={17}
+                                />
+
+                              </button>
 
 
-                          {/* ELIMINAR */}
+                              {/* ELIMINAR */}
 
-                          <button
-                            type="button"
-                            title="Eliminar inspección"
-                            className="action-delete"
-                            onClick={() =>
-                              setInspeccionAEliminar(
-                                inspeccion
-                              )
-                            }
-                          >
-                            <Trash2 size={17} />
-                          </button>
+                              <button
+                                type="button"
+                                title="Eliminar inspección"
+                                className="action-delete"
+                                onClick={() =>
+                                  setInspeccionAEliminar(
+                                    inspeccion
+                                  )
+                                }
+                              >
+
+                                <Trash2
+                                  size={17}
+                                />
+
+                              </button>
+
+                            </>
+                          )}
 
                         </div>
 
@@ -1035,23 +1151,28 @@ function InspeccionesPage() {
                 )}
 
 
-              {!cargando &&
+              {/* SIN RESULTADOS */}
+
+              {!cargando
+                &&
                 inspeccionesFiltradas.length ===
-                0 && (
+                  0 && (
 
-                  <tr>
+                <tr>
 
-                    <td
-                      colSpan="7"
-                      className="inspection-empty"
-                    >
-                      No se encontraron inspecciones
-                      con los filtros seleccionados.
-                    </td>
+                  <td
+                    colSpan="7"
+                    className="inspection-empty"
+                  >
 
-                  </tr>
+                    No se encontraron inspecciones
+                    con los filtros seleccionados.
 
-                )}
+                  </td>
+
+                </tr>
+
+              )}
 
             </tbody>
 
@@ -1087,7 +1208,10 @@ function InspeccionesPage() {
 
           <div className="pagination">
 
-            <button className="active">
+            <button
+              type="button"
+              className="active"
+            >
               1
             </button>
 
@@ -1097,28 +1221,38 @@ function InspeccionesPage() {
 
       </div>
 
-      <ConfirmDeleteModal
-        abierto={
-          Boolean(
+
+      {/* ==================================
+          MODAL DE ELIMINACIÓN
+      ================================== */}
+
+      {puedeGestionar && (
+
+        <ConfirmDeleteModal
+          abierto={
+            Boolean(
+              inspeccionAEliminar
+            )
+          }
+          titulo="Eliminar inspección"
+          mensaje="¿Confirmas que deseas eliminar esta inspección?"
+          nombre={
             inspeccionAEliminar
-          )
-        }
-        titulo="Eliminar inspección"
-        mensaje="¿Confirmas que deseas eliminar esta inspección?"
-        nombre={
-          inspeccionAEliminar
-            ? inspeccionAEliminar.codigo
-            : ""
-        }
-        onCancelar={() =>
-          setInspeccionAEliminar(
-            null
-          )
-        }
-        onConfirmar={
-          confirmarEliminarInspeccion
-        }
-      />
+              ? inspeccionAEliminar.codigo
+              : ""
+          }
+          onCancelar={() =>
+            setInspeccionAEliminar(
+              null
+            )
+          }
+          onConfirmar={
+            confirmarEliminarInspeccion
+          }
+        />
+
+      )}
+
     </section>
   );
 }

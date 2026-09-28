@@ -5,6 +5,7 @@ import {
 
 import {
   obtenerUsuarioGuardado,
+  tienePermiso,
 } from "../services/auth.service.js";
 
 
@@ -13,10 +14,6 @@ function AuthorizedRoute({
 }) {
   const usuario =
     obtenerUsuarioGuardado();
-
-
-  const permisos =
-    usuario?.permisos || [];
 
 
   /* ======================================
@@ -39,13 +36,13 @@ function AuthorizedRoute({
 
   if (
     permiso &&
-    !permisos.includes(
+    !tienePermiso(
       permiso
     )
   ) {
     return (
       <Navigate
-        to="/dashboard"
+        to="/perfil"
         replace
       />
     );

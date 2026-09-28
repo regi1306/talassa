@@ -25,6 +25,10 @@ import {
   obtenerContenedores,
 } from "../../services/contenedoresService.js";
 
+import {
+  obtenerUsuarioGuardado,
+} from "../../services/auth.service.js";
+
 import "../../styles/contenedores.css";
 
 
@@ -32,6 +36,28 @@ function ContenedoresPage() {
   const navigate =
     useNavigate();
 
+
+  /* ======================================
+     PERMISOS
+  ====================================== */
+
+  const usuario =
+    obtenerUsuarioGuardado();
+
+
+  const permisos =
+    usuario?.permisos || [];
+
+
+  const puedeGestionar =
+    permisos.includes(
+      "CONT_GESTIONAR"
+    );
+
+
+  /* ======================================
+     ESTADOS
+  ====================================== */
 
   const [
     contenedores,
@@ -69,21 +95,32 @@ function ContenedoresPage() {
   ] = useState("");
 
 
+  /* ======================================
+     CARGAR CONTENEDORES
+  ====================================== */
+
   async function cargarContenedores() {
     try {
       setCargando(true);
+
       setError("");
+
 
       const datos =
         await obtenerContenedores();
 
+
       setContenedores(
         datos || []
       );
+
+
     } catch (error) {
       setError(
         error.message
       );
+
+
     } finally {
       setCargando(false);
     }
@@ -94,6 +131,10 @@ function ContenedoresPage() {
     cargarContenedores();
   }, []);
 
+
+  /* ======================================
+     OPERACIONES DISPONIBLES
+  ====================================== */
 
   const operaciones =
     useMemo(() => {
@@ -107,8 +148,15 @@ function ContenedoresPage() {
       ]
         .filter(Boolean)
         .sort();
-    }, [contenedores]);
 
+    }, [
+      contenedores,
+    ]);
+
+
+  /* ======================================
+     TIPOS DE CONTENEDOR
+  ====================================== */
 
   const tiposContenedor =
     useMemo(() => {
@@ -122,8 +170,15 @@ function ContenedoresPage() {
       ]
         .filter(Boolean)
         .sort();
-    }, [contenedores]);
 
+    }, [
+      contenedores,
+    ]);
+
+
+  /* ======================================
+     FILTRAR CONTENEDORES
+  ====================================== */
 
   const contenedoresFiltrados =
     useMemo(() => {
@@ -132,44 +187,54 @@ function ContenedoresPage() {
           .trim()
           .toLowerCase();
 
+
       return contenedores.filter(
         (contenedor) => {
 
           const coincideBusqueda =
-            !texto ||
+            !texto
+            ||
             contenedor.codigo
               ?.toLowerCase()
-              .includes(texto) ||
+              .includes(texto)
+            ||
             contenedor.codigo_operacion
               ?.toLowerCase()
-              .includes(texto) ||
+              .includes(texto)
+            ||
             contenedor.buque
               ?.toLowerCase()
-              .includes(texto) ||
+              .includes(texto)
+            ||
             contenedor.tipo_carga
               ?.toLowerCase()
               .includes(texto);
 
 
           const coincideOperacion =
-            !filtroOperacion ||
+            !filtroOperacion
+            ||
             contenedor.codigo_operacion ===
               filtroOperacion;
 
 
           const coincideTipo =
-            !filtroTipo ||
+            !filtroTipo
+            ||
             contenedor.tipo_contenedor ===
               filtroTipo;
 
 
           return (
-            coincideBusqueda &&
-            coincideOperacion &&
+            coincideBusqueda
+            &&
+            coincideOperacion
+            &&
             coincideTipo
           );
         }
       );
+
     }, [
       contenedores,
       busqueda,
@@ -178,13 +243,18 @@ function ContenedoresPage() {
     ]);
 
 
+  /* ======================================
+     PESO TOTAL
+  ====================================== */
+
   const pesoTotal =
     contenedores.reduce(
       (
         acumulado,
         contenedor
       ) =>
-        acumulado +
+        acumulado
+        +
         Number(
           contenedor.peso_kg || 0
         ),
@@ -192,12 +262,22 @@ function ContenedoresPage() {
     );
 
 
+  /* ======================================
+     LIMPIAR FILTROS
+  ====================================== */
+
   function limpiarFiltros() {
     setBusqueda("");
+
     setFiltroOperacion("");
+
     setFiltroTipo("");
   }
 
+
+  /* ======================================
+     FORMATEAR PESO
+  ====================================== */
 
   function formatearPeso(
     peso
@@ -213,12 +293,17 @@ function ContenedoresPage() {
   }
 
 
+  /* ======================================
+     FORMATEAR FECHA
+  ====================================== */
+
   function formatearFecha(
     fecha
   ) {
     if (!fecha) {
       return "—";
     }
+
 
     return new Intl.DateTimeFormat(
       "es-SV",
@@ -239,7 +324,9 @@ function ContenedoresPage() {
       <div className="fondo-contenedores" />
 
 
-      {/* ENCABEZADO */}
+      {/* ======================================
+          ENCABEZADO
+      ====================================== */}
 
       <div className="encabezado-contenedores">
 
@@ -258,31 +345,43 @@ function ContenedoresPage() {
         </div>
 
 
-        <button
-          type="button"
-          className="boton-nuevo-contenedor"
-          onClick={() =>
-            navigate(
-              "/contenedores/nuevo"
-            )
-          }
-        >
-          <Plus size={19} />
+        {puedeGestionar && (
 
-          Registrar contenedor
-        </button>
+          <button
+            type="button"
+            className="boton-nuevo-contenedor"
+            onClick={() =>
+              navigate(
+                "/contenedores/nuevo"
+              )
+            }
+          >
+
+            <Plus
+              size={19}
+            />
+
+            Registrar contenedor
+
+          </button>
+
+        )}
 
       </div>
 
 
-      {/* INDICADORES */}
+      {/* ======================================
+          INDICADORES
+      ====================================== */}
 
       <div className="resumen-contenedores">
 
         <article className="tarjeta-resumen-contenedor">
 
           <div>
-            <Boxes size={22} />
+            <Boxes
+              size={22}
+            />
           </div>
 
           <span>
@@ -299,7 +398,9 @@ function ContenedoresPage() {
         <article className="tarjeta-resumen-contenedor">
 
           <div>
-            <Weight size={22} />
+            <Weight
+              size={22}
+            />
           </div>
 
           <span>
@@ -307,10 +408,15 @@ function ContenedoresPage() {
           </span>
 
           <strong>
+
             {formatearPeso(
               pesoTotal
             )}
-            <small> kg</small>
+
+            <small>
+              {" kg"}
+            </small>
+
           </strong>
 
         </article>
@@ -319,7 +425,9 @@ function ContenedoresPage() {
         <article className="tarjeta-resumen-contenedor">
 
           <div>
-            <Package size={22} />
+            <Package
+              size={22}
+            />
           </div>
 
           <span>
@@ -327,9 +435,7 @@ function ContenedoresPage() {
           </span>
 
           <strong>
-            {
-              tiposContenedor.length
-            }
+            {tiposContenedor.length}
           </strong>
 
         </article>
@@ -338,7 +444,9 @@ function ContenedoresPage() {
         <article className="tarjeta-resumen-contenedor">
 
           <div>
-            <Ship size={22} />
+            <Ship
+              size={22}
+            />
           </div>
 
           <span>
@@ -346,9 +454,7 @@ function ContenedoresPage() {
           </span>
 
           <strong>
-            {
-              operaciones.length
-            }
+            {operaciones.length}
           </strong>
 
         </article>
@@ -356,7 +462,9 @@ function ContenedoresPage() {
       </div>
 
 
-      {/* LISTADO */}
+      {/* ======================================
+          LISTADO
+      ====================================== */}
 
       <article className="glass-card tarjeta-listado-contenedores">
 
@@ -365,23 +473,31 @@ function ContenedoresPage() {
           <div>
 
             <h2>
-              <Boxes size={21} />
+
+              <Boxes
+                size={21}
+              />
 
               Registro de contenedores
+
             </h2>
 
+
             <span>
-              {
-                contenedoresFiltrados.length
-              }
+
+              {contenedoresFiltrados.length}
+
               {" "}
+
               resultado
+
               {
                 contenedoresFiltrados.length !==
                 1
                   ? "s"
                   : ""
               }
+
             </span>
 
           </div>
@@ -394,21 +510,29 @@ function ContenedoresPage() {
               cargarContenedores
             }
           >
-            <RefreshCw size={17} />
+
+            <RefreshCw
+              size={17}
+            />
 
             Actualizar
+
           </button>
 
         </div>
 
 
-        {/* FILTROS */}
+        {/* ======================================
+            FILTROS
+        ====================================== */}
 
         <div className="filtros-contenedores">
 
           <div className="buscador-contenedores">
 
-            <Search size={18} />
+            <Search
+              size={18}
+            />
 
             <input
               type="text"
@@ -426,7 +550,9 @@ function ContenedoresPage() {
 
           <div className="campo-filtro-contenedores">
 
-            <Filter size={16} />
+            <Filter
+              size={16}
+            />
 
             <select
               value={
@@ -438,18 +564,22 @@ function ContenedoresPage() {
                 )
               }
             >
+
               <option value="">
                 Todas las operaciones
               </option>
 
+
               {operaciones.map(
                 (operacion) => (
+
                   <option
                     key={operacion}
                     value={operacion}
                   >
                     {operacion}
                   </option>
+
                 )
               )}
 
@@ -470,18 +600,22 @@ function ContenedoresPage() {
                 )
               }
             >
+
               <option value="">
                 Todos los tipos
               </option>
 
+
               {tiposContenedor.map(
                 (tipo) => (
+
                   <option
                     key={tipo}
                     value={tipo}
                   >
                     {tipo}
                   </option>
+
                 )
               )}
 
@@ -497,20 +631,35 @@ function ContenedoresPage() {
               limpiarFiltros
             }
           >
+
             Limpiar
+
           </button>
 
         </div>
 
 
+        {/* ======================================
+            ERROR
+        ====================================== */}
+
         {error && (
+
           <div className="mensaje-error-contenedores">
+
             {error}
+
           </div>
+
         )}
 
 
+        {/* ======================================
+            CARGANDO
+        ====================================== */}
+
         {cargando && (
+
           <div className="estado-carga-contenedores">
 
             <RefreshCw
@@ -521,8 +670,13 @@ function ContenedoresPage() {
             Cargando contenedores...
 
           </div>
+
         )}
 
+
+        {/* ======================================
+            TABLA
+        ====================================== */}
 
         {!cargando &&
           !error && (
@@ -534,15 +688,43 @@ function ContenedoresPage() {
               <thead>
 
                 <tr>
-                  <th>Código</th>
-                  <th>Operación</th>
-                  <th>Buque</th>
-                  <th>Tipo</th>
-                  <th>Tipo de carga</th>
-                  <th>Peso</th>
-                  <th>Estado</th>
-                  <th>Registro</th>
-                  <th>Acciones</th>
+
+                  <th>
+                    Código
+                  </th>
+
+                  <th>
+                    Operación
+                  </th>
+
+                  <th>
+                    Buque
+                  </th>
+
+                  <th>
+                    Tipo
+                  </th>
+
+                  <th>
+                    Tipo de carga
+                  </th>
+
+                  <th>
+                    Peso
+                  </th>
+
+                  <th>
+                    Estado
+                  </th>
+
+                  <th>
+                    Registro
+                  </th>
+
+                  <th>
+                    Acciones
+                  </th>
+
                 </tr>
 
               </thead>
@@ -559,8 +741,10 @@ function ContenedoresPage() {
                       colSpan="9"
                       className="tabla-sin-contenedores"
                     >
+
                       No se encontraron
                       contenedores registrados.
+
                     </td>
 
                   </tr>
@@ -576,36 +760,48 @@ function ContenedoresPage() {
                         }
                       >
 
+                        {/* CÓDIGO */}
+
                         <td>
+
                           <span className="codigo-contenedor">
-                            {
-                              contenedor.codigo
-                            }
+
+                            {contenedor.codigo}
+
                           </span>
+
                         </td>
 
 
+                        {/* OPERACIÓN */}
+
                         <td>
+
                           <span className="operacion-contenedor">
+
                             {
                               contenedor.codigo_operacion
                             }
+
                           </span>
+
                         </td>
 
+
+                        {/* BUQUE */}
 
                         <td>
 
                           <div className="buque-contenedor">
 
-                            <Ship size={16} />
+                            <Ship
+                              size={16}
+                            />
 
                             <div>
 
                               <strong>
-                                {
-                                  contenedor.buque
-                                }
+                                {contenedor.buque}
                               </strong>
 
                               <small>
@@ -621,57 +817,84 @@ function ContenedoresPage() {
                         </td>
 
 
+                        {/* TIPO */}
+
                         <td>
+
                           {
                             contenedor.tipo_contenedor
                           }
+
                         </td>
 
 
+                        {/* TIPO DE CARGA */}
+
                         <td>
+
                           {
                             contenedor.tipo_carga
                           }
+
                         </td>
 
 
+                        {/* PESO */}
+
                         <td>
+
                           <strong className="peso-contenedor">
+
                             {
                               formatearPeso(
                                 contenedor.peso_kg
                               )
                             }
+
                             {" kg"}
+
                           </strong>
+
                         </td>
 
+
+                        {/* ESTADO */}
 
                         <td>
 
                           <span className="estado-contenedor">
+
                             <i />
 
                             {
                               contenedor.estado
                             }
+
                           </span>
 
                         </td>
 
 
+                        {/* FECHA */}
+
                         <td>
+
                           {
                             formatearFecha(
                               contenedor.fecha_registro
                             )
                           }
+
                         </td>
 
+
+                        {/* ACCIONES */}
 
                         <td>
 
                           <div className="acciones-contenedor">
+
+                            {/* VER */}
 
                             <button
                               type="button"
@@ -682,21 +905,35 @@ function ContenedoresPage() {
                                 )
                               }
                             >
-                              <Eye size={17} />
+
+                              <Eye
+                                size={17}
+                              />
+
                             </button>
 
 
-                            <button
-                              type="button"
-                              title="Editar contenedor"
-                              onClick={() =>
-                                navigate(
-                                  `/contenedores/${contenedor.id_contenedor}/editar`
-                                )
-                              }
-                            >
-                              <Pencil size={16} />
-                            </button>
+                            {/* EDITAR */}
+
+                            {puedeGestionar && (
+
+                              <button
+                                type="button"
+                                title="Editar contenedor"
+                                onClick={() =>
+                                  navigate(
+                                    `/contenedores/${contenedor.id_contenedor}/editar`
+                                  )
+                                }
+                              >
+
+                                <Pencil
+                                  size={16}
+                                />
+
+                              </button>
+
+                            )}
 
                           </div>
 
