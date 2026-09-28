@@ -14,12 +14,16 @@ import {
   verificarToken,
 } from "../middlewares/auth.middleware.js";
 
+import {
+  verificarPermiso,
+} from "../middlewares/permisos.middleware.js";
+
 
 const router = Router();
 
 
 /* ======================================
-   PROTEGER TODAS LAS RUTAS CON JWT
+   TODAS LAS RUTAS REQUIEREN SESIÓN
 ====================================== */
 
 router.use(
@@ -33,6 +37,9 @@ router.use(
 
 router.get(
   "/opciones-formulario",
+  verificarPermiso(
+    "OPE_GESTIONAR"
+  ),
   obtenerOpcionesOperacion
 );
 
@@ -43,6 +50,9 @@ router.get(
 
 router.get(
   "/",
+  verificarPermiso(
+    "OPE_VER"
+  ),
   obtenerOperaciones
 );
 
@@ -53,6 +63,9 @@ router.get(
 
 router.get(
   "/:id",
+  verificarPermiso(
+    "OPE_VER"
+  ),
   obtenerOperacion
 );
 
@@ -63,6 +76,9 @@ router.get(
 
 router.post(
   "/",
+  verificarPermiso(
+    "OPE_GESTIONAR"
+  ),
   crearOperacion
 );
 
@@ -73,6 +89,9 @@ router.post(
 
 router.put(
   "/:id",
+  verificarPermiso(
+    "OPE_GESTIONAR"
+  ),
   actualizarOperacion
 );
 
@@ -83,6 +102,9 @@ router.put(
 
 router.patch(
   "/:id/llegada",
+  verificarPermiso(
+    "OPE_GESTIONAR"
+  ),
   actualizarLlegadaOperacion
 );
 
@@ -93,6 +115,9 @@ router.patch(
 
 router.patch(
   "/:id/salida",
+  verificarPermiso(
+    "OPE_GESTIONAR"
+  ),
   actualizarSalidaOperacion
 );
 

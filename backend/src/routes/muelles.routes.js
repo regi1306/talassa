@@ -15,6 +15,10 @@ import {
   verificarToken,
 } from "../middlewares/auth.middleware.js";
 
+import {
+  verificarPermiso,
+} from "../middlewares/permisos.middleware.js";
+
 
 const router =
   Router();
@@ -35,13 +39,25 @@ router.use(
 
 router.get(
   "/",
+  verificarPermiso(
+    "MUE_VER"
+  ),
   obtenerMuelles
 );
 
+
+/* ======================================
+   OPCIONES
+====================================== */
+
 router.get(
   "/opciones-formulario",
+  verificarPermiso(
+    "MUE_VER"
+  ),
   obtenerOpcionesMuelle
 );
+
 
 /* ======================================
    DETALLE
@@ -49,6 +65,9 @@ router.get(
 
 router.get(
   "/:id",
+  verificarPermiso(
+    "MUE_VER"
+  ),
   obtenerMuelle
 );
 
@@ -59,6 +78,9 @@ router.get(
 
 router.post(
   "/",
+  verificarPermiso(
+    "MUE_GESTIONAR"
+  ),
   crearMuelle
 );
 
@@ -69,16 +91,22 @@ router.post(
 
 router.put(
   "/:id",
+  verificarPermiso(
+    "MUE_GESTIONAR"
+  ),
   actualizarMuelle
 );
 
 
 /* ======================================
-   ELIMINAR
+   ELIMINAR / DESACTIVAR
 ====================================== */
 
 router.delete(
   "/:id",
+  verificarPermiso(
+    "MUE_GESTIONAR"
+  ),
   borrarMuelle
 );
 

@@ -13,12 +13,16 @@ import {
   verificarToken,
 } from "../middlewares/auth.middleware.js";
 
+import {
+  verificarPermiso,
+} from "../middlewares/permisos.middleware.js";
+
 
 const router = Router();
 
 
 /* ======================================
-   PROTEGER RUTAS CON JWT
+   TODAS LAS RUTAS REQUIEREN SESIÓN
 ====================================== */
 
 router.use(
@@ -32,6 +36,9 @@ router.use(
 
 router.get(
   "/opciones-formulario",
+  verificarPermiso(
+    "BUQ_GESTIONAR"
+  ),
   obtenerOpcionesBuque
 );
 
@@ -42,6 +49,9 @@ router.get(
 
 router.get(
   "/",
+  verificarPermiso(
+    "BUQ_VER"
+  ),
   obtenerBuques
 );
 
@@ -52,6 +62,9 @@ router.get(
 
 router.get(
   "/:id",
+  verificarPermiso(
+    "BUQ_VER"
+  ),
   obtenerBuque
 );
 
@@ -62,6 +75,9 @@ router.get(
 
 router.post(
   "/",
+  verificarPermiso(
+    "BUQ_GESTIONAR"
+  ),
   crearBuque
 );
 
@@ -72,6 +88,9 @@ router.post(
 
 router.put(
   "/:id",
+  verificarPermiso(
+    "BUQ_GESTIONAR"
+  ),
   actualizarBuque
 );
 
@@ -82,6 +101,9 @@ router.put(
 
 router.patch(
   "/:id/estado",
+  verificarPermiso(
+    "BUQ_GESTIONAR"
+  ),
   actualizarEstadoBuque
 );
 

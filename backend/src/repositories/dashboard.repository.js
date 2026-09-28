@@ -38,7 +38,7 @@ export async function obtenerEstadisticasDashboard() {
           )
         ) IN (
           'pendiente',
-          'programada'
+          'en proceso'
         )
       ) AS inspecciones_pendientes,
 

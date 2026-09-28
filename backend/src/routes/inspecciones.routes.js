@@ -15,6 +15,10 @@ import {
   verificarToken,
 } from "../middlewares/auth.middleware.js";
 
+import {
+  verificarPermiso,
+} from "../middlewares/permisos.middleware.js";
+
 
 const router =
   Router();
@@ -30,14 +34,15 @@ router.use(
 
 
 /* ======================================
-   OPCIONES DEL FORMULARIO
-
-   IMPORTANTE:
+   OPCIONES
    Va antes de /:id
 ====================================== */
 
 router.get(
   "/opciones-formulario",
+  verificarPermiso(
+    "INS_VER"
+  ),
   obtenerOpcionesFormulario
 );
 
@@ -48,6 +53,9 @@ router.get(
 
 router.get(
   "/",
+  verificarPermiso(
+    "INS_VER"
+  ),
   obtenerInspecciones
 );
 
@@ -58,6 +66,9 @@ router.get(
 
 router.get(
   "/:id",
+  verificarPermiso(
+    "INS_VER"
+  ),
   obtenerInspeccion
 );
 
@@ -68,6 +79,9 @@ router.get(
 
 router.post(
   "/",
+  verificarPermiso(
+    "INS_GESTIONAR"
+  ),
   crearInspeccion
 );
 
@@ -78,6 +92,9 @@ router.post(
 
 router.put(
   "/:id",
+  verificarPermiso(
+    "INS_GESTIONAR"
+  ),
   actualizarInspeccion
 );
 
@@ -88,6 +105,9 @@ router.put(
 
 router.delete(
   "/:id",
+  verificarPermiso(
+    "INS_GESTIONAR"
+  ),
   borrarInspeccion
 );
 

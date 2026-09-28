@@ -14,6 +14,10 @@ import {
   verificarToken,
 } from "../middlewares/auth.middleware.js";
 
+import {
+  verificarPermiso,
+} from "../middlewares/permisos.middleware.js";
+
 
 const router =
   Router();
@@ -34,6 +38,9 @@ router.use(
 
 router.get(
   "/opciones-formulario",
+  verificarPermiso(
+    "CONT_GESTIONAR"
+  ),
   obtenerOpcionesContenedor
 );
 
@@ -44,6 +51,9 @@ router.get(
 
 router.get(
   "/",
+  verificarPermiso(
+    "CONT_VER"
+  ),
   obtenerContenedores
 );
 
@@ -54,6 +64,9 @@ router.get(
 
 router.get(
   "/:id",
+  verificarPermiso(
+    "CONT_VER"
+  ),
   obtenerContenedor
 );
 
@@ -64,6 +77,9 @@ router.get(
 
 router.post(
   "/",
+  verificarPermiso(
+    "CONT_GESTIONAR"
+  ),
   crearContenedor
 );
 
@@ -74,6 +90,9 @@ router.post(
 
 router.put(
   "/:id",
+  verificarPermiso(
+    "CONT_GESTIONAR"
+  ),
   actualizarContenedor
 );
 

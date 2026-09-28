@@ -14,19 +14,18 @@ import {
   verificarToken,
 } from "../middlewares/auth.middleware.js";
 
+import {
+  verificarPermiso,
+} from "../middlewares/permisos.middleware.js";
+
 
 const router =
   Router();
 
 
-/*
-  Solo exigimos que exista una sesión
-  autenticada válida.
-
-  No agregaremos aquí la capa extra
-  de permisos de backend que decidieron
-  dejar fuera del alcance.
-*/
+/* ======================================
+   TODAS LAS RUTAS REQUIEREN SESIÓN
+====================================== */
 
 router.use(
   verificarToken
@@ -34,35 +33,62 @@ router.use(
 
 
 /* ======================================
-   RUTAS
+   CONSULTAR USUARIOS
 ====================================== */
 
 router.get(
   "/",
+  verificarPermiso(
+    "USR_VER"
+  ),
   listar
 );
 
 
 router.get(
   "/:id",
+  verificarPermiso(
+    "USR_VER"
+  ),
   obtenerPorId
 );
 
 
+/* ======================================
+   CREAR USUARIO
+====================================== */
+
 router.post(
   "/",
+  verificarPermiso(
+    "USR_CREAR"
+  ),
   crear
 );
 
 
+/* ======================================
+   EDITAR USUARIO
+====================================== */
+
 router.put(
   "/:id",
+  verificarPermiso(
+    "USR_EDITAR"
+  ),
   actualizar
 );
 
 
+/* ======================================
+   CAMBIAR ESTADO
+====================================== */
+
 router.patch(
   "/:id/estado",
+  verificarPermiso(
+    "USR_EDITAR"
+  ),
   cambiarEstado
 );
 
