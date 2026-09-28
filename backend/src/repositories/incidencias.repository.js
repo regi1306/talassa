@@ -353,13 +353,13 @@ export async function actualizarIncidenciaPorId(
       id_tipo_incidencia = $7,
       prioridad = $8,
       descripcion = $9,
-      estado = $10,
+      estado = $10::varchar,
       resolucion = $11,
       evidencias = $12,
 
       fecha_resolucion =
         CASE
-          WHEN $10 = 'Resuelta'
+          WHEN $10::varchar = 'Resuelta'
           THEN COALESCE(
             fecha_resolucion,
             NOW()
@@ -369,7 +369,7 @@ export async function actualizarIncidenciaPorId(
 
       fecha_cierre =
         CASE
-          WHEN $10 = 'Cerrada'
+          WHEN $10::varchar = 'Cerrada'
           THEN COALESCE(
             fecha_cierre,
             NOW()
@@ -427,11 +427,11 @@ export async function actualizarEstadoIncidenciaPorId(
     UPDATE incidencias
 
     SET
-      estado = $1,
+      estado = $1::varchar,
 
       fecha_resolucion =
         CASE
-          WHEN $1 = 'Resuelta'
+          WHEN $1::varchar = 'Resuelta'
           THEN COALESCE(
             fecha_resolucion,
             NOW()
@@ -441,7 +441,7 @@ export async function actualizarEstadoIncidenciaPorId(
 
       fecha_cierre =
         CASE
-          WHEN $1 = 'Cerrada'
+          WHEN $1::varchar = 'Cerrada'
           THEN COALESCE(
             fecha_cierre,
             NOW()
