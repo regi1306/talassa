@@ -1,9 +1,11 @@
 import {
   actualizarMuellePorId,
+  contarTiposCargaActivos,
   desactivarMuellePorId,
   insertarMuelle,
   muelleTieneAsignacionConfirmada,
   obtenerMuellePorId,
+  obtenerTiposCargaActivos,
   obtenerTodosLosMuelles,
 } from "../repositories/muelles.repository.js";
 
@@ -17,7 +19,9 @@ function crearError(
   estadoHttp
 ) {
   const error =
-    new Error(mensaje);
+    new Error(
+      mensaje
+    );
 
   error.estadoHttp =
     estadoHttp;
@@ -34,7 +38,9 @@ function validarIdMuelle(
   idMuelle
 ) {
   const id =
-    Number(idMuelle);
+    Number(
+      idMuelle
+    );
 
   if (
     !Number.isInteger(id) ||
@@ -54,36 +60,93 @@ function validarIdMuelle(
    VALIDAR Y PREPARAR DATOS
 ====================================== */
 
-function prepararDatosMuelle(
+async function prepararDatosMuelle(
   datos = {}
 ) {
   const codigo =
-    typeof datos.codigo === "string"
+    typeof datos.codigo ===
+    "string"
       ? datos.codigo
           .trim()
           .toUpperCase()
       : "";
 
+
   const nombre =
-    typeof datos.nombre === "string"
-      ? datos.nombre.trim()
+    typeof datos.nombre ===
+    "string"
+      ? datos.nombre
+          .trim()
       : "";
+
 
   const longitudMaxima =
     Number(
       datos.longitud_maxima
     );
 
+
   const caladoMaximo =
     Number(
       datos.calado_maximo
     );
 
+
   const estadoOperativo =
     typeof datos.estado_operativo ===
     "string"
-      ? datos.estado_operativo.trim()
+      ? datos.estado_operativo
+          .trim()
       : "";
+
+
+  const restriccionesAdicionales =
+    typeof datos.restricciones_adicionales ===
+    "string" &&
+    datos.restricciones_adicionales
+      .trim()
+      ? datos.restricciones_adicionales
+          .trim()
+      : null;
+
+
+  const observaciones =
+    typeof datos.observaciones ===
+    "string" &&
+    datos.observaciones
+      .trim()
+      ? datos.observaciones
+          .trim()
+      : null;
+
+
+  /* ======================================
+     TIPOS DE CARGA
+  ====================================== */
+
+  const tiposCargaRecibidos =
+    Array.isArray(
+      datos.tipos_carga_permitidos
+    )
+      ? datos.tipos_carga_permitidos
+      : [];
+
+
+  const tiposCarga =
+    [
+      ...new Set(
+        tiposCargaRecibidos
+          .map(
+            (id) =>
+              Number(id)
+          )
+          .filter(
+            (id) =>
+              Number.isInteger(id) &&
+              id > 0
+          )
+      ),
+    ];
 
 
   /* CÓDIGO */
@@ -136,12 +199,16 @@ function prepararDatosMuelle(
   }
 
 
-  /* ESTADO */
+  /* ======================================
+     ESTADO BASE DEL MUELLE
+
+     Reservado y Ocupado NO se guardan.
+     Se calculan desde asignaciones +
+     estado de la operación.
+  ====================================== */
 
   const estadosPermitidos = [
     "Disponible",
-    "Reservado",
-    "Ocupado",
     "Mantenimiento",
     "Fuera de servicio",
   ];
@@ -159,6 +226,35 @@ function prepararDatosMuelle(
   }
 
 
+  /* TIPOS DE CARGA */
+
+  if (
+    tiposCarga.length === 0
+  ) {
+    throw crearError(
+      "Debe seleccionar al menos un tipo de carga permitido.",
+      400
+    );
+  }
+
+
+  const totalTiposValidos =
+    await contarTiposCargaActivos(
+      tiposCarga
+    );
+
+
+  if (
+    totalTiposValidos !==
+    tiposCarga.length
+  ) {
+    throw crearError(
+      "Uno o más tipos de carga seleccionados no existen o están inactivos.",
+      400
+    );
+  }
+
+
   return {
     codigo,
     nombre,
@@ -171,6 +267,14 @@ function prepararDatosMuelle(
 
     estado_operativo:
       estadoOperativo,
+
+    restricciones_adicionales:
+      restriccionesAdicionales,
+
+    observaciones,
+
+    tipos_carga_permitidos:
+      tiposCarga,
   };
 }
 
@@ -181,6 +285,21 @@ function prepararDatosMuelle(
 
 export async function listarMuelles() {
   return await obtenerTodosLosMuelles();
+}
+
+
+/* ======================================
+   OPCIONES DEL FORMULARIO
+====================================== */
+
+export async function obtenerOpcionesFormularioMuelle() {
+  const tiposCarga =
+    await obtenerTiposCargaActivos();
+
+  return {
+    tipos_carga:
+      tiposCarga,
+  };
 }
 
 
@@ -196,10 +315,12 @@ export async function obtenerDetalleMuelle(
       idMuelle
     );
 
+
   const muelle =
     await obtenerMuellePorId(
       id
     );
+
 
   if (!muelle) {
     throw crearError(
@@ -207,6 +328,7 @@ export async function obtenerDetalleMuelle(
       404
     );
   }
+
 
   return muelle;
 }
@@ -220,14 +342,16 @@ export async function registrarMuelle(
   datos = {}
 ) {
   const datosPreparados =
-    prepararDatosMuelle(
+    await prepararDatosMuelle(
       datos
     );
+
 
   const nuevoMuelle =
     await insertarMuelle(
       datosPreparados
     );
+
 
   return await obtenerMuellePorId(
     nuevoMuelle.id_muelle
@@ -248,10 +372,12 @@ export async function editarMuelle(
       idMuelle
     );
 
+
   const muelleActual =
     await obtenerMuellePorId(
       id
     );
+
 
   if (!muelleActual) {
     throw crearError(
@@ -262,15 +388,24 @@ export async function editarMuelle(
 
 
   const datosPreparados =
-    prepararDatosMuelle(
+    await prepararDatosMuelle(
       datos
     );
 
 
-  await actualizarMuellePorId(
-    id,
-    datosPreparados
-  );
+  const actualizado =
+    await actualizarMuellePorId(
+      id,
+      datosPreparados
+    );
+
+
+  if (!actualizado) {
+    throw crearError(
+      "No fue posible actualizar el muelle.",
+      500
+    );
+  }
 
 
   return await obtenerMuellePorId(
@@ -335,9 +470,12 @@ export async function eliminarMuelle(
 
 
   return {
-    id_muelle: id,
+    id_muelle:
+      id,
+
     codigo:
       muelleActual.codigo,
+
     nombre:
       muelleActual.nombre,
   };

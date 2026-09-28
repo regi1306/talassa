@@ -4,6 +4,7 @@ import {
   listarMuelles,
   obtenerDetalleMuelle,
   registrarMuelle,
+  obtenerOpcionesFormularioMuelle,
 } from "../services/muelles.service.js";
 
 
@@ -97,6 +98,39 @@ export async function obtenerMuelles(
       error,
       res,
       "No fue posible obtener los muelles."
+    );
+
+  }
+}
+
+/* ======================================
+   GET /api/muelles/opciones-formulario
+====================================== */
+
+export async function obtenerOpcionesMuelle(
+  req,
+  res
+) {
+  try {
+    const opciones =
+      await obtenerOpcionesFormularioMuelle();
+
+
+    return res
+      .status(200)
+      .json({
+        ok: true,
+
+        datos:
+          opciones,
+      });
+
+  } catch (error) {
+
+    return responderErrorMuelle(
+      error,
+      res,
+      "No fue posible obtener las opciones del formulario de muelles."
     );
 
   }
@@ -255,3 +289,4 @@ export async function borrarMuelle(
 
   }
 }
+
